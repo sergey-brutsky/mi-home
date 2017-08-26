@@ -12,19 +12,19 @@ git clone git@github.com:sergey-brutsky/mi-home.git
 ```
 ## Setup Gateway
 Before starting to use this library you should setup development mode on your gateway.
-Here is instruction --> [https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)]
 
-![](./img/xiaomi-pass.png)
-
-Note that the gateway needs to be at least version 2. Radio support on the gateway indicates at least version 2. If you are unsure, please ask your supplier before purchasing
+Here is instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
 
 ## Getting started
 
 You need to know sid of all you smart devices.
 
-Here is an instruction how to get to know --> TBD
+Here is an instruction how to get to know them  --> TBD
 
-## Usage
+## Usage examples
+
+Getting temperature and humidity
+
 ```csharp
 public static void Main(string[] args)
 {
@@ -45,7 +45,7 @@ public static void Main(string[] args)
     Console.ReadKey();
 }
 ```
-### Device managing
+### Supported devices
 
 ### 1. Temperature and humidity sensor
 ![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
