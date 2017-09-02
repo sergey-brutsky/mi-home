@@ -14,11 +14,12 @@ namespace MiHomeLib
 {
     public class Platform: IDisposable
     {
+        private Socket _socket;
+
         private readonly string _password;
         private readonly string _multicastAddress;
         private readonly int _multicastPort;
         private readonly List<MiHomeDevice> _devicesToWatch = new List<MiHomeDevice>();
-        private Socket _socket;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public Platform(string password, string multicastAddress = "224.0.0.50", int multicastPort = 9898)
@@ -44,7 +45,7 @@ namespace MiHomeLib
             Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
         }
 
-        private void StartReceivingMessages(CancellationToken ct)
+        private async Task StartReceivingMessages(CancellationToken ct)
         {
             // Receive messages
             while (!ct.IsCancellationRequested)
@@ -52,8 +53,11 @@ namespace MiHomeLib
                 try
                 {
                     var data = new byte[1024];
-                    var len = _socket.Receive(data);
+                    var len = await _socket.ReceiveAsync(data, SocketFlags.None).ConfigureAwait(false);
                     var str = Encoding.ASCII.GetString(data, 0, len);
+
+                    //Console.WriteLine(str);
+                    //TODO: Add log events 
 
                     var command = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
@@ -61,7 +65,7 @@ namespace MiHomeLib
 
                     device?.ParseData(command.Data);
                 }
-                catch (SocketException)
+                catch (Exception e)
                 {
                     /* Nothing special, just blocking call was aborted */
                 }
@@ -71,7 +75,8 @@ namespace MiHomeLib
         public void Disconnect()
         {
             _cts?.Cancel();
-            _socket?.Dispose();
+            _socket?.Shutdown(SocketShutdown.Both);
+            _socket?.Close();
         }
 
         public void AddDeviceToWatch(MiHomeDevice device)

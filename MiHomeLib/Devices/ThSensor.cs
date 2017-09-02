@@ -1,4 +1,5 @@
-﻿using MiHomeLib.Commands;
+﻿using System;
+using MiHomeLib.Commands;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
