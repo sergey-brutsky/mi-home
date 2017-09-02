@@ -1,6 +1,4 @@
-﻿using MiHomeLib.Commands;
-
-namespace MiHomeLib.Devices
+﻿namespace MiHomeLib.Devices
 {
     public abstract class MiHomeDevice
     {

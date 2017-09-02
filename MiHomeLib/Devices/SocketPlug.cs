@@ -5,7 +5,11 @@ namespace MiHomeLib.Devices
 {
     public class SocketPlug : MiHomeDevice
     {
-        public SocketPlug(string sid) : base(sid) { }
+        private readonly UdpTransport _transport;
+        public SocketPlug(string sid, UdpTransport transport) : base(sid)
+        {
+            _transport = transport;
+        }
 
         public float? Voltage { get; private set; }
         public string Status { get; private set; }
