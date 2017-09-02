@@ -47,10 +47,13 @@ public static void Main(string[] args)
 ```
 ### Supported devices
 
-### 1. Temperature and humidity sensor
+### 1. Gateway
+![](http://i1.mifile.cn/a1/T19eL_Bvhv1RXrhCrK!200x200.jpg)
+
+### 2. Temperature and humidity sensor
 ![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
 
-### 2. Socket Plug
+### 3. Socket Plug
 ![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
 
 When I buy more devices I will update library
