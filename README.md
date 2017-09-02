@@ -15,6 +15,9 @@ Before starting to use this library you should setup development mode on your ga
 
 Here is instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
 
+*Warning: Mi Home Gateway uses udp multicast for messages handling.
+So your app **must** be hosted in the same LAN as your gateway or you have to use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
+
 ## Getting started
 
 You need to know sid of all you smart devices.
@@ -47,10 +50,13 @@ public static void Main(string[] args)
 ```
 ### Supported devices
 
-### 1. Temperature and humidity sensor
+### 1. Gateway
+![](http://i1.mifile.cn/a1/T19eL_Bvhv1RXrhCrK!200x200.jpg)
+
+### 2. Temperature and humidity sensor
 ![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
 
-### 2. Socket Plug
+### 3. Socket Plug
 ![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
 
 When I buy more devices I will update library
