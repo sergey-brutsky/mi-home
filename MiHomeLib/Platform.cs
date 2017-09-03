@@ -43,8 +43,9 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-
+#if DEBUG
                     Console.WriteLine(str);
+#endif
                     //TODO: Add log events 
 
                     var command = JsonConvert.DeserializeObject<ResponseCommand>(str);

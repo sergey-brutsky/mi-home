@@ -29,7 +29,7 @@ namespace MiHomeLib.Devices
 
             Status = jObject["status"].ToString();
 
-            Voltage = voltage;
+            Voltage = voltage / 1000;
             Inuse = inuse;
             PowerConsumed = powerConsumed;
             LoadPower = loadPower;

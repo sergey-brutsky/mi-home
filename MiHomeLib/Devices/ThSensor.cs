@@ -22,7 +22,7 @@ namespace MiHomeLib.Devices
 
             Temperature = t / 100;
             Humidity = h / 100;
-            Voltage = v / 100;
+            Voltage = v / 1000;
         }
     }
 }

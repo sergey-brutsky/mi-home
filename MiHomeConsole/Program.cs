@@ -21,19 +21,20 @@ namespace MiHomeConsole
             platform.AddDeviceToWatch(gateway);
 
             platform.Connect();
+            Thread.Sleep(5000);
 
             //socketPlug.TurnOff();
             //Thread.Sleep(5000);
             //socketPlug.TurnOn();
-            
+
             //gateway.EnableLight(); // "white" light by default
             //Thread.Sleep(5000);
             //gateway.DisableLight();
 
             platform.Disconnect();
 
-            Console.WriteLine($"TH sensor temperature: {thSensor.Temperature}, humidity: {thSensor.Humidity}, voltage: {thSensor.Voltage}");
-            Console.WriteLine($"Socket plug status: {socketPlug.Status}, inuse: {socketPlug.Inuse}, load power: {socketPlug.LoadPower}, power consumed: {socketPlug.PowerConsumed}");
+            Console.WriteLine($"TH sensor temperature: {thSensor.Temperature}C, humidity: {thSensor.Humidity}%, voltage: {thSensor.Voltage} V");
+            Console.WriteLine($"Socket plug status: {socketPlug.Status}, inuse: {(socketPlug.Inuse == 1 ? "yes" : "no")}, load power: {socketPlug.LoadPower} W, power consumed: {socketPlug.PowerConsumed} Wh, voltage: {socketPlug.Voltage} V");
             Console.WriteLine($"Gateway rgb: {gateway.Rgb}, illumination: {gateway.Illumination}, proto: {gateway.ProtoVersion}");
 
             Console.ReadKey();
