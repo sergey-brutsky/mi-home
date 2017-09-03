@@ -22,9 +22,11 @@ namespace MiHomeConsole
 
             platform.Connect();
 
-            gateway.EnableLight(); // "white" light by default
-            Thread.Sleep(3000);
-            gateway.DisableLight();
+            socketPlug.TurnOff();
+            //gateway.EnableLight(); // "white" light by default
+            Thread.Sleep(5000);
+            socketPlug.TurnOn();
+            //gateway.DisableLight();
 
             platform.Disconnect();
 

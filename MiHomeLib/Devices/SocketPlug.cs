@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using MiHomeLib.Commands;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
@@ -32,6 +33,16 @@ namespace MiHomeLib.Devices
             Inuse = inuse;
             PowerConsumed = powerConsumed;
             LoadPower = loadPower;
+        }
+
+        public void TurnOff()
+        {
+            _transport.SendWriteCommand(Sid, new SocketPlugCommand("off").ToString());
+        }
+
+        public void TurnOn()
+        {
+            _transport.SendWriteCommand(Sid, new SocketPlugCommand("on").ToString());
         }
     }
 }
