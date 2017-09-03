@@ -22,8 +22,8 @@ namespace MiHomeConsole
 
             platform.Connect();
 
-            gateway.EnableLight();
-            Thread.Sleep(1000);
+            gateway.EnableLight(); // "white" light by default
+            Thread.Sleep(3000);
             gateway.DisableLight();
 
             platform.Disconnect();
