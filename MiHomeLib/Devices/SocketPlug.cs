@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using MiHomeLib.Commands;
 using Newtonsoft.Json.Linq;
 
@@ -22,17 +23,27 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            float.TryParse(jObject["voltage"].ToString(), out float voltage);
-            int.TryParse(jObject["inuse"].ToString(), out int inuse);
-            int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed);
-            float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower);
+            if (float.TryParse(jObject["voltage"].ToString(), out float voltage))
+            {
+                Voltage = voltage / 1000;
+            }
+
+            if (int.TryParse(jObject["inuse"].ToString(), out int inuse))
+            {
+                Inuse = inuse;
+            }
+
+            if (jObject.Children().Contains("power_consumed") && int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed))
+            {
+                PowerConsumed = powerConsumed;
+            }
+
+            if (jObject.Children().Contains("load_power") && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower))
+            {
+                LoadPower = loadPower;
+            }
 
             Status = jObject["status"].ToString();
-
-            Voltage = voltage / 1000;
-            Inuse = inuse;
-            PowerConsumed = powerConsumed;
-            LoadPower = loadPower;
         }
 
         public void TurnOff()
