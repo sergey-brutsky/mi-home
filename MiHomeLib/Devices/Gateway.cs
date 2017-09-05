@@ -22,9 +22,20 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            Rgb = jObject["rgb"].ToString();
-            Illumination = jObject["illumination"].ToString();
-            ProtoVersion = jObject["proto_version"].ToString();
+            if (jObject["rgb"] != null)
+            {
+                Rgb = jObject["rgb"].ToString();
+            }
+
+            if (jObject["illumination"] != null)
+            {
+                Illumination = jObject["illumination"].ToString();
+            }
+
+            if (jObject["proto_version"] != null)
+            {
+                ProtoVersion = jObject["proto_version"].ToString();
+            }
         }
 
         public void EnableLight(byte r = 255, byte g = 255, byte b = 255, int illumination = 1000)

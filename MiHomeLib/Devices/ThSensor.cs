@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using MiHomeLib.Commands;
 using Newtonsoft.Json.Linq;
 
@@ -16,17 +17,17 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            if (float.TryParse(jObject["temperature"].ToString(), out float t))
+            if (jObject["temperature"] != null && float.TryParse(jObject["temperature"].ToString(), out float t))
             {
                 Temperature = t / 100;
             }
 
-            if (float.TryParse(jObject["humidity"].ToString(), out float h))
+            if (jObject["humidity"] != null && float.TryParse(jObject["humidity"].ToString(), out float h))
             {
                 Humidity = h / 100;
             }
             
-            if (float.TryParse(jObject["voltage"].ToString(), out float v))
+            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
             {
                 Voltage = v / 1000;
             }

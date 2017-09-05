@@ -41,7 +41,7 @@ namespace MiHomeLib
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
 
-                    Console.WriteLine(str);
+                    //Console.WriteLine(str);
 
                     var command = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
@@ -59,8 +59,10 @@ namespace MiHomeLib
 
                     device?.ParseData(command.Data);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e);
+                    Console.WriteLine(e.StackTrace);
                     /* Nothing special, just blocking call was aborted */
                 }
             }

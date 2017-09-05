@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using MiHomeLib.Commands;
 using Newtonsoft.Json.Linq;
 
@@ -23,27 +22,30 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            if (float.TryParse(jObject["voltage"].ToString(), out float voltage))
+            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float voltage))
             {
                 Voltage = voltage / 1000;
             }
 
-            if (int.TryParse(jObject["inuse"].ToString(), out int inuse))
+            if (jObject["inuse"] != null && int.TryParse(jObject["inuse"].ToString(), out int inuse))
             {
                 Inuse = inuse;
             }
 
-            if (jObject.Children().Contains("power_consumed") && int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed))
+            if (jObject["power_consumed"] != null && int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed))
             {
                 PowerConsumed = powerConsumed;
             }
 
-            if (jObject.Children().Contains("load_power") && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower))
+            if (jObject["load_power"] != null && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower))
             {
                 LoadPower = loadPower;
             }
 
-            Status = jObject["status"].ToString();
+            if (jObject["status"] != null)
+            {
+                Status = jObject["status"].ToString();
+            }
         }
 
         public void TurnOff()
