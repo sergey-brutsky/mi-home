@@ -16,13 +16,20 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            float.TryParse(jObject["temperature"].ToString(), out float t);
-            float.TryParse(jObject["humidity"].ToString(), out float h);
-            float.TryParse(jObject["voltage"].ToString(), out float v);
+            if (float.TryParse(jObject["temperature"].ToString(), out float t))
+            {
+                Temperature = t / 100;
+            }
 
-            Temperature = t / 100;
-            Humidity = h / 100;
-            Voltage = v / 1000;
+            if (float.TryParse(jObject["humidity"].ToString(), out float h))
+            {
+                Humidity = h / 100;
+            }
+            
+            if (float.TryParse(jObject["voltage"].ToString(), out float v))
+            {
+                Voltage = v / 1000;
+            }
         }
     }
 }

@@ -12,15 +12,12 @@ namespace MiHomeLib
 {
     public class Platform: IDisposable
     {
-        private readonly string _heartbeatDevice;
-        private string _currentPlatformWriteToken;
         private readonly UdpTransport _transport;
         private readonly List<MiHomeDevice> _devicesToWatch = new List<MiHomeDevice>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public Platform(string heartbeatDevice, UdpTransport transport)
+        public Platform(UdpTransport transport)
         {
-            _heartbeatDevice = heartbeatDevice;
             _transport = transport;
         }
 
@@ -43,10 +40,8 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-#if DEBUG
+
                     Console.WriteLine(str);
-#endif
-                    //TODO: Add log events 
 
                     var command = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
@@ -59,7 +54,7 @@ namespace MiHomeLib
                     var device = _devicesToWatch.FirstOrDefault(
                             x => x.Sid == command.Sid 
                         &&  command.Data != null 
-                        &&  (command.Cmd == "read_ack" || command.Cmd == "report")
+                        &&  (command.Cmd == "read_ack" || command.Cmd == "report" || command.Cmd == "heartbeat")
                     );
 
                     device?.ParseData(command.Data);
