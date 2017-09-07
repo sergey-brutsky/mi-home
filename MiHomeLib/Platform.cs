@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using MiHomeLib.Commands;
@@ -16,16 +15,12 @@ namespace MiHomeLib
         private readonly List<MiHomeDevice> _devicesToWatch = new List<MiHomeDevice>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public Platform(UdpTransport transport)
+        public Platform(string gatewayPassword = null, string gatewaySid = null)
         {
-            _transport = transport;
-        }
+            _transport = new UdpTransport(gatewayPassword);
 
-        public void Connect()
-        {
             Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
 
-            // Initialize devices
             foreach (var device in _devicesToWatch)
             {
                 _transport.SendReadCommand(device.Sid, new ReadCommand(device).ToString());
@@ -67,12 +62,6 @@ namespace MiHomeLib
                 }
             }
         }
-        
-        public void Disconnect()
-        {
-            _cts?.Cancel();
-            _transport?.Dispose();
-        }
 
         public void AddDeviceToWatch(MiHomeDevice device)
         {
@@ -86,7 +75,8 @@ namespace MiHomeLib
 
         public void Dispose()
         {
-            Disconnect();
+            _cts?.Cancel();
+            _transport?.Dispose();
         }
     }
 }
