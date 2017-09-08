@@ -2,7 +2,7 @@
 
 namespace MiHomeLib.Commands
 {
-    internal class SocketPlugCommand
+    internal class SocketPlugCommand: Command
     {
         private readonly string _status;
 

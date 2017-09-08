@@ -44,12 +44,12 @@ namespace MiHomeLib.Devices
 
             if (illumination < 300 || illumination > 1300) throw new ArgumentException("Illumination must be in range 300 - 1300");
 
-            _transport.SendWriteCommand(Sid, new GatewayLightCommand(rgb, illumination).ToString());
+            _transport.SendWriteCommand(Sid, new GatewayLightCommand(rgb, illumination));
         }
 
         public void DisableLight()
         {
-            _transport.SendWriteCommand(Sid, new GatewayLightCommand(0, 0).ToString());
+            _transport.SendWriteCommand(Sid, new GatewayLightCommand(0, 0));
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using MiHomeLib.Commands;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
@@ -31,6 +28,11 @@ namespace MiHomeLib.Devices
             {
                 Voltage = v / 1000;
             }
+        }
+
+        public override string ToString()
+        {
+            return $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
         }
     }
 }

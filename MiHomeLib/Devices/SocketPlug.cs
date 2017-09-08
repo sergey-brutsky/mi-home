@@ -48,14 +48,19 @@ namespace MiHomeLib.Devices
             }
         }
 
+        public override string ToString()
+        {
+            return $"Status: {Status}, Inuse: {Inuse}, Load Power: {LoadPower}V, Power Consumed: {PowerConsumed}W, Voltage: {Voltage}V";
+        }
+
         public void TurnOff()
         {
-            _transport.SendWriteCommand(Sid, new SocketPlugCommand("off").ToString());
+            _transport.SendWriteCommand(Sid, new SocketPlugCommand("off"));
         }
 
         public void TurnOn()
         {
-            _transport.SendWriteCommand(Sid, new SocketPlugCommand("on").ToString());
+            _transport.SendWriteCommand(Sid, new SocketPlugCommand());
         }
     }
 }

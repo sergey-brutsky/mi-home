@@ -7,6 +7,8 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using System.Threading;
+using MiHomeLib.Commands;
+using Newtonsoft.Json;
 
 namespace MiHomeLib
 {
@@ -22,7 +24,7 @@ namespace MiHomeLib
 
         private static string _currentToken;
 
-        public UdpTransport(string gatewayWritePassword, string multicastAddress = "224.0.0.50", int serverPort = 9898, int multicastPort = 4321)
+        public UdpTransport(string gatewayWritePassword, string multicastAddress = "224.0.0.50", int serverPort = 9898)
         {
             _gatewayWritePassword = gatewayWritePassword;
             _multicastAddress = multicastAddress;
@@ -63,30 +65,38 @@ namespace MiHomeLib
             return BitConverter.ToString(encrypted).Replace("-", string.Empty);
         }
 
-        public int SendReadCommand(string sid, string data)
+        public int SendCommand(Command command)
+        {
+            return SendCommand(command.ToString());
+        }
+
+        private int SendCommand(string data)
         {
             var buffer = Encoding.ASCII.GetBytes(data);
 
             return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
         }
 
-        public int SendWriteCommand(string sid, string data)
+        public int SendWriteCommand(string sid, Command data)
         {
+            if(_gatewayWritePassword == null) throw new Exception("You cannot send commands to gateway without password");
+
             while (true)
             {
                 if (_currentToken == null)
                 {
-                    Thread.Sleep(5000);
+                    Thread.Sleep(5000); // gateway may not send us correct write token till the time, so waiting for here
                     continue;
                 }
 
-                var jObj = JObject.Parse(data);
+                var jObj = JObject.Parse(data.ToString());
 
                 jObj["key"] = GetWriteKey(Encoding.ASCII.GetBytes(_gatewayWritePassword), _initialVector);
-                
-                var buffer = Encoding.ASCII.GetBytes($"{{\"cmd\":\"write\",\"sid\":\"{sid}\", \"data\":\"{jObj}\"}}");
 
-                return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
+                return SendCommand(new WriteCommand(sid, JsonConvert.SerializeObject(jObj.ToString(Formatting.None))));
+
+                //var buffer = Encoding.ASCII.GetBytes($"{{\"cmd\":\"write\",\"sid\":\"{sid}\", \"data\":\"{jObj}\"}}");
+                //return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
             }
         }
 

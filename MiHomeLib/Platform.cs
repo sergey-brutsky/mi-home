@@ -6,25 +6,75 @@ using System.Threading.Tasks;
 using MiHomeLib.Commands;
 using MiHomeLib.Devices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib
 {
-    public class Platform: IDisposable
+    public class Platform : IDisposable
     {
-        private readonly UdpTransport _transport;
-        private readonly List<MiHomeDevice> _devicesToWatch = new List<MiHomeDevice>();
+        private Gateway _gateway;
+        private readonly string _gatewaySid;
+        private static UdpTransport _transport;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly List<MiHomeDevice> _devicesList = new List<MiHomeDevice>();
+
+        private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
+        {
+            {"sensor_ht", sid => new ThSensor(sid)},
+            {"motion", sid => new MotionSensor(sid)},
+            {"plug", sid => new SocketPlug(sid, _transport)},
+            {"magnet", sid => new DoorWindowSensor(sid)},
+        };
+
+        private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
 
         public Platform(string gatewayPassword = null, string gatewaySid = null)
         {
+            _commandsToActions = new Dictionary<string, Action<ResponseCommand>>
+            {
+                { "get_id_list_ack", DiscoverGatewayAndDevices},
+                { "read_ack", UpdateDevicesList},
+                { "heartbeat", ProcessHeartbeat},
+                { "report", ProcessReport},
+            };
+
+            _gatewaySid = gatewaySid;
+
             _transport = new UdpTransport(gatewayPassword);
 
             Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
 
-            foreach (var device in _devicesToWatch)
+            _transport.SendCommand(new DiscoverGatewayCommand());
+        }
+
+        public List<MiHomeDevice> GetDevices()
+        {
+            return _devicesList;
+        }
+
+        public Gateway GetGateway()
+        {
+            return _gateway;
+        }
+
+        public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
+        {
+            var device = _devicesList.FirstOrDefault(x => x.Sid == sid);
+
+            if (device == null) return null;
+
+            if (device is T)
             {
-                _transport.SendReadCommand(device.Sid, new ReadCommand(device).ToString());
+                return _devicesList.First(x => x.Sid == sid) as T;
             }
+
+            throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
+        }
+
+        public void Dispose()
+        {
+            _cts?.Cancel();
+            _transport?.Dispose();
         }
 
         private async Task StartReceivingMessages(CancellationToken ct)
@@ -35,48 +85,80 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-
+                
                     //Console.WriteLine(str);
 
-                    var command = JsonConvert.DeserializeObject<ResponseCommand>(str);
+                    var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
-                    if (command.Cmd == "heartbeat")
+                    if (_commandsToActions.ContainsKey(respCmd.Cmd))
                     {
-                        _transport.SetToken(command.Token);
-                        continue;
+                        _commandsToActions[respCmd.Cmd](respCmd);
                     }
-
-                    var device = _devicesToWatch.FirstOrDefault(
-                            x => x.Sid == command.Sid 
-                        &&  command.Data != null 
-                        &&  (command.Cmd == "read_ack" || command.Cmd == "report" || command.Cmd == "heartbeat")
-                    );
-
-                    device?.ParseData(command.Data);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.Message);
                     Console.WriteLine(e.StackTrace);
-                    /* Nothing special, just blocking call was aborted */
                 }
             }
         }
 
-        public void AddDeviceToWatch(MiHomeDevice device)
+        private void ProcessReport(ResponseCommand command)
         {
-            _devicesToWatch.Add(device);
+            _devicesList.FirstOrDefault(x => x.Sid == command.Sid)?.ParseData(command.Data);
         }
 
-        public void RemoveDeviceToWatch(MiHomeDevice device)
+        private void ProcessHeartbeat(ResponseCommand command)
         {
-            _devicesToWatch.RemoveAll(x => x.Sid == device.Sid);
+            if (_gateway != null && command.Sid == _gateway.Sid)
+            {
+                _transport.SetToken(command.Token);
+            }
+            else
+            {
+                _devicesList.FirstOrDefault(x => x.Sid == command.Sid)?.ParseData(command.Data);
+            }
         }
 
-        public void Dispose()
+        private void UpdateDevicesList(ResponseCommand cmd)
         {
-            _cts?.Cancel();
-            _transport?.Dispose();
+            var device = _devicesList.FirstOrDefault(x => x.Sid == cmd.Sid);
+
+            if (device != null) return;
+
+            device = _devicesMap[cmd.Model](cmd.Sid);
+
+            if (cmd.Data != null) device.ParseData(cmd.Data);
+
+            _devicesList.Add(device);
+        }
+
+        private void DiscoverGatewayAndDevices(ResponseCommand cmd)
+        {
+            if (_gatewaySid == null)
+            {
+                if (_gateway == null)
+                {
+                    _gateway = new Gateway(cmd.Sid, _transport);
+                }
+
+                _transport.SetToken(cmd.Token);
+            }
+            else if (_gatewaySid == cmd.Sid)
+            {
+                _gateway = new Gateway(cmd.Sid, _transport);
+                _transport.SetToken(cmd.Token);
+            }
+
+            if (_gateway == null) return;
+
+            foreach (var sid in JArray.Parse(cmd.Data))
+            {
+                _transport.SendCommand(new ReadDeviceCommand(sid.ToString()));
+                Thread.Sleep(100); // need some time in order not to loose message
+            }
+
+            //TODO: if device was removed we need to know it somehow
         }
     }
 }

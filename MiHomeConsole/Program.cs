@@ -9,35 +9,28 @@ namespace MiHomeConsole
     {
         public static void Main(string[] args)
         {
-            // pwd of your gateway and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-            var platform = new Platform("7c4mx86hn658f0f3"); 
+            // pwd of your gateway (optional, needed only to send commands to your devices) 
+            // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
+            var platform = new Platform("7c4mx86hn658f0f3");
+            
+            Thread.Sleep(2000);
 
-            //var thSensor = new ThSensor("158d0001826509"); // this is sid of your th sensor
-            //var socketPlug = new SocketPlug("158d00015dc662", transport); // this is sid of your socket plug
-            //var gateway = new Gateway("34ce0088db36", transport); // this is sid of your gateway
+            foreach (var miHomeDevice in platform.GetDevices())
+            {
+                Console.WriteLine(miHomeDevice); // all discovered devices
+            }
 
-            //platform.AddDeviceToWatch(thSensor);
-            //platform.AddDeviceToWatch(socketPlug);
-            //platform.AddDeviceToWatch(gateway);
+            var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
 
-            //platform.Connect();
-            //Thread.Sleep(5000);
+            Console.WriteLine(thSensor);
 
-            //socketPlug.TurnOff();
-            //Thread.Sleep(5000);
-            //socketPlug.TurnOn();
-
-            //gateway.EnableLight(); // "white" light by default
-            //Thread.Sleep(5000);
-            //gateway.DisableLight();
-
-            //platform.Disconnect();
-
-            //Console.WriteLine($"TH sensor temperature: {thSensor.Temperature}C, humidity: {thSensor.Humidity}%, voltage: {thSensor.Voltage} V");
-            //Console.WriteLine($"Socket plug status: {socketPlug.Status}, inuse: {(socketPlug.Inuse == 1 ? "yes" : "no")}, load power: {socketPlug.LoadPower} W, power consumed: {socketPlug.PowerConsumed} Wh, voltage: {socketPlug.Voltage} V");
-            //Console.WriteLine($"Gateway rgb: {gateway.Rgb}, illumination: {gateway.Illumination}, proto: {gateway.ProtoVersion}");
-
-            //Console.ReadKey();
+            var gateway = platform.GetGateway();
+            
+            gateway.EnableLight(); // "white" light by default
+            Thread.Sleep(5000);
+            gateway.DisableLight();
+            
+            Console.ReadKey();
         }
     }
 }
