@@ -71,6 +71,11 @@ namespace MiHomeLib
             throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
         }
 
+        public IEnumerable<T> GetDevicesByType<T>() where T : MiHomeDevice
+        {
+            return _devicesList.OfType<T>();
+        }
+
         public void Dispose()
         {
             _cts?.Cancel();

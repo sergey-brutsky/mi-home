@@ -20,6 +20,11 @@ namespace MiHomeConsole
                 Console.WriteLine(miHomeDevice); // all discovered devices
             }
 
+            foreach (var miHomeDevice in platform.GetDevicesByType<ThSensor>())
+            {
+                Console.WriteLine(miHomeDevice); // all discovered T&H sensors
+            }
+
             var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
 
             Console.WriteLine(thSensor);
