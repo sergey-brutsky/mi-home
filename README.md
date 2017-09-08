@@ -31,35 +31,28 @@ Getting temperature and humidity
 ```csharp
 public static void Main(string[] args)
 {
-  var transport = new UdpTransport("7c4mx86hn658f0f3"); // pwd of your lumi gateway
-  var platform = new Platform("34ce0088db36", transport); // sid of your gateway
+    // pwd of your gateway (optional, needed only to send commands to your devices) 
+    // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
+    var platform = new Platform("7c4mx86hn658f0f3");
 
-  var thSensor = new ThSensor("158d0001826509"); // this is sid of your th sensor
-  var socketPlug = new SocketPlug("158d00015dc662", transport); // this is sid of your socket plug
-  var gateway = new Gateway("34ce0088db36", transport); // this is sid of your gateway
+    Thread.Sleep(2000);
 
-  platform.AddDeviceToWatch(thSensor);
-  platform.AddDeviceToWatch(socketPlug);
-  platform.AddDeviceToWatch(gateway);
+    foreach (var miHomeDevice in platform.GetDevices())
+    {
+        Console.WriteLine(miHomeDevice); // all discovered devices
+    }
 
-  platform.Connect();
-  Thread.Sleep(5000);
+    var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
 
-  //socketPlug.TurnOff();
-  //Thread.Sleep(5000);
-  //socketPlug.TurnOn();
+    Console.WriteLine(thSensor);
 
-  //gateway.EnableLight(); // "white" light by default
-  //Thread.Sleep(5000);
-  //gateway.DisableLight();
+    var gateway = platform.GetGateway();
 
-  platform.Disconnect();
+    gateway.EnableLight(); // "white" light by default
+    Thread.Sleep(5000);
+    gateway.DisableLight();
 
-  Console.WriteLine($"TH sensor temperature: {thSensor.Temperature}C, humidity: {thSensor.Humidity}%, voltage: {thSensor.Voltage} V");
-  Console.WriteLine($"Socket plug status: {socketPlug.Status}, inuse: {(socketPlug.Inuse == 1 ? "yes" : "no")}, load power: {socketPlug.LoadPower} W, power consumed: {socketPlug.PowerConsumed} Wh, voltage: {socketPlug.Voltage} V");
-  Console.WriteLine($"Gateway rgb: {gateway.Rgb}, illumination: {gateway.Illumination}, proto: {gateway.ProtoVersion}");
-
-  Console.ReadKey();
+    Console.ReadKey();
 }
 ```
 ### Supported devices
@@ -72,5 +65,11 @@ public static void Main(string[] args)
 
 ### 3. Socket Plug
 ![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
+
+### 4. Motion sensor
+![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
+
+### 5.  Door/Window sensor
+![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
 
 When I buy more devices I will update library
