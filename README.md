@@ -76,4 +76,17 @@ motionSensor.OnNoMotion += (_, e) =>
 ### 5.  Door/Window sensor
 ![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
 
+```csharp
+var windowSensor = platform.GetDevicesByType<DoorWindowSensor>().First();
+
+windowSensor.OnOpen += (_, __) =>
+{
+    Console.WriteLine($"{DateTime.Now}: Window opened !");
+};
+
+windowSensor.OnClose += (_, __) =>
+{
+    Console.WriteLine($"{DateTime.Now}: Window closed !");
+};
+```
 When I buy more devices I will update library
