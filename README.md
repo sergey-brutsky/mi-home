@@ -22,11 +22,11 @@ So your app **must** be hosted in the same LAN as your gateway or you have to us
 
 You need to know sid of all you smart devices.
 
-Here is an instruction how to get to know them  --> TBD
+Check example bellow how to get all devices and know their sids.
 
-## Usage examples
+## Usage example
 
-Getting temperature and humidity
+Gettings all devices in the network
 
 ```csharp
 public static void Main(string[] args)
