@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
     public class DoorWindowSensor : MiHomeDevice
     {
+        public event EventHandler OnOpen;
+        public event EventHandler OnClose;
+
         public DoorWindowSensor(string sid) : base(sid) { }
 
         public float? Voltage { get; set; }
@@ -17,6 +21,15 @@ namespace MiHomeLib.Devices
             if (jObject["status"] != null)
             {
                 Status = jObject["status"].ToString();
+
+                if (Status == "open")
+                {
+                    OnOpen?.Invoke(this, EventArgs.Empty);
+                }
+                else if (Status == "close")
+                {
+                    OnClose?.Invoke(this, EventArgs.Empty);
+                }
             }
 
             if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
