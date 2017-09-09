@@ -33,11 +33,11 @@ public static void Main(string[] args)
 {
     // pwd of your gateway (optional, needed only to send commands to your devices) 
     // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-    var platform = new Platform("7c4mx86hn658f0f3");
+    var miHome = new MiHome("7c4mx86hn658f0f3");
 
     Thread.Sleep(2000);
 
-    foreach (var miHomeDevice in platform.GetDevices())
+    foreach (var miHomeDevice in miHome.GetDevices())
     {
         Console.WriteLine(miHomeDevice); // all discovered devices
     }
@@ -51,7 +51,7 @@ public static void Main(string[] args)
 ![](http://i1.mifile.cn/a1/T19eL_Bvhv1RXrhCrK!200x200.jpg)
 
 ```csharp
-var gateway = platform.GetGateway();
+var gateway = miHome.GetGateway();
 
 gateway?.EnableLight(); // "white" light by default
 Thread.Sleep(5000);
@@ -62,7 +62,7 @@ gateway?.DisableLight();
 ![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
 
 ```csharp
-var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
+var thSensor = miHome.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
 
 Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidity: 74,66%, Voltage: 3,035V
 ```
@@ -71,16 +71,20 @@ Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidit
 ![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
 
 ```csharp
-var socketPlug = platform.GetDevicesByType<SocketPlug>().First(); // get first found socket plug
+var socketPlug = miHome.GetDeviceBySid<SocketPlug>("158d00015dc6cc"); // get specific socket plug
 
 Console.WriteLine(socketPlug); // Sample output --> Status: on, Inuse: 1, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
+
+socketPlug.TurnOff();
+Thread.Sleep(5000);
+socketPlug.TurnOn();
 ```
 
 ### 4. Motion sensor
 ![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
 
 ```csharp
-var motionSensor = platform.GetDevicesByType<MotionSensor>().First();
+var motionSensor = miHome.GetDevicesByType<MotionSensor>().First();
 
 motionSensor.OnMotion += (_, __) =>
 {
@@ -97,7 +101,7 @@ motionSensor.OnNoMotion += (_, e) =>
 ![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
 
 ```csharp
-var windowSensor = platform.GetDevicesByType<DoorWindowSensor>().First();
+var windowSensor = miHome.GetDevicesByType<DoorWindowSensor>().First();
 
 windowSensor.OnOpen += (_, __) =>
 {
