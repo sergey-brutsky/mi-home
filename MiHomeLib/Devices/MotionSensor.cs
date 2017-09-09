@@ -1,14 +1,21 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using MiHomeLib.Events;
+using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
     public class MotionSensor : MiHomeDevice
     {
+        public event EventHandler OnMotion;
+        public event EventHandler<NoMotionEventArgs> OnNoMotion;
+
         public MotionSensor(string sid) : base(sid) { }
 
         public float? Voltage { get; set; }
 
         public string Status { get; private set; }
+
+        public int NoMotion { get; set; }
 
         public override void ParseData(string command)
         {
@@ -17,6 +24,15 @@ namespace MiHomeLib.Devices
             if (jObject["status"] != null)
             {
                 Status = jObject["status"].ToString();
+
+                if(Status == "motion") OnMotion?.Invoke(this, EventArgs.Empty);
+            }
+
+            if (jObject["no_motion"] != null)
+            {
+                NoMotion = int.Parse(jObject["no_motion"].ToString());
+
+                OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
             }
 
             if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
@@ -27,7 +43,9 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"Status: {Status}, Voltage: {Voltage}V";
+            return $"Status: {Status}, Voltage: {Voltage}V, NoMotion: {NoMotion}s";
         }
+
+        
     }
 }
