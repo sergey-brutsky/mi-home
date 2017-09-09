@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using MiHomeLib;
-using MiHomeLib.Devices;
 
 namespace MiHomeConsole
 {
@@ -12,31 +10,16 @@ namespace MiHomeConsole
         {
             // pwd of your gateway (optional, needed only to send commands to your devices) 
             // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-            using (var platform = new Platform("7c4mx86hn658f0f3"))
+            using (var miHome = new MiHome("7c4mx86hn658f0f3"))
             {
                 Thread.Sleep(3000);
 
-                foreach (var miHomeDevice in platform.GetDevices())
+                foreach (var miHomeDevice in miHome.GetDevices())
                 {
                     Console.WriteLine(miHomeDevice); // all discovered devices
                 }
 
-                //foreach (var miHomeDevice in platform.GetDevicesByType<ThSensor>())
-                //{
-                //    Console.WriteLine(miHomeDevice); // all discovered T&H sensors
-                //}
-
-                //var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
-
-                //Console.WriteLine(thSensor);
-
-                //var gateway = platform.GetGateway();
-
-                //gateway?.EnableLight(); // "white" light by default
-                //Thread.Sleep(5000);
-                //gateway?.DisableLight();
-
-                Console.ReadKey();
+                Console.ReadLine();
             }
         }
     }

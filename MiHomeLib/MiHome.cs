@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib
 {
-    public class Platform : IDisposable
+    public class MiHome : IDisposable
     {
         private Gateway _gateway;
         private readonly string _gatewaySid;
@@ -28,7 +28,7 @@ namespace MiHomeLib
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
 
-        public Platform(string gatewayPassword = null, string gatewaySid = null)
+        public MiHome(string gatewayPassword = null, string gatewaySid = null)
         {
             _commandsToActions = new Dictionary<string, Action<ResponseCommand>>
             {
