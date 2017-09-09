@@ -41,17 +41,7 @@ public static void Main(string[] args)
     {
         Console.WriteLine(miHomeDevice); // all discovered devices
     }
-
-    var thSensor = platform.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
-
-    Console.WriteLine(thSensor);
-
-    var gateway = platform.GetGateway();
-
-    gateway.EnableLight(); // "white" light by default
-    Thread.Sleep(5000);
-    gateway.DisableLight();
-
+    
     Console.ReadKey();
 }
 ```
@@ -68,6 +58,20 @@ public static void Main(string[] args)
 
 ### 4. Motion sensor
 ![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
+
+```csharp
+var motionSensor = platform.GetDevicesByType<MotionSensor>().First();
+
+motionSensor.OnMotion += (_, __) =>
+{
+    Console.WriteLine($"{DateTime.Now}: Motion detected !");
+};
+
+motionSensor.OnNoMotion += (_, e) =>
+{
+    Console.WriteLine($"{DateTime.Now}: No motion for {e.Seconds}s !");
+};
+```
 
 ### 5.  Door/Window sensor
 ![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
