@@ -12,7 +12,7 @@ namespace MiHomeConsole
             // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
             using (var miHome = new MiHome("7c4mx86hn658f0f3"))
             {
-                Thread.Sleep(3000);
+                Thread.Sleep(5000);
 
                 foreach (var miHomeDevice in miHome.GetDevices())
                 {

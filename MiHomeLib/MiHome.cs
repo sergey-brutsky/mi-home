@@ -90,10 +90,15 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-                
+
                     //Console.WriteLine(str);
 
                     var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
+
+                    if (respCmd.Model == "gateway" && _gateway != null)
+                    {
+                        _gateway.ParseData(respCmd.Data); continue;
+                    }
 
                     if (_commandsToActions.ContainsKey(respCmd.Cmd))
                     {
@@ -156,6 +161,8 @@ namespace MiHomeLib
             }
 
             if (_gateway == null) return;
+
+            _transport.SendCommand(new ReadDeviceCommand(cmd.Sid));
 
             foreach (var sid in JArray.Parse(cmd.Data))
             {
