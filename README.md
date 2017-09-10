@@ -9,7 +9,7 @@ Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Pleas
 ## Installation
 via nuget package manager
 ```nuget
-Install-Package MiHomeLib -Version 1.0.0
+Install-Package MiHomeLib
 ```
 ## Setup Gateway
 Before starting to use this library you should setup development mode on your gateway.
