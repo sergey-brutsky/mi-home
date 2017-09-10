@@ -24,27 +24,52 @@ You need to know sid of all you smart devices.
 
 Check example bellow how to get all devices and know their sids.
 
-## Usage example
+## Usage examples
 
-Gettings all devices in the network
+Get all devices in the network
 
 ```csharp
 public static void Main(string[] args)
 {
     // pwd of your gateway (optional, needed only to send commands to your devices) 
     // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-    var miHome = new MiHome("7c4mx86hn658f0f3");
-
-    Thread.Sleep(2000);
-
-    foreach (var miHomeDevice in miHome.GetDevices())
+    using (var miHome = new MiHome("7c4mx86hn658f0f3"))
     {
-        Console.WriteLine(miHomeDevice); // all discovered devices
+        Task.Delay(5000).Wait();
+
+        foreach (var miHomeDevice in miHome.GetDevices())
+        {
+            Console.WriteLine(miHomeDevice); // all discovered devices
+        }
+
+        Console.ReadLine();
     }
-    
-    Console.ReadKey();
 }
 ```
+Get devices by name if you already know sid
+
+```csharp
+public static void Main(string[] args)
+{
+
+    var map = new Dictionary<string, string>
+    {
+        { "158d0001826509", "T&H sensor living room"}
+    };
+
+    using (var miHome = new MiHome(map))
+    {
+        Task.Delay(5000).Wait();
+
+        var thSensor = miHome.GetDeviceByName<ThSensor>("T&H sensor living room");
+
+        Console.WriteLine(thSensor);
+
+        Console.ReadLine();
+    }
+}
+```
+
 ### Supported devices
 
 ### 1. Gateway
