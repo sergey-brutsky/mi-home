@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MiHomeLib;
+using MiHomeLib.Devices;
 
 namespace MiHomeConsole
 {
@@ -8,7 +10,7 @@ namespace MiHomeConsole
     {
         public static void Main(string[] args)
         {
-            
+
             // pwd of your gateway (optional, needed only to send commands to your devices) 
             // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
 
@@ -20,7 +22,7 @@ namespace MiHomeConsole
                 {
                     Console.WriteLine(miHomeDevice); // all discovered devices
                 }
-                
+
                 Console.ReadLine();
             }
         }
