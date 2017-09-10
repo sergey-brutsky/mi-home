@@ -32,7 +32,7 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
+            return $"{(!string.IsNullOrEmpty(Name) ? "Name: "+ Name +", " : string.Empty)}Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
         }
     }
 }

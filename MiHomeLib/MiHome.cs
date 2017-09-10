@@ -17,6 +17,7 @@ namespace MiHomeLib
         private static UdpTransport _transport;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly List<MiHomeDevice> _devicesList = new List<MiHomeDevice>();
+        private readonly Dictionary<string, string> _namesMap;
 
         private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
         {
@@ -27,6 +28,16 @@ namespace MiHomeLib
         };
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
+
+        public MiHome(Dictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null): this(gatewayPassword, gatewaySid)
+        {
+            if (namesMap.GroupBy(x => x.Value).Any(x => x.Count() > 1))
+            {
+                throw new ArgumentException("Values in the dictionary must be unique");
+            }
+
+            _namesMap = namesMap;
+        }
 
         public MiHome(string gatewayPassword = null, string gatewaySid = null)
         {
@@ -55,6 +66,20 @@ namespace MiHomeLib
         public Gateway GetGateway()
         {
             return _gateway;
+        }
+
+        public T GetDeviceByName<T>(string name) where T : MiHomeDevice
+        {
+            var device = _devicesList.FirstOrDefault(x => x.Name == name);
+
+            if (device == null) return null;
+
+            if (device is T)
+            {
+                return _devicesList.First(x => x.Name == name) as T;
+            }
+
+            throw new InvalidCastException($"Device with name '{name}' cannot be converted to {nameof(T)}");
         }
 
         public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
@@ -137,6 +162,8 @@ namespace MiHomeLib
             if (device != null) return;
 
             device = _devicesMap[cmd.Model](cmd.Sid);
+
+            if (_namesMap != null && _namesMap.ContainsKey(cmd.Sid)) device.Name = _namesMap[cmd.Sid];
 
             if (cmd.Data != null) device.ParseData(cmd.Data);
 

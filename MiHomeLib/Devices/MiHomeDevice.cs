@@ -3,6 +3,7 @@
     public abstract class MiHomeDevice
     {
         public string Sid { get; }
+        public string Name { get; set; }
 
         protected MiHomeDevice(string sid)
         {
