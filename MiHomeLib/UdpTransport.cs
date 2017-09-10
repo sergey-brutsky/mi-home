@@ -86,7 +86,7 @@ namespace MiHomeLib
             {
                 if (_currentToken == null)
                 {
-                    Task.Delay(5000); // gateway may not send us correct write token till the time, so waiting for here
+                    Task.Delay(5000).Wait(); // gateway may not send us correct write token till the time, so waiting for here
                     continue;
                 }
 
