@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard1.6</TargetFramework>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.2</PackageVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>c# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageReleaseNotes>Migrated to netstandard 1.6 because lower version makes no sense for .net core projects</PackageReleaseNotes>
     <Copyright>Copyright 2017 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -15,10 +15,13 @@
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/sergey-brutsky/mi-home/master/gateway.ico</PackageIconUrl>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="newtonsoft.json" Version="10.0.3" />
+    <PackageReference Include="newtonsoft.json" Version="9.0.1" />
   </ItemGroup>
 
 </Project>
