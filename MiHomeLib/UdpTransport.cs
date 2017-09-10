@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -40,7 +41,7 @@ namespace MiHomeLib
         {
             byte[] encrypted;
             
-            using (var aesCbc128 = new RijndaelManaged())
+            using (var aesCbc128 = Aes.Create())
             {
                 aesCbc128.KeySize = 128;
                 aesCbc128.BlockSize = 128;
@@ -85,7 +86,7 @@ namespace MiHomeLib
             {
                 if (_currentToken == null)
                 {
-                    Thread.Sleep(5000); // gateway may not send us correct write token till the time, so waiting for here
+                    Task.Delay(5000); // gateway may not send us correct write token till the time, so waiting for here
                     continue;
                 }
 
@@ -94,24 +95,22 @@ namespace MiHomeLib
                 jObj["key"] = GetWriteKey(Encoding.ASCII.GetBytes(_gatewayWritePassword), _initialVector);
 
                 return SendCommand(new WriteCommand(sid, JsonConvert.SerializeObject(jObj.ToString(Formatting.None))));
-
-                //var buffer = Encoding.ASCII.GetBytes($"{{\"cmd\":\"write\",\"sid\":\"{sid}\", \"data\":\"{jObj}\"}}");
-                //return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
             }
         }
 
         public async Task<string> ReceiveAsync()
         {
-            var data = new byte[1024];
-            var len = await _socket.ReceiveAsync(data, SocketFlags.None).ConfigureAwait(false);
+            var data = new ArraySegment<byte>(new byte[1024]);
             
-            return Encoding.ASCII.GetString(data, 0, len);
+            var len = await _socket.ReceiveAsync(data, SocketFlags.None).ConfigureAwait(false);
+
+            return Encoding.ASCII.GetString(data.Array, 0, len);
         }
 
         public void Dispose()
         {
             _socket?.Shutdown(SocketShutdown.Both);
-            _socket?.Close();
+            _socket?.Dispose();
         }
 
         public void SetToken(string token)

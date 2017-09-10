@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using MiHomeLib;
 
 namespace MiHomeConsole
@@ -18,6 +19,11 @@ namespace MiHomeConsole
                 {
                     Console.WriteLine(miHomeDevice); // all discovered devices
                 }
+
+                var gw = miHome.GetGateway();
+                gw.EnableLight();
+                Task.Delay(3000).Wait();
+                gw.DisableLight();
 
                 Console.ReadLine();
             }

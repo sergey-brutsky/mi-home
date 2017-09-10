@@ -167,7 +167,7 @@ namespace MiHomeLib
             foreach (var sid in JArray.Parse(cmd.Data))
             {
                 _transport.SendCommand(new ReadDeviceCommand(sid.ToString()));
-                Thread.Sleep(100); // need some time in order not to loose message
+                Task.Delay(100).Wait(); // need some time in order not to loose message
             }
 
             //TODO: if device was removed we need to know it somehow
