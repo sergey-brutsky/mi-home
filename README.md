@@ -5,7 +5,7 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Please see the pictures below.
 ![](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
 
-*Warning: This is experimental version. It may be very unstable*
+**Warning**: This is experimental version. It may be very unstable*
 ## Installation
 ```
 git clone git@github.com:sergey-brutsky/mi-home.git
@@ -15,14 +15,8 @@ Before starting to use this library you should setup development mode on your ga
 
 Here is instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
 
-*Warning: Mi Home Gateway uses udp multicast for messages handling.
+**Warning**: Mi Home Gateway uses udp multicast for messages handling.
 So your app **must** be hosted in the same LAN as your gateway or you have to use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
-
-## Getting started
-
-You need to know sid of all you smart devices.
-
-Check example bellow how to get all devices and know their sids.
 
 ## Usage examples
 
