@@ -7,8 +7,9 @@ Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Pleas
 
 **Warning**: This is experimental version. It may be very unstable*
 ## Installation
-```
-git clone git@github.com:sergey-brutsky/mi-home.git
+via nuget package manager
+```nuget
+Install-Package MiHomeLib -Version 1.0.0
 ```
 ## Setup Gateway
 Before starting to use this library you should setup development mode on your gateway.
