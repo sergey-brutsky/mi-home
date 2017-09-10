@@ -90,6 +90,16 @@ gateway?.StopPlayMusic();
 var thSensor = miHome.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
 
 Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidity: 74,66%, Voltage: 3,035V
+
+th.OnTemperatureChange += (_, e) =>
+{
+    Console.WriteLine($"New temperature: {e.Temperature}");
+};
+
+th.OnHumidityChange += (_, e) =>
+{
+    Console.WriteLine($"New humidity: {e.Humidity}");
+};
 ```
 
 ### 3. Socket Plug
