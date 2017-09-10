@@ -53,9 +53,15 @@ public static void Main(string[] args)
 ```csharp
 var gateway = miHome.GetGateway();
 
+Console.WriteLine(gateway); // Sample output --> Rgb: 0, Illumination: 997, ProtoVersion: 1.0.9
+
 gateway?.EnableLight(); // "white" light by default
 Thread.Sleep(5000);
 gateway?.DisableLight();
+
+gateway?.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
+Thread.Sleep(5000);
+gateway?.StopPlayMusic();
 ```
 
 ### 2. Temperature and humidity sensor
