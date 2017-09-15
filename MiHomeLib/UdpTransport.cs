@@ -78,7 +78,7 @@ namespace MiHomeLib
             return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
         }
 
-        public int SendWriteCommand(string sid, Command data)
+        public int SendWriteCommand(string sid, string type, Command data)
         {
             if(_gatewayWritePassword == null) throw new Exception("You cannot send commands to gateway without password");
 
@@ -94,7 +94,7 @@ namespace MiHomeLib
 
                 jObj["key"] = GetWriteKey(Encoding.ASCII.GetBytes(_gatewayWritePassword), _initialVector);
 
-                return SendCommand(new WriteCommand(sid, JsonConvert.SerializeObject(jObj.ToString(Formatting.None))));
+                return SendCommand(new WriteCommand(sid, type, JsonConvert.SerializeObject(jObj.ToString(Formatting.None))));
             }
         }
 

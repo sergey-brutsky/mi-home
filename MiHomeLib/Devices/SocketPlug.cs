@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices
     public class SocketPlug : MiHomeDevice
     {
         private readonly UdpTransport _transport;
-        public SocketPlug(string sid, UdpTransport transport) : base(sid)
+        public SocketPlug(string sid, UdpTransport transport) : base(sid, "plug")
         {
             _transport = transport;
         }
@@ -55,12 +55,12 @@ namespace MiHomeLib.Devices
 
         public void TurnOff()
         {
-            _transport.SendWriteCommand(Sid, new SocketPlugCommand("off"));
+            _transport.SendWriteCommand(Sid, Type, new SocketPlugCommand("off"));
         }
 
         public void TurnOn()
         {
-            _transport.SendWriteCommand(Sid, new SocketPlugCommand());
+            _transport.SendWriteCommand(Sid, Type, new SocketPlugCommand());
         }
     }
 }

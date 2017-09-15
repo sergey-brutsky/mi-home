@@ -9,7 +9,7 @@ namespace MiHomeLib.Devices
         public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
         public event EventHandler<HumidityEventArgs> OnHumidityChange;
 
-        public ThSensor(string sid) : base(sid) {}
+        public ThSensor(string sid) : base(sid, "sensor_ht") {}
 
         public float? Voltage { get; private set; }
         public float? Temperature { get; private set; }

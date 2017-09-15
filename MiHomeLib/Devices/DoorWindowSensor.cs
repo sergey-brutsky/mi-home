@@ -8,7 +8,7 @@ namespace MiHomeLib.Devices
         public event EventHandler OnOpen;
         public event EventHandler OnClose;
 
-        public DoorWindowSensor(string sid) : base(sid) { }
+        public DoorWindowSensor(string sid) : base(sid, "magnet") { }
 
         public float? Voltage { get; set; }
 

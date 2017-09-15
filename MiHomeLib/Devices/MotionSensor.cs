@@ -9,7 +9,7 @@ namespace MiHomeLib.Devices
         public event EventHandler OnMotion;
         public event EventHandler<NoMotionEventArgs> OnNoMotion;
 
-        public MotionSensor(string sid) : base(sid) { }
+        public MotionSensor(string sid) : base(sid, "motion") {}
 
         public float? Voltage { get; set; }
 

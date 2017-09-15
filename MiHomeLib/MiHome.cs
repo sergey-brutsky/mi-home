@@ -120,11 +120,6 @@ namespace MiHomeLib
 
                     var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
-                    if (respCmd.Model == "gateway" && _gateway != null)
-                    {
-                        _gateway.ParseData(respCmd.Data); continue;
-                    }
-
                     if (_commandsToActions.ContainsKey(respCmd.Cmd))
                     {
                         _commandsToActions[respCmd.Cmd](respCmd);
@@ -148,6 +143,7 @@ namespace MiHomeLib
             if (_gateway != null && command.Sid == _gateway.Sid)
             {
                 _transport.SetToken(command.Token);
+                _gateway.ParseData(command.Data);
             }
             else
             {

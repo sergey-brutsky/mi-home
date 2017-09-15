@@ -9,7 +9,7 @@ namespace MiHomeLib.Devices
     {
         private readonly UdpTransport _transport;
 
-        public Gateway(string sid, UdpTransport transport) : base(sid)
+        public Gateway(string sid, UdpTransport transport) : base(sid, "gateway")
         {
             _transport = transport;
         }
@@ -49,24 +49,24 @@ namespace MiHomeLib.Devices
 
             if (illumination < 300 || illumination > 1300) throw new ArgumentException("Illumination must be in range 300 - 1300");
 
-            _transport.SendWriteCommand(Sid, new GatewayLightCommand(rgb, illumination));
+            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(rgb, illumination));
         }
 
         public void DisableLight()
         {
-            _transport.SendWriteCommand(Sid, new GatewayLightCommand(0, 0));
+            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(0, 0));
         }
 
         public void StartPlayMusic(int midNo = 0)
         {
             if(midNo <= 0 || midNo == 9 || midNo > 13 && midNo < 20 || midNo > 29) throw new ArgumentException("Mid No must be in range 0-8 or 10-13 or 20-29");
 
-            _transport.SendWriteCommand(Sid, new GatewayMusicCommand(midNo));
+            _transport.SendWriteCommand(Sid, Type, new GatewayMusicCommand(midNo));
         }
 
         public void StopPlayMusic()
         {
-            _transport.SendWriteCommand(Sid, new GatewayMusicCommand(1000));
+            _transport.SendWriteCommand(Sid, Type, new GatewayMusicCommand(1000));
         }
     }
 }
