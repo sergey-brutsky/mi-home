@@ -120,10 +120,9 @@ namespace MiHomeLib
 
                     var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
-                    if (_commandsToActions.ContainsKey(respCmd.Cmd))
-                    {
-                        _commandsToActions[respCmd.Cmd](respCmd);
-                    }
+                    if (!_commandsToActions.ContainsKey(respCmd.Cmd)) continue;
+
+                    _commandsToActions[respCmd.Cmd](respCmd);
                 }
                 catch (Exception e)
                 {
@@ -153,6 +152,8 @@ namespace MiHomeLib
 
         private void UpdateDevicesList(ResponseCommand cmd)
         {
+            if(cmd.Model == "gateway") return; // no need to add gateway to list of devices
+            
             var device = _devicesList.FirstOrDefault(x => x.Sid == cmd.Sid);
 
             if (device != null) return;
