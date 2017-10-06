@@ -149,4 +149,23 @@ windowSensor.OnClose += (_, __) =>
     Console.WriteLine($"{DateTime.Now}: Window closed !");
 };
 ```
+### 5.  Water leak sensor
+![water_sensor](https://user-images.githubusercontent.com/5664637/31301235-2d6403ee-ab01-11e7-914a-80641e3ba2bf.jpg)
+
+```csharp
+var waterSensor = miHome.GetDevicesByType<WaterLeakSensor>().First();
+
+waterSensor.OnLeak += (s, e) =>
+{
+    Console.WriteLine("Water leak detected !");
+};
+
+waterSensor.OnNoLeak += (s, e) =>
+{
+    Console.WriteLine("NO leak detected !");
+};
+```
+
+
+
 When I buy more devices I will update library
