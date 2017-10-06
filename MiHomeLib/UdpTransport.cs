@@ -4,10 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
-using System.Threading;
 using MiHomeLib.Commands;
 using Newtonsoft.Json;
 
