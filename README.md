@@ -5,7 +5,15 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Please see the pictures below.
 ![](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
 
-**Warning**: This is experimental version. It may be very unstable*
+![](http://i1.mifile.cn/a1/T19eL_Bvhv1RXrhCrK!200x200.jpg)
+![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
+![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
+![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
+![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
+![](https://user-images.githubusercontent.com/5664637/32071659-976db0ae-ba98-11e7-8339-d442c53690dc.jpg)
+![](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
+
+**Warning**: This is experimental version. It may be very unstable.
 ## Installation
 via nuget package manager
 ```nuget
@@ -165,7 +173,27 @@ waterSensor.OnNoLeak += (s, e) =>
     Console.WriteLine("NO leak detected !");
 };
 ```
+### 6.  Smoke sensor
+![smoke_sensor](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
 
+```csharp
+var smokeSensor = miHome.GetDevicesByType<SmokeSensor>().First();
+
+smokeSensor.OnAlarm += (_, __) =>
+{
+    Console.WriteLine("Smoke detected !");
+};
+
+smokeSensor.OnAlarmStopped += (_, __) =>
+{
+    Console.WriteLine("Smoke alarm stopped");
+};
+
+smokeSensor.OnDensityChanged += (_, e) =>
+{
+    Console.WriteLine($"Density changed {e.Density}");
+};
+```
 
 
 When I buy more devices I will update library
