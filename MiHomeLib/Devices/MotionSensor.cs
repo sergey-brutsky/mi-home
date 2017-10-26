@@ -25,13 +25,17 @@ namespace MiHomeLib.Devices
             {
                 Status = jObject["status"].ToString();
 
-                if(Status == "motion") OnMotion?.Invoke(this, EventArgs.Empty);
+                if (Status == "motion")
+                {
+                    MotionDate = DateTime.Now;
+                    OnMotion?.Invoke(this, EventArgs.Empty);
+                }
             }
 
             if (jObject["no_motion"] != null)
             {
                 NoMotion = int.Parse(jObject["no_motion"].ToString());
-
+                
                 OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
             }
 
@@ -40,6 +44,8 @@ namespace MiHomeLib.Devices
                 Voltage = v / 1000;
             }
         }
+
+        public DateTime? MotionDate { get; private set; }
 
         public override string ToString()
         {

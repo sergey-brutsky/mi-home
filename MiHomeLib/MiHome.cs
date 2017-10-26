@@ -26,6 +26,7 @@ namespace MiHomeLib
             {"plug", sid => new SocketPlug(sid, _transport)},
             {"magnet", sid => new DoorWindowSensor(sid)},
             {"sensor_wleak.aq1", sid => new WaterLeakSensor(sid)},
+            {"smoke", sid => new SmokeSensor(sid)},
         };
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;

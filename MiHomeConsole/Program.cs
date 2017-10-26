@@ -16,7 +16,7 @@ namespace MiHomeConsole
 
                 foreach (var miHomeDevice in miHome.GetDevices())
                 {
-                    Console.WriteLine(miHomeDevice); // all discovered devices
+                    Console.WriteLine($"{miHomeDevice.Sid}, {miHomeDevice.GetType()}, {miHomeDevice}" ); // all discovered devices
                 }
 
                 Console.ReadLine();
