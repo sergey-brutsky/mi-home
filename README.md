@@ -9,9 +9,9 @@ Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Pleas
 ![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
 ![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
 ![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
-![](http://i1.mifile.cn/a1/T1zXZgBQLT1RXrhCrK!200x200.jpg)
-![](https://user-images.githubusercontent.com/5664637/32071659-976db0ae-ba98-11e7-8339-d442c53690dc.jpg)
-![](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
+![door_window_sensor](https://user-images.githubusercontent.com/5664637/32079914-83947b22-bab5-11e7-8f5c-43d07ca82022.jpg)
+![water_sensor](https://user-images.githubusercontent.com/5664637/32079774-d6bdd9d4-bab4-11e7-8a48-5c2b7ea978c9.jpg)
+![smoke_sensor](https://user-images.githubusercontent.com/5664637/32079813-05bfab9a-bab5-11e7-9416-2227e167f0ab.jpg)
 
 **Warning**: This is experimental version. It may be very unstable.
 ## Installation
