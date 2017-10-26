@@ -5,7 +5,15 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Please see the pictures below.
 ![](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
 
-**Warning**: This is experimental version. It may be very unstable*
+![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
+![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
+![socket_plug](https://user-images.githubusercontent.com/5664637/32080247-4b007520-bab7-11e7-9e0a-83e01ee37b8e.jpg)
+![motion_sensor](https://user-images.githubusercontent.com/5664637/32079992-db2366d2-bab5-11e7-9f5f-d9bf711f261f.jpg)
+![door_window_sensor](https://user-images.githubusercontent.com/5664637/32079914-83947b22-bab5-11e7-8f5c-43d07ca82022.jpg)
+![water_sensor](https://user-images.githubusercontent.com/5664637/32079774-d6bdd9d4-bab4-11e7-8a48-5c2b7ea978c9.jpg)
+![smoke_sensor](https://user-images.githubusercontent.com/5664637/32079813-05bfab9a-bab5-11e7-9416-2227e167f0ab.jpg)
+
+**Warning**: This is experimental version. It may be very unstable.
 ## Installation
 via nuget package manager
 ```nuget
@@ -109,7 +117,7 @@ th.OnHumidityChange += (_, e) =>
 ```csharp
 var socketPlug = miHome.GetDeviceBySid<SocketPlug>("158d00015dc6cc"); // get specific socket plug
 
-Console.WriteLine(socketPlug); // Sample output --> Status: on, Inuse: 1, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
+Console.WriteLine(socketPlug); // Status: on, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
 
 socketPlug.TurnOff();
 Thread.Sleep(5000);
@@ -165,7 +173,27 @@ waterSensor.OnNoLeak += (s, e) =>
     Console.WriteLine("NO leak detected !");
 };
 ```
+### 6.  Smoke sensor
+![smoke_sensor](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
 
+```csharp
+var smokeSensor = miHome.GetDevicesByType<SmokeSensor>().First();
+
+smokeSensor.OnAlarm += (_, __) =>
+{
+    Console.WriteLine("Smoke detected !");
+};
+
+smokeSensor.OnAlarmStopped += (_, __) =>
+{
+    Console.WriteLine("Smoke alarm stopped");
+};
+
+smokeSensor.OnDensityChanged += (_, e) =>
+{
+    Console.WriteLine($"Density changed {e.Density}");
+};
+```
 
 
 When I buy more devices I will update library
