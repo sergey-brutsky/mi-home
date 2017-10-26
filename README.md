@@ -117,7 +117,7 @@ th.OnHumidityChange += (_, e) =>
 ```csharp
 var socketPlug = miHome.GetDeviceBySid<SocketPlug>("158d00015dc6cc"); // get specific socket plug
 
-Console.WriteLine(socketPlug); // Sample output --> Status: on, Inuse: 1, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
+Console.WriteLine(socketPlug); // Status: on, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
 
 socketPlug.TurnOff();
 Thread.Sleep(5000);
