@@ -5,10 +5,10 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Please see the pictures below.
 ![](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
 
-![](http://i1.mifile.cn/a1/T19eL_Bvhv1RXrhCrK!200x200.jpg)
-![](http://i1.mifile.cn/a1/T1xKYgBQhv1R4cSCrK!200x200.png)
-![](http://i1.mifile.cn/a1/T1kZd_BbLv1RXrhCrK!200x200.jpg)
-![](http://i1.mifile.cn/a1/T1bFJ_B4Jv1RXrhCrK!200x200.jpg)
+![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
+![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
+![socket_plug](https://user-images.githubusercontent.com/5664637/32080043-1900c0ee-bab6-11e7-952b-32523e540d6b.jpg)
+![motion_sensor](https://user-images.githubusercontent.com/5664637/32079992-db2366d2-bab5-11e7-9f5f-d9bf711f261f.jpg)
 ![door_window_sensor](https://user-images.githubusercontent.com/5664637/32079914-83947b22-bab5-11e7-8f5c-43d07ca82022.jpg)
 ![water_sensor](https://user-images.githubusercontent.com/5664637/32079774-d6bdd9d4-bab4-11e7-8a48-5c2b7ea978c9.jpg)
 ![smoke_sensor](https://user-images.githubusercontent.com/5664637/32079813-05bfab9a-bab5-11e7-9416-2227e167f0ab.jpg)
