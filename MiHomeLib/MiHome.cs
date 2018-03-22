@@ -27,6 +27,7 @@ namespace MiHomeLib
             {"magnet", sid => new DoorWindowSensor(sid)},
             {"sensor_wleak.aq1", sid => new WaterLeakSensor(sid)},
             {"smoke", sid => new SmokeSensor(sid)},
+            {"switch", sid => new Switch(sid)}
         };
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
