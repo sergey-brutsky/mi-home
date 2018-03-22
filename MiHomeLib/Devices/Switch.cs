@@ -9,7 +9,7 @@ namespace MiHomeLib.Devices
         public event EventHandler OnDoubleClick;
         public event EventHandler OnLongPress;
 
-        public Switch(string sid) : base(sid, "Switch") { }
+        public Switch(string sid) : base(sid, "switch") { }
 
         public float? Voltage { get; set; }
 
@@ -30,12 +30,12 @@ namespace MiHomeLib.Devices
 
                 if (Status == "double_click")
                 {
-                    OnClick?.Invoke(this, EventArgs.Empty);
+                    OnDoubleClick?.Invoke(this, EventArgs.Empty);
                 }
 
                 if (Status == "long_click_press")
                 {
-                    OnClick?.Invoke(this, EventArgs.Empty);
+                    OnLongPress?.Invoke(this, EventArgs.Empty);
                 }
             }
 
