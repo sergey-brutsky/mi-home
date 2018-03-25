@@ -1,4 +1,5 @@
 ﻿using System;
+using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
@@ -14,29 +15,28 @@ namespace MiHomeLib.Devices
             StatusRight = "idle";
         }
 
-        public float? Voltage { get; set; }
-
         public string StatusLeft { get; private set; }
         public string StatusRight { get; private set; }
 
         public override void ParseData(string command)
         {
-            Console.WriteLine(command);
             var jObject = JObject.Parse(command);
 
-            if (jObject["status"] != null)
+            if (jObject["channel_0"] != null)
             {
-
+                StatusLeft = jObject["channel_0"].ToString();
+                OnSwitchChannelLeft?.Invoke(this, new WallSwitchEventArgs(StatusLeft));
             }
-
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
+            if (jObject["channel_1"] != null)
             {
-                Voltage = v / 1000;
-            }
+                StatusRight = jObject["channel_1"].ToString();
+                OnSwitchChannelRight?.Invoke(this, new WallSwitchEventArgs(StatusRight));
+            } 
         }
+        
         public override string ToString()
         {
-            return $"Status Left: {StatusLeft}, Right: {StatusRight}, Voltage: {Voltage}V";
+            return $"Status Left: {StatusLeft}, Right: {StatusRight}";
         }
     }
 }
