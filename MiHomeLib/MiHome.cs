@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,9 +17,11 @@ namespace MiHomeLib
         private readonly string _gatewaySid;
         private static UdpTransport _transport;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly List<MiHomeDevice> _devicesList = new List<MiHomeDevice>();
+        private readonly ConcurrentBag<MiHomeDevice> _devicesList = new ConcurrentBag<MiHomeDevice>();
         private readonly Dictionary<string, string> _namesMap;
 
+        private const int ReadDeviceInterval = 100;
+        
         private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
         {
             {"sensor_ht", sid => new ThSensor(sid)},
@@ -62,7 +65,7 @@ namespace MiHomeLib
             _transport.SendCommand(new DiscoverGatewayCommand());
         }
 
-        public List<MiHomeDevice> GetDevices()
+        public IReadOnlyCollection<MiHomeDevice> GetDevices()
         {
             return _devicesList;
         }
@@ -76,11 +79,12 @@ namespace MiHomeLib
         {
             var device = _devicesList.FirstOrDefault(x => x.Name == name);
 
-            if (device == null) return null;
-
-            if (device is T)
+            switch (device)
             {
-                return _devicesList.First(x => x.Name == name) as T;
+                case null:
+                    return null;
+                case T _:
+                    return _devicesList.First(x => x.Name == name) as T;
             }
 
             throw new InvalidCastException($"Device with name '{name}' cannot be converted to {nameof(T)}");
@@ -90,11 +94,12 @@ namespace MiHomeLib
         {
             var device = _devicesList.FirstOrDefault(x => x.Sid == sid);
 
-            if (device == null) return null;
-
-            if (device is T)
+            switch (device)
             {
-                return _devicesList.First(x => x.Sid == sid) as T;
+                case null:
+                    return null;
+                case T _:
+                    return _devicesList.First(x => x.Sid == sid) as T;
             }
 
             throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
@@ -195,7 +200,7 @@ namespace MiHomeLib
             foreach (var sid in JArray.Parse(cmd.Data))
             {
                 _transport.SendCommand(new ReadDeviceCommand(sid.ToString()));
-                Task.Delay(100).Wait(); // need some time in order not to loose message
+                Task.Delay(ReadDeviceInterval).Wait(); // need some time in order not to loose message
             }
 
             //TODO: if device was removed we need to know it somehow
