@@ -1,19 +1,14 @@
 ﻿using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MiHomeLib.Devices
 {
     public class WeatherSensor : ThSensor
     {
         public event EventHandler<PressureEventArgs> OnPressureChange;
-
-
-        public WeatherSensor(string sid) : base(sid, "weather.v1")
-        {
-        }
+        
+        public WeatherSensor(string sid) : base(sid, "weather.v1") {}
 
         public float? Pressure { get; private set; }
 
@@ -21,19 +16,18 @@ namespace MiHomeLib.Devices
         {
             base.ParseData(command);
 
-            JObject jObject = JObject.Parse(command);
+            var jObject = JObject.Parse(command);
 
-            if (jObject["pressure"] != null && float.TryParse(jObject["pressure"].ToString(), out float p))
+            if (jObject["pressure"] == null || !float.TryParse(jObject["pressure"].ToString(), out float p)) return;
+
+            var newPressure = p / 100;
+
+            if (Pressure == null || Temperature != null && Math.Abs(newPressure - Temperature.Value) > 0.01)
             {
-                float newPressure = p / 100;
-
-                if (Pressure == null || Math.Abs(newPressure - Temperature.Value) > 0.01)
-                {
-                    OnPressureChange?.Invoke(this, new PressureEventArgs(newPressure));
-                }
-
-                Pressure = newPressure;
+                OnPressureChange?.Invoke(this, new PressureEventArgs(newPressure));
             }
+
+            Pressure = newPressure;
         }
 
         public override string ToString()
