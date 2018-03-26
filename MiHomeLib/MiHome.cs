@@ -25,6 +25,7 @@ namespace MiHomeLib
         private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
         {
             {"sensor_ht", sid => new ThSensor(sid)},
+            {"weather.v1", sid => new WeatherSensor(sid)},
             {"motion", sid => new MotionSensor(sid)},
             {"plug", sid => new SocketPlug(sid, _transport)},
             {"magnet", sid => new DoorWindowSensor(sid)},
