@@ -9,7 +9,9 @@ namespace MiHomeLib.Devices
         public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
         public event EventHandler<HumidityEventArgs> OnHumidityChange;
 
-        public ThSensor(string sid) : base(sid, "sensor_ht") {}
+        public ThSensor(string sid) : this(sid, "sensor_ht") {}
+
+        protected ThSensor(string sid, string type) : base(sid, type) { }
 
         public float? Voltage { get; private set; }
         public float? Temperature { get; private set; }
@@ -51,7 +53,7 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"{(!string.IsNullOrEmpty(Name) ? "Name: "+ Name +", " : string.Empty)}Humidity: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
+            return $"{(!string.IsNullOrEmpty(Name) ? "Name: "+ Name +", " : string.Empty)}Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
         }
     }
 }
