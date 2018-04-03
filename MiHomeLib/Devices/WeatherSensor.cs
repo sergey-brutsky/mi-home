@@ -22,7 +22,7 @@ namespace MiHomeLib.Devices
 
             var newPressure = p / 100;
 
-            if (Pressure == null || Temperature != null && Math.Abs(newPressure - Temperature.Value) > 0.01)
+            if (Pressure == null || Temperature != null && Math.Abs(newPressure - Pressure.Value) > 0.01)
             {
                 OnPressureChange?.Invoke(this, new PressureEventArgs(newPressure));
             }
