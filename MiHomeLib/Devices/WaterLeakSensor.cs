@@ -40,7 +40,7 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"Status: {Status}";
+            return $"Status: {Status}, Voltage: {Voltage}V";
         }
     }
 }

@@ -17,25 +17,27 @@ namespace MiHomeLib
         private readonly string _gatewaySid;
         private static UdpTransport _transport;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly ConcurrentBag<MiHomeDevice> _devicesList = new ConcurrentBag<MiHomeDevice>();
+
+        private readonly ConcurrentDictionary<string, MiHomeDevice> _devicesList = new ConcurrentDictionary<string, MiHomeDevice>();
         private readonly Dictionary<string, string> _namesMap;
 
         private const int ReadDeviceInterval = 100;
         
         private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
         {
-            {"sensor_ht", sid => new ThSensor(sid)},
-            {"weather.v1", sid => new WeatherSensor(sid)},
-            {"motion", sid => new MotionSensor(sid)},
-            {"plug", sid => new SocketPlug(sid, _transport)},
-            {"magnet", sid => new DoorWindowSensor(sid)},
+            {"sensor_ht",        sid => new ThSensor(sid)},
+            {"weather.v1",       sid => new WeatherSensor(sid)},
+            {"motion",           sid => new MotionSensor(sid)},
+            {"plug",             sid => new SocketPlug(sid, _transport)},
+            {"magnet",           sid => new DoorWindowSensor(sid)},
             {"sensor_wleak.aq1", sid => new WaterLeakSensor(sid)},
-            {"smoke", sid => new SmokeSensor(sid)},
-            {"switch", sid => new Switch(sid)},
-            {"ctrl_neutral2", sid => new WiredDualWallSwitch(sid)}
+            {"smoke",            sid => new SmokeSensor(sid)},
+            {"switch",           sid => new Switch(sid)},
+            {"ctrl_neutral2",    sid => new WiredDualWallSwitch(sid)}
         };
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
+        private readonly Task _receiveTask;
 
         public MiHome(Dictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null): this(gatewayPassword, gatewaySid)
         {
@@ -52,7 +54,7 @@ namespace MiHomeLib
             _commandsToActions = new Dictionary<string, Action<ResponseCommand>>
             {
                 { "get_id_list_ack", DiscoverGatewayAndDevices},
-                { "read_ack", UpdateDevicesList},
+                { "read_ack", ProcessReadAck},
                 { "heartbeat", ProcessHeartbeat},
                 { "report", ProcessReport},
             };
@@ -61,14 +63,14 @@ namespace MiHomeLib
 
             _transport = new UdpTransport(gatewayPassword);
 
-            Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
+            _receiveTask = Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
 
             _transport.SendCommand(new DiscoverGatewayCommand());
         }
 
         public IReadOnlyCollection<MiHomeDevice> GetDevices()
         {
-            return _devicesList;
+            return (IReadOnlyCollection<MiHomeDevice>) _devicesList.Values;
         }
 
         public Gateway GetGateway()
@@ -78,42 +80,33 @@ namespace MiHomeLib
 
         public T GetDeviceByName<T>(string name) where T : MiHomeDevice
         {
-            var device = _devicesList.FirstOrDefault(x => x.Name == name);
+            var device = _devicesList.Values.FirstOrDefault(x => x.Name == name);
 
-            switch (device)
-            {
-                case null:
-                    return null;
-                case T _:
-                    return _devicesList.First(x => x.Name == name) as T;
-            }
+            if (device == null) return null;
+
+            if (device is T d) return d;
 
             throw new InvalidCastException($"Device with name '{name}' cannot be converted to {nameof(T)}");
         }
 
         public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
         {
-            var device = _devicesList.FirstOrDefault(x => x.Sid == sid);
+            if (!_devicesList.ContainsKey(sid)) throw new ArgumentException($"There is no device with sid '{sid}'");
 
-            switch (device)
-            {
-                case null:
-                    return null;
-                case T _:
-                    return _devicesList.First(x => x.Sid == sid) as T;
-            }
+            if(!(_devicesList[sid] is T device)) throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
 
-            throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
+            return device;
         }
 
         public IEnumerable<T> GetDevicesByType<T>() where T : MiHomeDevice
         {
-            return _devicesList.OfType<T>();
+            return _devicesList.Values.OfType<T>();
         }
 
         public void Dispose()
         {
             _cts?.Cancel();
+            _receiveTask?.Wait();
             _transport?.Dispose();
         }
 
@@ -125,9 +118,7 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-
                     //Console.WriteLine(str);
-
                     var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
 
                     if (!_commandsToActions.ContainsKey(respCmd.Cmd)) continue;
@@ -142,39 +133,42 @@ namespace MiHomeLib
             }
         }
 
-        private void ProcessReport(ResponseCommand command)
+        private void ProcessReport(ResponseCommand cmd)
         {
-            _devicesList.FirstOrDefault(x => x.Sid == command.Sid)?.ParseData(command.Data);
+            GetOrAddDeviceByCommand(cmd).ParseData(cmd.Data);
         }
 
-        private void ProcessHeartbeat(ResponseCommand command)
+        private void ProcessHeartbeat(ResponseCommand cmd)
         {
-            if (_gateway != null && command.Sid == _gateway.Sid)
+            if (_gateway != null && cmd.Sid == _gateway.Sid)
             {
-                _transport.SetToken(command.Token);
-                _gateway.ParseData(command.Data);
+                _transport.SetToken(cmd.Token);
+                _gateway.ParseData(cmd.Data);
             }
-            else
+            else if(cmd.Model != "gateway") 
             {
-                _devicesList.FirstOrDefault(x => x.Sid == command.Sid)?.ParseData(command.Data);
+                GetOrAddDeviceByCommand(cmd).ParseData(cmd.Data);
             }
         }
 
-        private void UpdateDevicesList(ResponseCommand cmd)
+        private void ProcessReadAck(ResponseCommand cmd)
         {
-            if(cmd.Model == "gateway") return; // no need to add gateway to list of devices
-            
-            var device = _devicesList.FirstOrDefault(x => x.Sid == cmd.Sid);
+            if(cmd.Model != "gateway") GetOrAddDeviceByCommand(cmd);
+        }
 
-            if (device != null) return;
+        private MiHomeDevice GetOrAddDeviceByCommand(ResponseCommand cmd)
+        {
+            if (_devicesList.ContainsKey(cmd.Sid)) return _devicesList[cmd.Sid];
 
-            device = _devicesMap[cmd.Model](cmd.Sid);
+            var device = _devicesMap[cmd.Model](cmd.Sid);
 
             if (_namesMap != null && _namesMap.ContainsKey(cmd.Sid)) device.Name = _namesMap[cmd.Sid];
 
             if (cmd.Data != null) device.ParseData(cmd.Data);
 
-            _devicesList.Add(device);
+            _devicesList.TryAdd(cmd.Sid, device);
+
+            return device;
         }
 
         private void DiscoverGatewayAndDevices(ResponseCommand cmd)
@@ -201,10 +195,9 @@ namespace MiHomeLib
             foreach (var sid in JArray.Parse(cmd.Data))
             {
                 _transport.SendCommand(new ReadDeviceCommand(sid.ToString()));
+
                 Task.Delay(ReadDeviceInterval).Wait(); // need some time in order not to loose message
             }
-
-            //TODO: if device was removed we need to know it somehow
         }
     }
 }

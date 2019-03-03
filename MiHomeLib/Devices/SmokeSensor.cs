@@ -54,7 +54,7 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"{(!string.IsNullOrEmpty(Name) ? "Name: " + Name + ", " : string.Empty)}Alarm: {(Alarm ? "on" : "off")}, Density: {Density}, Voltage: {Voltage}V";
+            return $"{(!string.IsNullOrEmpty(Name) ? "Name: " + Name + ", " : string.Empty)}Alarm: {(Alarm ? "on" : "off")}, Density: {Density ?? 0}, Voltage: {Voltage}V";
         }
     }
 }
