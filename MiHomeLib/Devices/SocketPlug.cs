@@ -4,10 +4,14 @@ using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class SocketPlug : MiHomeDevice
+    public class SocketPlug : MiHomeDevice<SocketPlug>
     {
+        public static string IdString => "plug";
+
+        public override string Type => IdString;
+
         private readonly UdpTransport _transport;
-        public SocketPlug(string sid, UdpTransport transport) : base(sid, "plug")
+        public SocketPlug(string sid, UdpTransport transport) : base(sid)
         {
             _transport = transport;
         }
@@ -21,31 +25,25 @@ namespace MiHomeLib.Devices
         public override void ParseData(string command)
         {
             var jObject = JObject.Parse(command);
+            var hasChanges = false;
 
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float voltage))
-            {
+            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out var voltage))
                 Voltage = voltage / 1000;
-            }
 
-            if (jObject["inuse"] != null && int.TryParse(jObject["inuse"].ToString(), out int inuse))
-            {
-                Inuse = inuse;
-            }
+            if (jObject["inuse"] != null && int.TryParse(jObject["inuse"].ToString(), out var inuse))
+                hasChanges |= ChangeAndDetectChanges(() => Inuse, inuse);
 
-            if (jObject["power_consumed"] != null && int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed))
-            {
-                PowerConsumed = powerConsumed;
-            }
+            if (jObject["power_consumed"] != null && int.TryParse(jObject["power_consumed"].ToString(), out var powerConsumed))
+                hasChanges |= ChangeAndDetectChanges(() => PowerConsumed, powerConsumed);
 
-            if (jObject["load_power"] != null && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower))
-            {
-                LoadPower = loadPower;
-            }
+            if (jObject["load_power"] != null && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out var loadPower))
+                hasChanges |= ChangeAndDetectChanges(() => LoadPower, loadPower);
 
             if (jObject["status"] != null)
-            {
-                Status = jObject["status"].ToString();
-            }
+                hasChanges |= ChangeAndDetectChanges(() => Status, jObject["status"].ToString());
+
+            if (hasChanges)
+                _changes.OnNext(this);
         }
 
         public override string ToString()

@@ -2,8 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 using MiHomeLib.Commands;
 using MiHomeLib.Devices;
 using Newtonsoft.Json;
@@ -13,44 +15,47 @@ namespace MiHomeLib
 {
     public class MiHome : IDisposable
     {
+        private ReplaySubject<IMiHomeDevice> _devices;
+
+        public IObservable<IMiHomeDevice> Devices => _devices.AsObservable();
+
         private Gateway _gateway;
         private readonly string _gatewaySid;
         private static UdpTransport _transport;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        private readonly ConcurrentDictionary<string, MiHomeDevice> _devicesList = new ConcurrentDictionary<string, MiHomeDevice>();
-        private readonly Dictionary<string, string> _namesMap;
+        private readonly ConcurrentDictionary<string, IMiHomeDevice> _devicesList = new ConcurrentDictionary<string, IMiHomeDevice>();
+        private readonly IDictionary<string, string> _namesMap;
 
         private const int ReadDeviceInterval = 100;
-        
-        private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
+
+        private readonly Dictionary<string, Func<string, IMiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, IMiHomeDevice>>
         {
-            {"sensor_ht",        sid => new ThSensor(sid)},
-            {"weather.v1",       sid => new WeatherSensor(sid)},
-            {"motion",           sid => new MotionSensor(sid)},
-            {"plug",             sid => new SocketPlug(sid, _transport)},
-            {"magnet",           sid => new DoorWindowSensor(sid)},
-            {"sensor_wleak.aq1", sid => new WaterLeakSensor(sid)},
-            {"smoke",            sid => new SmokeSensor(sid)},
-            {"switch",           sid => new Switch(sid)},
-            {"ctrl_neutral2",    sid => new WiredDualWallSwitch(sid)}
+            {ThSensor.IdString,            sid => new ThSensor(sid)},
+            {WeatherSensor.IdString,       sid => new WeatherSensor(sid)},
+            {MotionSensor.IdString,        sid => new MotionSensor(sid)},
+            {SocketPlug.IdString,          sid => new SocketPlug(sid, _transport)},
+            {DoorWindowSensor.IdString,    sid => new DoorWindowSensor(sid)},
+            {WaterLeakSensor.IdString,     sid => new WaterLeakSensor(sid)},
+            {SmokeSensor.IdString,         sid => new SmokeSensor(sid)},
+            {Switch.IdString,              sid => new Switch(sid)},
+            {WiredDualWallSwitch.IdString, sid => new WiredDualWallSwitch(sid)}
         };
 
         private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
         private readonly Task _receiveTask;
 
-        public MiHome(Dictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null): this(gatewayPassword, gatewaySid)
+        public MiHome(IDictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null) : this(gatewayPassword, gatewaySid)
         {
             if (namesMap.GroupBy(x => x.Value).Any(x => x.Count() > 1))
-            {
                 throw new ArgumentException("Values in the dictionary must be unique");
-            }
 
             _namesMap = namesMap;
         }
 
         public MiHome(string gatewayPassword = null, string gatewaySid = null)
         {
+            _devices = new ReplaySubject<IMiHomeDevice>();
             _commandsToActions = new Dictionary<string, Action<ResponseCommand>>
             {
                 { "get_id_list_ack", DiscoverGatewayAndDevices},
@@ -68,17 +73,12 @@ namespace MiHomeLib
             _transport.SendCommand(new DiscoverGatewayCommand());
         }
 
-        public IReadOnlyCollection<MiHomeDevice> GetDevices()
-        {
-            return (IReadOnlyCollection<MiHomeDevice>) _devicesList.Values;
-        }
-
         public Gateway GetGateway()
         {
             return _gateway;
         }
 
-        public T GetDeviceByName<T>(string name) where T : MiHomeDevice
+        public T GetDeviceByName<T>(string name) where T : class, IMiHomeDevice<T>
         {
             var device = _devicesList.Values.FirstOrDefault(x => x.Name == name);
 
@@ -89,16 +89,16 @@ namespace MiHomeLib
             throw new InvalidCastException($"Device with name '{name}' cannot be converted to {nameof(T)}");
         }
 
-        public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
+        public T GetDeviceBySid<T>(string sid) where T : class, IMiHomeDevice<T>
         {
             if (!_devicesList.ContainsKey(sid)) throw new ArgumentException($"There is no device with sid '{sid}'");
 
-            if(!(_devicesList[sid] is T device)) throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
+            if (!(_devicesList[sid] is T device)) throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
 
             return device;
         }
 
-        public IEnumerable<T> GetDevicesByType<T>() where T : MiHomeDevice
+        public IEnumerable<T> GetDevicesByType<T>() where T : class, IMiHomeDevice<T>
         {
             return _devicesList.Values.OfType<T>();
         }
@@ -118,8 +118,9 @@ namespace MiHomeLib
                 try
                 {
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-                    //Console.WriteLine(str);
+                    //Console.WriteLine($"Got str: {str}");
                     var respCmd = JsonConvert.DeserializeObject<ResponseCommand>(str);
+                    //Console.WriteLine($"   data: {respCmd.Data}");
 
                     if (!_commandsToActions.ContainsKey(respCmd.Cmd)) continue;
 
@@ -145,20 +146,22 @@ namespace MiHomeLib
                 _transport.SetToken(cmd.Token);
                 _gateway.ParseData(cmd.Data);
             }
-            else if(cmd.Model != "gateway") 
-            {
+            else if (cmd.Model != "gateway")
                 GetOrAddDeviceByCommand(cmd).ParseData(cmd.Data);
-            }
         }
 
         private void ProcessReadAck(ResponseCommand cmd)
         {
-            if(cmd.Model != "gateway") GetOrAddDeviceByCommand(cmd);
+            GetOrAddDeviceByCommand(cmd);
         }
 
-        private MiHomeDevice GetOrAddDeviceByCommand(ResponseCommand cmd)
+        private IMiHomeDevice GetOrAddDeviceByCommand(ResponseCommand cmd)
         {
-            if (_devicesList.ContainsKey(cmd.Sid)) return _devicesList[cmd.Sid];
+            if (_devicesList.ContainsKey(cmd.Sid))
+            {
+                _devicesList[cmd.Sid].ParseData(cmd.Data);
+                return _devicesList[cmd.Sid];
+            }
 
             var device = _devicesMap[cmd.Model](cmd.Sid);
 
@@ -167,6 +170,7 @@ namespace MiHomeLib
             if (cmd.Data != null) device.ParseData(cmd.Data);
 
             _devicesList.TryAdd(cmd.Sid, device);
+            _devices.OnNext(device);
 
             return device;
         }
@@ -178,6 +182,8 @@ namespace MiHomeLib
                 if (_gateway == null)
                 {
                     _gateway = new Gateway(cmd.Sid, _transport);
+                    _devicesList.TryAdd(cmd.Sid, _gateway);
+                    _devices.OnNext(_gateway);
                 }
 
                 _transport.SetToken(cmd.Token);
@@ -185,6 +191,8 @@ namespace MiHomeLib
             else if (_gatewaySid == cmd.Sid)
             {
                 _gateway = new Gateway(cmd.Sid, _transport);
+                _devicesList.TryAdd(cmd.Sid, _gateway);
+                _devices.OnNext(_gateway);
                 _transport.SetToken(cmd.Token);
             }
 

@@ -5,11 +5,15 @@ using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class Gateway : MiHomeDevice
+    public class Gateway : MiHomeDevice<Gateway>
     {
+        public static string IdString => "gateway";
+
+        public override string Type => IdString;
+
         private readonly UdpTransport _transport;
 
-        public Gateway(string sid, UdpTransport transport) : base(sid, "gateway")
+        public Gateway(string sid, UdpTransport transport) : base(sid)
         {
             _transport = transport;
         }
@@ -21,21 +25,19 @@ namespace MiHomeLib.Devices
         public override void ParseData(string command)
         {
             var jObject = JObject.Parse(command);
+            var hasChanges = false;
 
             if (jObject["rgb"] != null)
-            {
-                Rgb = jObject["rgb"].ToString();
-            }
+                hasChanges |= ChangeAndDetectChanges(() => Rgb, jObject["rgb"].ToString());
 
             if (jObject["illumination"] != null)
-            {
-                Illumination = jObject["illumination"].ToString();
-            }
+                hasChanges |= ChangeAndDetectChanges(() => Illumination, jObject["illumination"].ToString());
 
             if (jObject["proto_version"] != null)
-            {
-                ProtoVersion = jObject["proto_version"].ToString();
-            }
+                hasChanges |= ChangeAndDetectChanges(() => ProtoVersion, jObject["proto_version"].ToString());
+
+            if (hasChanges)
+                _changes.OnNext(this);
         }
 
         public override string ToString()
