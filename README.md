@@ -16,8 +16,8 @@ Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Pleas
 ![wired wall switch](https://user-images.githubusercontent.com/5664637/37880344-6dc7b066-308f-11e8-80b1-1b39ef973acf.jpg)
 ![sensor_weather](https://user-images.githubusercontent.com/5664637/37911004-9687dafc-3117-11e8-9e82-a6823da8da0b.jpg)
 
+>**Warning** : This is experimental version. It may be very unstable.
 
-**Warning**: This is experimental version. It may be very unstable.
 ## Installation
 via nuget package manager
 ```nuget
@@ -28,8 +28,12 @@ Before starting to use this library you should setup development mode on your ga
 
 Here is instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
 
-**Warning**: Mi Home Gateway uses udp multicast for messages handling.
-So your app **must** be hosted in the same LAN as your gateway or you have to use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
+>**Warning**: Mi Home Gateway uses udp multicast for messages handling.<br>
+> So your app **must** be hosted in the same LAN as your gateway.<br>
+> If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
+
+>**Warning** : If your app is running on windows machine, make sure that you disabled virtual netweork adapters like VirtualBox, Hyper-V, Npcap, pcap etc.<br>
+> Because these adapters may prevent proper work of multicast traffic between your machine and gateway
 
 ## Usage examples
 
