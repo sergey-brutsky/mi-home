@@ -135,6 +135,7 @@ namespace MiHomeLib
 
         private void ProcessReport(ResponseCommand cmd)
         {
+            if (_gateway != null && cmd.Sid == _gateway.Sid) return;
             GetOrAddDeviceByCommand(cmd).ParseData(cmd.Data);
         }
 
