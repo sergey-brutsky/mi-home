@@ -136,7 +136,6 @@ namespace MiHomeLib
 
         private void ProcessReport(ResponseCommand cmd)
         {
-            if (_gateway != null && cmd.Sid == _gateway.Sid) return;
             GetOrAddDeviceByCommand(cmd).ParseData(cmd.Data);
         }
 
@@ -160,6 +159,8 @@ namespace MiHomeLib
 
         private MiHomeDevice GetOrAddDeviceByCommand(ResponseCommand cmd)
         {
+            if (_gateway != null && cmd.Sid == _gateway.Sid) return _gateway;
+
             if (_devicesList.ContainsKey(cmd.Sid)) return _devicesList[cmd.Sid];
 
             var device = _devicesMap[cmd.Model](cmd.Sid);

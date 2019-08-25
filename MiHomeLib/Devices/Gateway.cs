@@ -43,18 +43,18 @@ namespace MiHomeLib.Devices
             return $"Rgb: {Rgb}, Illumination: {Illumination}, ProtoVersion: {ProtoVersion}";
         }
 
-        public void EnableLight(byte r = 255, byte g = 255, byte b = 255, int illumination = 1000)
+        public void EnableLight(byte r = 255, byte g = 255, byte b = 255, int brightness = 100)
         {
-            var rgb = 0xFF000000 | r << 16 | g << 8 | b; // found this trick from chinise gateway docs 
+            var rgb = (uint)brightness << 24 | r << 16 | g << 8 | b;
 
-            if (illumination < 300 || illumination > 1300) throw new ArgumentException("Illumination must be in range 300 - 1300");
+            if (brightness < 1 || brightness > 100) throw new ArgumentException("Brightness must be in range 1 - 100");
 
-            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(rgb, illumination));
+            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(rgb));
         }
 
         public void DisableLight()
         {
-            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(0, 0));
+            _transport.SendWriteCommand(Sid, Type, new GatewayLightCommand(0));
         }
 
         public void StartPlayMusic(int midNo = 0)

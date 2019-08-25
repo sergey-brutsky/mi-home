@@ -1,19 +1,17 @@
 ﻿namespace MiHomeLib.Commands
 {
-    internal class GatewayLightCommand: Command
+    internal class GatewayLightCommand : Command
     {
         private readonly long _rgb;
-        private readonly int _illumination;
 
-        public GatewayLightCommand(long rgb, int illumination)
+        public GatewayLightCommand(long rgb)
         {
             _rgb = rgb;
-            _illumination = illumination;
         }
 
         public override string ToString()
         {
-            return $"{{\"rgb\":{_rgb},\"illumination\":{_illumination}}}";
+            return $"{{\"rgb\":{_rgb}}}";
         }
     }
 }
