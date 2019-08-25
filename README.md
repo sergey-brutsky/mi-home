@@ -15,6 +15,8 @@ Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Pleas
 ![switch](https://user-images.githubusercontent.com/5664637/37819616-233b087e-2e8f-11e8-8558-7e47137705d4.jpg)
 ![wired wall switch](https://user-images.githubusercontent.com/5664637/37880344-6dc7b066-308f-11e8-80b1-1b39ef973acf.jpg)
 ![sensor_weather](https://user-images.githubusercontent.com/5664637/37911004-9687dafc-3117-11e8-9e82-a6823da8da0b.jpg)
+![wireless dual wall switch](https://user-images.githubusercontent.com/5664637/63649478-eaa79480-c746-11e9-94ff-092814f62c6f.jpg)
+
 
 >**Warning** : This is experimental version. It may be very unstable.
 
@@ -202,6 +204,27 @@ smokeSensor.OnDensityChanged += (_, e) =>
     Console.WriteLine($"Density changed {e.Density}");
 };
 ```
+### 7.  Wireless dual wall switch
+![wireless dual wall switch](https://user-images.githubusercontent.com/5664637/63649478-eaa79480-c746-11e9-94ff-092814f62c6f.jpg)
 
+```csharp
+var switch = miHome.GetDevicesByType<WirelessDualWallSwitch>().First();
+
+switch.OnLeftClick += (_, __) =>
+{
+    Console.WriteLine("Left button clicked !");
+};
+
+switch.OnRightDoubleClick += (_, __) =>
+{
+    Console.WriteLine("Right button double clicked !");
+};
+
+switch.OnLeftLongClick += (_, __) =>
+{
+    Console.WriteLine("Left button long clicked !");
+};
+
+```
 
 When I buy more devices I will update library
