@@ -26,15 +26,21 @@ via nuget package manager
 Install-Package MiHomeLib
 ```
 ## Setup Gateway
-Before starting to use this library you should setup development mode on your gateway.
+Before using this library you should setup development mode on your gateway.
 
-Here is instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
+Here is an instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
+
+>**Warning**: If you bought a new revision of Mi Home Gateway (see picture bellow)<br>
+![image](https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png)<br>
+it could be possible that ports on your gateway required for UDP multicast traffic are **closed**.<br>
+Before using this library they must be opened.<br>
+[Instruction](https://community.openhab.org/t/solved-openhab2-xiaomi-mi-gateway-does-not-respond/52963/114)
 
 >**Warning**: Mi Home Gateway uses udp multicast for messages handling.<br>
 > So your app **must** be hosted in the same LAN as your gateway.<br>
 > If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
 
->**Warning** : If your app is running on windows machine, make sure that you disabled virtual netweork adapters like VirtualBox, Hyper-V, Npcap, pcap etc.<br>
+>**Warning** : If your app is running on windows machine, make sure that you disabled virtual network adapters like VirtualBox, Hyper-V, Npcap, pcap etc.<br>
 > Because these adapters may prevent proper work of multicast traffic between your machine and gateway
 
 ## Usage examples
@@ -94,11 +100,11 @@ var gateway = miHome.GetGateway();
 Console.WriteLine(gateway); // Sample output --> Rgb: 0, Illumination: 997, ProtoVersion: 1.0.9
 
 gateway?.EnableLight(); // "white" light by default
-Thread.Sleep(5000);
+Task.Delay(5000).Wait();
 gateway?.DisableLight();
 
 gateway?.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
-Thread.Sleep(5000);
+Task.Delay(5000).Wait();
 gateway?.StopPlayMusic();
 ```
 
@@ -130,7 +136,7 @@ var socketPlug = miHome.GetDeviceBySid<SocketPlug>("158d00015dc6cc"); // get spe
 Console.WriteLine(socketPlug); // Status: on, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
 
 socketPlug.TurnOff();
-Thread.Sleep(5000);
+Task.Delay(5000).Wait();
 socketPlug.TurnOn();
 ```
 
