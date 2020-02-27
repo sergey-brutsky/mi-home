@@ -7,8 +7,11 @@ namespace MiHomeLib.Devices
     {
         public event EventHandler OnLeak;
         public event EventHandler OnNoLeak;
-        
-        public WaterLeakSensor(string sid) : base(sid, "sensor_wleak.aq1") { }
+
+        public WaterLeakSensor(string sid) : base(sid, "sensor_wleak.aq1")
+        {
+            Status = "no_leak";
+        }
 
         public string Status { get; private set; }
 

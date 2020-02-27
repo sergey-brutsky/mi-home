@@ -7,11 +7,12 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography;
 using MiHomeLib.Commands;
+using MiHomeLib.Contracts;
 using Newtonsoft.Json;
 
 namespace MiHomeLib
 {
-    public class UdpTransport: IDisposable
+    public class UdpTransport: IMessageTransport
     {
         private readonly string _gatewayWritePassword;
         private readonly string _multicastAddress;

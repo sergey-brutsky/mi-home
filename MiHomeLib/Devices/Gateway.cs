@@ -1,5 +1,6 @@
 ﻿using System;
 using MiHomeLib.Commands;
+using MiHomeLib.Contracts;
 using Newtonsoft.Json.Linq;
 #pragma warning disable CS0675
 
@@ -7,9 +8,9 @@ namespace MiHomeLib.Devices
 {
     public class Gateway : MiHomeDevice
     {
-        private readonly UdpTransport _transport;
+        private readonly IMessageTransport _transport;
 
-        public Gateway(string sid, UdpTransport transport) : base(sid, "gateway")
+        public Gateway(string sid, IMessageTransport transport) : base(sid, "gateway")
         {
             _transport = transport;
         }

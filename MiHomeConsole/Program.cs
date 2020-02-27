@@ -13,7 +13,6 @@ namespace MiHomeConsole
             using (var miHome = new MiHome())
             {
                 Task.Delay(5000).Wait();
-
                 foreach (var miHomeDevice in miHome.GetDevices())
                 {
                     Console.WriteLine($"{miHomeDevice.Sid}, {miHomeDevice.GetType()}, {miHomeDevice}" ); // all discovered devices
