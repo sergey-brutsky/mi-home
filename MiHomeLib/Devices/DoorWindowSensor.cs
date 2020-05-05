@@ -5,10 +5,15 @@ namespace MiHomeLib.Devices
 {
     public class DoorWindowSensor : MiHomeDevice
     {
+        public const string SensorKey = "magnet";
+
+        public override string Type => SensorKey;
+
         public event EventHandler OnOpen;
+
         public event EventHandler OnClose;
 
-        public DoorWindowSensor(string sid) : base(sid, "magnet") { }
+        public DoorWindowSensor(string sid) : base(sid) { }
 
         public float? Voltage { get; set; }
 

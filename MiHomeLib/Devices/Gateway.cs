@@ -7,9 +7,13 @@ namespace MiHomeLib.Devices
 {
     public class Gateway : MiHomeDevice
     {
+        public const string SensorKey = "gateway";
+
+        public override string Type => SensorKey;
+
         private readonly UdpTransport _transport;
 
-        public Gateway(string sid, UdpTransport transport) : base(sid, "gateway")
+        public Gateway(string sid, UdpTransport transport) : base(sid)
         {
             _transport = transport;
         }

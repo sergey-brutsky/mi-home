@@ -1,21 +1,22 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class Switch : MiHomeDevice
+    public class AqaraOpenCloseSensor : MiHomeDevice
     {
-        public const string SensorKey = "switch";
+        public const string SensorKey = "sensor_magnet.aq2";
 
         public override string Type => SensorKey;
 
-        public event EventHandler OnClick;
+        public event EventHandler OnOpen;
 
-        public event EventHandler OnDoubleClick;
+        public event EventHandler OnClose;
 
-        public event EventHandler OnLongPress;
-
-        public Switch(string sid) : base(sid) { }
+        public AqaraOpenCloseSensor(string sid) : base(sid)
+        {
+        }
 
         public float? Voltage { get; set; }
 
@@ -29,19 +30,13 @@ namespace MiHomeLib.Devices
             {
                 Status = jObject["status"].ToString();
 
-                if (Status == "click")
+                if (Status == "open")
                 {
-                    OnClick?.Invoke(this, EventArgs.Empty);
+                    OnOpen?.Invoke(this, EventArgs.Empty);
                 }
-
-                if (Status == "double_click")
+                else if (Status == "close")
                 {
-                    OnDoubleClick?.Invoke(this, EventArgs.Empty);
-                }
-
-                if (Status == "long_click_press")
-                {
-                    OnLongPress?.Invoke(this, EventArgs.Empty);
+                    OnClose?.Invoke(this, EventArgs.Empty);
                 }
             }
 
@@ -49,11 +44,13 @@ namespace MiHomeLib.Devices
             {
                 Voltage = v / 1000;
             }
+
+            Debug.WriteLine($"Sid: {Sid}, Type: {GetType().Name}, Command: {command}, Sensor: {this}");
         }
 
         public override string ToString()
         {
-            return $"Last status: {Status}, Voltage: {Voltage}V";
+            return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}";
         }
     }
 }

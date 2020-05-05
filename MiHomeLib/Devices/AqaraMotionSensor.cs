@@ -1,21 +1,28 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class MotionSensor : MiHomeDevice
+    public class AqaraMotionSensor : MiHomeDevice
     {
-        public const string SensorKey = "motion";
+        public const string SensorKey = "sensor_motion.aq2";
         public override string Type => SensorKey;
+
         public event EventHandler OnMotion;
+
         public event EventHandler<NoMotionEventArgs> OnNoMotion;
 
-        public MotionSensor(string sid) : base(sid) {}
+        public AqaraMotionSensor(string sid) : base(sid)
+        {
+        }
 
         public float? Voltage { get; set; }
 
         public string Status { get; private set; }
+
+        public int Lux { get; private set; }
 
         public int NoMotion { get; set; }
 
@@ -34,10 +41,15 @@ namespace MiHomeLib.Devices
                 }
             }
 
+            if (jObject["lux"] != null)
+            {
+                Lux = int.Parse(jObject["lux"].ToString());
+            }
+
             if (jObject["no_motion"] != null)
             {
                 NoMotion = int.Parse(jObject["no_motion"].ToString());
-                
+
                 OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
             }
 
@@ -45,15 +57,15 @@ namespace MiHomeLib.Devices
             {
                 Voltage = v / 1000;
             }
+
+            Debug.WriteLine($"Sid: {Sid}, Type: {GetType().Name}, Command: {command}, Sensor: {this}");
         }
 
         public DateTime? MotionDate { get; private set; }
 
         public override string ToString()
         {
-            return $"Status: {Status}, Voltage: {Voltage}V, NoMotion: {NoMotion}s";
+            return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}, {nameof(Lux)}:{Lux}, {nameof(NoMotion)}: {NoMotion}s";
         }
-
-        
     }
 }
