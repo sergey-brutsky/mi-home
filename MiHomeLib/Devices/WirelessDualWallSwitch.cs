@@ -5,6 +5,10 @@ namespace MiHomeLib.Devices
 {
     public class WirelessDualWallSwitch : MiHomeDevice
     {
+        public const string SensorKey = "remote.b286acn01";
+
+        public override string Type => SensorKey;
+
         private const string LeftChannel = "channel_0";
         private const string RightChannel = "channel_1";
 
@@ -57,9 +61,6 @@ namespace MiHomeLib.Devices
 
         }
 
-        public WirelessDualWallSwitch(string sid) : base(sid, "remote.b286acn01")
-        {
-
-        }
+        public WirelessDualWallSwitch(string sid) : base(sid) { }
     }
 }

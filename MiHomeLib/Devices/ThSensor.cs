@@ -6,12 +6,17 @@ namespace MiHomeLib.Devices
 {
     public class ThSensor : MiHomeDevice
     {
+        public const string SensorKey = "sensor_ht";
+
+        public override string Type => SensorKey;
+
         public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
+
         public event EventHandler<HumidityEventArgs> OnHumidityChange;
 
-        public ThSensor(string sid) : this(sid, "sensor_ht") {}
-
-        protected ThSensor(string sid, string type) : base(sid, type) { }
+        public ThSensor(string sid) : base(sid)
+        {
+        }
 
         public float? Voltage { get; private set; }
         public float? Temperature { get; private set; }

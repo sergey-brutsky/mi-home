@@ -6,11 +6,14 @@ namespace MiHomeLib.Devices
 {
     public class SmokeSensor : MiHomeDevice
     {
+        public const string SensorKey = "smoke";
+
+        public override string Type => SensorKey;
         public event EventHandler<DensityEventArgs> OnDensityChange;
         public event EventHandler<EventArgs> OnAlarm;
         public event EventHandler<EventArgs> OnAlarmStopped;
 
-        public SmokeSensor(string sid) : base(sid, "smoke") { }
+        public SmokeSensor(string sid) : base(sid) { }
 
         public float? Voltage { get; private set; }
         public bool Alarm { get; private set; }

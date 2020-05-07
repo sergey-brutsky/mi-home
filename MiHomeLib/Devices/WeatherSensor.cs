@@ -6,9 +6,12 @@ namespace MiHomeLib.Devices
 {
     public class WeatherSensor : ThSensor
     {
+        public const string SensorKey = "weather.v1";
+        public override string Type => SensorKey;
+
         public event EventHandler<PressureEventArgs> OnPressureChange;
         
-        public WeatherSensor(string sid) : base(sid, "weather.v1") {}
+        public WeatherSensor(string sid) : base(sid) {}
 
         public float? Pressure { get; private set; }
 

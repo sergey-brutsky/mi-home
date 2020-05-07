@@ -5,10 +5,14 @@ namespace MiHomeLib.Devices
 {
     public class WaterLeakSensor : MiHomeDevice
     {
+        public const string SensorKey = "sensor_wleak.aq1";
+
+        public override string Type => SensorKey;
+
         public event EventHandler OnLeak;
         public event EventHandler OnNoLeak;
         
-        public WaterLeakSensor(string sid) : base(sid, "sensor_wleak.aq1") { }
+        public WaterLeakSensor(string sid) : base(sid) { }
 
         public string Status { get; private set; }
 

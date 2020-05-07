@@ -6,8 +6,12 @@ namespace MiHomeLib.Devices
 {
     public class SocketPlug : MiHomeDevice
     {
+        public const string SensorKey = "plug";
+
+        public override string Type => SensorKey;
+
         private readonly UdpTransport _transport;
-        public SocketPlug(string sid, UdpTransport transport) : base(sid, "plug")
+        public SocketPlug(string sid, UdpTransport transport) : base(sid)
         {
             _transport = transport;
         }
