@@ -5,11 +5,15 @@ namespace MiHomeLib.Devices
 {
     public class Switch : MiHomeDevice
     {
+        public const string TypeKey = "switch";
+
         public event EventHandler OnClick;
+
         public event EventHandler OnDoubleClick;
+
         public event EventHandler OnLongPress;
 
-        public Switch(string sid) : base(sid, "switch") { }
+        public Switch(string sid) : base(sid, TypeKey) {}
 
         public float? Voltage { get; set; }
 
@@ -39,10 +43,7 @@ namespace MiHomeLib.Devices
                 }
             }
 
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
-            {
-                Voltage = v / 1000;
-            }
+            Voltage = jObject.ParseVoltage();
         }
 
         public override string ToString()

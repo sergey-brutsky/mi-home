@@ -1,6 +1,6 @@
 ﻿namespace MiHomeLib.Commands
 {
-    public enum ResponseCommandType
+public enum ResponseCommandType
     {
         Unknown,
         GetIdListAck,

@@ -6,10 +6,13 @@ namespace MiHomeLib.Devices
 {
     public class WiredDualWallSwitch : MiHomeDevice
     {
+        public const string TypeKey = "ctrl_neutral2";
+
         public event EventHandler OnSwitchChannelRight;
+
         public event EventHandler OnSwitchChannelLeft;
 
-        public WiredDualWallSwitch(string sid) : base(sid, "ctrl_neutral2") 
+        public WiredDualWallSwitch(string sid) : base(sid, TypeKey)
         {
             StatusLeft = "idle";
             StatusRight = "idle";

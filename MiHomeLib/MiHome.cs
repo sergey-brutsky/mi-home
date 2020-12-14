@@ -8,43 +8,69 @@ using Microsoft.Extensions.Logging;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib
 {
     public class MiHome : IDisposable
     {
+        private static ILogger _logger;
+        private static ILoggerFactory _loggerFactory;
+
         private Gateway _gateway;
         private readonly string _gatewaySid;
         private static IMessageTransport _transport;
+        private readonly MiHomeDeviceFactory _miHomeDeviceFactory;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        private readonly ConcurrentDictionary<string, MiHomeDevice> _devicesList = new ConcurrentDictionary<string, MiHomeDevice>();
+        public static bool LogRawCommands { set; private get; }
+
+        public static ILoggerFactory LoggerFactory
+        {
+            set
+            {
+                _loggerFactory = value;
+                _logger = _loggerFactory.CreateLogger<MiHome>();
+            }
+            get
+            {
+                return _loggerFactory;
+            }
+        }
+
+        private readonly ConcurrentDictionary<string, MiHomeDevice> _devicesList =
+            new ConcurrentDictionary<string, MiHomeDevice>();
+
         private readonly Dictionary<string, string> _namesMap;
 
         private const int ReadDeviceInterval = 100;
-        
-        private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
-        {
-            {"gateway",          sid => new Gateway(sid, _transport)},
-            {"sensor_ht",        sid => new ThSensor(sid)},
-            {"weather.v1",       sid => new WeatherSensor(sid)},
-            {"motion",           sid => new MotionSensor(sid)},
-            {"plug",             sid => new SocketPlug(sid, _transport)},
-            {"magnet",           sid => new DoorWindowSensor(sid)},
-            {"sensor_wleak.aq1", sid => new WaterLeakSensor(sid)},
-            {"smoke",            sid => new SmokeSensor(sid)},
-            {"switch",           sid => new Switch(sid)},
-            {"ctrl_neutral2",    sid => new WiredDualWallSwitch(sid)},
-            {"remote.b286acn01", sid => new WirelessDualWallSwitch(sid)},
-        };
 
-        private readonly Dictionary<string, Action<ResponseCommand>> _commandsToActions;
+        private readonly Dictionary<ResponseCommandType, Action<ResponseCommand>> _commandsToActions;
         private readonly Task _receiveTask;
-        private readonly ILogger<MiHome> _logger;
 
-        public MiHome(Dictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null): this(gatewayPassword, gatewaySid)
+        public MiHome(string gatewayPassword = null, string gatewaySid = null)
+        {
+            _commandsToActions = new Dictionary<ResponseCommandType, Action<ResponseCommand>>
+            {
+                {ResponseCommandType.GetIdListAck, DiscoverGatewayAndDevices},
+                {ResponseCommandType.ReadAck, ProcessReadAck},
+                {ResponseCommandType.Report, ProcessReport},
+                {ResponseCommandType.Hearbeat, ProcessHeartbeat},
+            };
+
+            _gatewaySid = gatewaySid;
+
+            _transport = new UdpTransport(new KeyBuilder(gatewayPassword));
+
+            _miHomeDeviceFactory = new MiHomeDeviceFactory(_transport);
+
+            _receiveTask = Task.Run(() => StartReceivingMessagesAsync(_cts.Token), _cts.Token);
+
+            _transport.SendCommand(new DiscoverGatewayCommand());
+        }
+
+        public MiHome(Dictionary<string, string> namesMap, string gatewayPassword = null, string gatewaySid = null)
+            : this(gatewayPassword, gatewaySid)
         {
             if (namesMap.GroupBy(x => x.Value).Any(x => x.Count() > 1))
             {
@@ -52,73 +78,6 @@ namespace MiHomeLib
             }
 
             _namesMap = namesMap;
-        }
-
-        public MiHome(string gatewayPassword = null, string gatewaySid = null) : this(gatewayPassword, gatewaySid, null, null) {}
-        
-        public MiHome(IMessageTransport transport, ILogger<MiHome> logger) : this(null, null, transport, logger) {}
-
-        private MiHome(string gatewayPassword = null, string gatewaySid = null, IMessageTransport transport = null, ILogger<MiHome> logger = null)
-        {
-            if (logger == null)
-            {
-                var loggerFactory = LoggerFactory.Create(builder =>
-                {
-                    builder.ClearProviders();
-                    builder.SetMinimumLevel(LogLevel.Information);
-                    builder.AddConsole();
-                });
-
-                _logger = loggerFactory.CreateLogger<MiHome>();
-            }
-            else
-            {
-                _logger = logger;
-            }
-
-            _commandsToActions = new Dictionary<string, Action<ResponseCommand>>
-            {
-                { "get_id_list_ack", DiscoverGatewayAndDevices},
-                { "read_ack", ProcessReadAck},
-                { "heartbeat", ProcessHeartbeat},
-                { "report", ProcessReport},
-            };
-
-            _gatewaySid = gatewaySid;
-
-            _transport = transport ?? new UdpTransport(gatewayPassword);
-
-            _receiveTask = Task.Run(() => StartReceivingMessages(_cts.Token), _cts.Token);
-
-            _transport.SendCommand(new DiscoverGatewayCommand());
-        }
-
-        private async Task StartReceivingMessages(CancellationToken ct)
-        {
-            // Receive messages
-            while (!ct.IsCancellationRequested)
-            {
-                try
-                {
-                    //TODO: Remove asynchronious here (no need for that)
-                    var str = await _transport.ReceiveAsync().ConfigureAwait(false);
-                    //_logger.LogInformation(str);
-                    var respCmd = ResponseCommand.FromString(str);
-
-                    //TODO: Check that command type is known
-                    //TODO: Check that command model is known
-                    //TODO: Emit an approprite event Report, Hearbeat, ReadAck
-                    //TODO: Create a MiHomeDevice object and call ParseData method here
-                    
-                    //if (!_commandsToActions.ContainsKey(respCmd.Cmd)) continue;
-
-                    //_commandsToActions[respCmd.Cmd](respCmd);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, e.Message);
-                }
-            }
         }
 
         public IReadOnlyCollection<MiHomeDevice> GetDevices()
@@ -144,9 +103,15 @@ namespace MiHomeLib
 
         public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
         {
-            if (!_devicesList.ContainsKey(sid)) throw new ArgumentException($"There is no device with sid '{sid}'");
+            if (!_devicesList.TryGetValue(sid, out var miHomeDevice))
+            {
+                throw new ArgumentException($"There is no device with sid '{sid}'");
+            }
 
-            if(!(_devicesList[sid] is T device)) throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
+            if (!(miHomeDevice is T device))
+            {
+                throw new InvalidCastException($"Device with sid '{sid}' cannot be converted to {nameof(T)}");
+            }
 
             return device;
         }
@@ -162,7 +127,34 @@ namespace MiHomeLib
             _receiveTask?.Wait();
             _transport?.Dispose();
         }
-        
+
+        private async Task StartReceivingMessagesAsync(CancellationToken ct)
+        {
+            // Receive messages
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    var str = await _transport.ReceiveAsync().ConfigureAwait(false);
+                    var respCmd = ResponseCommand.FromString(str);
+
+                    if(LogRawCommands) _logger?.LogInformation(str);
+
+                    if (!_commandsToActions.TryGetValue(respCmd.Command, out var actionCommand))
+                    {
+                        _logger?.LogInformation($"Command '{respCmd.RawCommand}' is not a response command, skipping it");
+                        continue;
+                    }
+
+                    actionCommand(respCmd);
+                }
+                catch (Exception e)
+                {
+                    _logger?.LogError(e, "Unexpected error");
+                }
+            }
+        }
+
         private void ProcessReport(ResponseCommand cmd)
         {
             GetOrAddDeviceByCommand(cmd)?.ParseData(cmd.Data);
@@ -170,43 +162,50 @@ namespace MiHomeLib
 
         private void ProcessHeartbeat(ResponseCommand cmd)
         {
-            if (_gateway != null && cmd.Sid == _gateway.Sid)
-            {
-                _transport.SetToken(cmd.Token);
-                _gateway.ParseData(cmd.Data);
-            }
-            else if(cmd.Model != "gateway") 
+            if (cmd.Model != Gateway.TypeKey)
             {
                 GetOrAddDeviceByCommand(cmd)?.ParseData(cmd.Data);
+            }
+            else
+            {
+                _transport.Token = cmd.Token;
+                _gateway.ParseData(cmd.Data);
             }
         }
 
         private void ProcessReadAck(ResponseCommand cmd)
         {
-            if(cmd.Model != "gateway") GetOrAddDeviceByCommand(cmd);
+            if (cmd.Model != Gateway.TypeKey) GetOrAddDeviceByCommand(cmd);
         }
 
         private MiHomeDevice GetOrAddDeviceByCommand(ResponseCommand cmd)
         {
-            if (_gateway != null && cmd.Sid == _gateway.Sid) return null;
-
-            if (_devicesList.ContainsKey(cmd.Sid)) return _devicesList[cmd.Sid];
-            
-            if (!_devicesMap.ContainsKey(cmd.Model))
+            if (_devicesList.TryGetValue(cmd.Sid, out var miHomeDevice))
             {
-                _logger.LogWarning($"Device '{cmd.Model}' is not supported in the library. Please send a feature request to author.");
-                return null;
+                return miHomeDevice;
             }
 
-            var device = _devicesMap[cmd.Model](cmd.Sid);
+            try
+            {
+                var device = _miHomeDeviceFactory.CreateByModel(cmd.Model, cmd.Sid);
 
-            if (_namesMap != null && _namesMap.ContainsKey(cmd.Sid)) device.Name = _namesMap[cmd.Sid];
+                if (_namesMap != null && _namesMap.TryGetValue(cmd.Sid, out var deviceName))
+                {
+                    device.Name = deviceName;
+                }
 
-            if (cmd.Data != null) device.ParseData(cmd.Data);
+                if (cmd.Data != null) device.ParseData(cmd.Data);
 
-            _devicesList.TryAdd(cmd.Sid, device);
+                _devicesList.TryAdd(cmd.Sid, device);
 
-            return device;
+                return device;
+            }
+            catch(ModelNotSupportedException e)
+            {
+                _logger?.LogWarning(e, "Model is unknown");
+
+                return null;
+            }
         }
 
         private void DiscoverGatewayAndDevices(ResponseCommand cmd)
@@ -218,12 +217,12 @@ namespace MiHomeLib
                     _gateway = new Gateway(cmd.Sid, _transport);
                 }
 
-                _transport.SetToken(cmd.Token);
+                _transport.Token = cmd.Token;
             }
             else if (_gatewaySid == cmd.Sid)
             {
                 _gateway = new Gateway(cmd.Sid, _transport);
-                _transport.SetToken(cmd.Token);
+                _transport.Token = cmd.Token;
             }
 
             if (_gateway == null) return;

@@ -8,34 +8,42 @@ namespace MiHomeLib.Devices
 {
     public class Gateway : MiHomeDevice
     {
+        public const string TypeKey = "gateway";
+
         private readonly IMessageTransport _transport;
 
-        public Gateway(string sid, IMessageTransport transport) : base(sid, "gateway")
+        public Gateway(string sid, IMessageTransport transport) : base(sid, TypeKey)
         {
             _transport = transport;
         }
 
-        public string Rgb { get; private set; }
-        public string Illumination { get; private set; }
+        public string Ip { get; private set; }
+        public int Rgb { get; private set; }
+        public int Illumination { get; private set; }
         public string ProtoVersion { get; private set; }
 
         public override void ParseData(string command)
         {
             var jObject = JObject.Parse(command);
 
-            if (jObject["rgb"] != null)
+            if (jObject.ParseInt("rgb", out int rgb))
             {
-                Rgb = jObject["rgb"].ToString();
+                Rgb = rgb;
             }
 
-            if (jObject["illumination"] != null)
+            if (jObject.ParseInt("illumination", out int illumination))
             {
-                Illumination = jObject["illumination"].ToString();
+                Illumination = illumination;
             }
 
-            if (jObject["proto_version"] != null)
+            if (jObject.ParseString("proto_version", out string protoVersion))
             {
-                ProtoVersion = jObject["proto_version"].ToString();
+                ProtoVersion = protoVersion;
+            }
+
+            if(jObject.ParseString("ip", out string ip))
+            {
+                Ip = ip;
             }
         }
 

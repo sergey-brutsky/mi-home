@@ -6,12 +6,14 @@ namespace MiHomeLib.Devices
 {
     public class ThSensor : MiHomeDevice
     {
+        public const string TypeKey = "sensor_ht";
+
         public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
+
         public event EventHandler<HumidityEventArgs> OnHumidityChange;
 
-        public ThSensor(string sid) : this(sid, "sensor_ht") {}
-
-        protected ThSensor(string sid, string type) : base(sid, type) { }
+        public ThSensor(string sid) : base(sid, TypeKey) {}
+        public ThSensor(string sid, string TypeKey) : base(sid, TypeKey) { }
 
         public float? Voltage { get; private set; }
         public float? Temperature { get; private set; }
@@ -21,7 +23,7 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            if (jObject["temperature"] != null && float.TryParse(jObject["temperature"].ToString(), out float t))
+            if(jObject.ParseFloat("temperature", out float t))
             {
                 var newTemperature = t / 100;
 
@@ -33,27 +35,24 @@ namespace MiHomeLib.Devices
                 Temperature = newTemperature;
             }
 
-            if (jObject["humidity"] != null && float.TryParse(jObject["humidity"].ToString(), out float h))
+            if (jObject.ParseFloat("humidity", out float h))
             {
                 var newHumidity = h / 100;
 
-                if (Humidity != null && Math.Abs(newHumidity- Humidity.Value) > 0.01)
+                if (Humidity != null && Math.Abs(newHumidity - Humidity.Value) > 0.01)
                 {
                     OnHumidityChange?.Invoke(this, new HumidityEventArgs(newHumidity));
                 }
 
                 Humidity = newHumidity;
             }
-            
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
-            {
-                Voltage = v / 1000;
-            }
+
+            Voltage = jObject.ParseVoltage();
         }
 
         public override string ToString()
         {
-            return $"{(!string.IsNullOrEmpty(Name) ? "Name: "+ Name +", " : string.Empty)}Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
+            return $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
         }
     }
 }

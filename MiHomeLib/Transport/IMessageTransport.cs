@@ -6,12 +6,12 @@ namespace MiHomeLib.Contracts
 {
     public interface IMessageTransport: IDisposable
     {
-        int SendCommand(Command cmd);
+        int SendCommand(Command command);
 
         int SendWriteCommand(string sid, string type, Command data);
 
         Task<string> ReceiveAsync();
 
-        void SetToken(string token);
+        string Token { get; set; }
     }
 }

@@ -5,6 +5,8 @@ namespace MiHomeLib.Devices
 {
     public class WirelessDualWallSwitch : MiHomeDevice
     {
+        public const string TypeKey = "remote.b286acn01";
+
         private const string LeftChannel = "channel_0";
         private const string RightChannel = "channel_1";
 
@@ -16,6 +18,8 @@ namespace MiHomeLib.Devices
 
         public event Action<EventArgs> OnRightLongClick;
         public event Action<EventArgs> OnLeftLongClick;
+
+        public WirelessDualWallSwitch(string sid) : base(sid, TypeKey) { }
 
         public override void ParseData(string command)
         {
@@ -54,11 +58,6 @@ namespace MiHomeLib.Devices
                     OnRightLongClick?.Invoke(new EventArgs());
                 }
             }
-
-        }
-
-        public WirelessDualWallSwitch(string sid) : base(sid, "remote.b286acn01")
-        {
 
         }
     }

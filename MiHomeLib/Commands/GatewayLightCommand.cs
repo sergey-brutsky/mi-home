@@ -1,6 +1,6 @@
 ﻿namespace MiHomeLib.Commands
 {
-    internal class GatewayLightCommand : Command
+    public class GatewayLightCommand : Command
     {
         private readonly long _rgb;
 

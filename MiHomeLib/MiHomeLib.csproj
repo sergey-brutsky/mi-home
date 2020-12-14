@@ -31,4 +31,8 @@
     <PackageReference Include="newtonsoft.json" Version="9.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+    <Folder Include="Helpers\" />
+  </ItemGroup>
 </Project>

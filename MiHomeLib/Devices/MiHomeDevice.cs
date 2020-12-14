@@ -13,5 +13,10 @@
         }
 
         public abstract void ParseData(string command);
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, Sid: {Sid}, Type: {Type}";
+        }
     }
 }

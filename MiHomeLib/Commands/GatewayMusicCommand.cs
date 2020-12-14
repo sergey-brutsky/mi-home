@@ -1,6 +1,6 @@
 ﻿namespace MiHomeLib.Commands
 {
-    internal class GatewayMusicCommand : Command
+    public class GatewayMusicCommand : Command
     {
         private readonly int _midNo;
 

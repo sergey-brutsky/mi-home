@@ -5,13 +5,12 @@ namespace MiHomeLib.Devices
 {
     public class WaterLeakSensor : MiHomeDevice
     {
+        public const string TypeKey = "sensor_wleak.aq1";
+
         public event EventHandler OnLeak;
         public event EventHandler OnNoLeak;
-
-        public WaterLeakSensor(string sid) : base(sid, "sensor_wleak.aq1")
-        {
-            Status = "no_leak";
-        }
+        
+        public WaterLeakSensor(string sid) : base(sid, TypeKey) { }
 
         public string Status { get; private set; }
 
@@ -34,11 +33,8 @@ namespace MiHomeLib.Devices
                     OnNoLeak?.Invoke(this, EventArgs.Empty);
                 }
             }
-            
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
-            {
-                Voltage = v / 1000;
-            }
+
+            Voltage = jObject.ParseVoltage();
         }
 
         public override string ToString()

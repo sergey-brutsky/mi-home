@@ -6,9 +6,11 @@ namespace MiHomeLib.Devices
 {
     public class WeatherSensor : ThSensor
     {
+        public new const string TypeKey = "weather.v1";
+        
         public event EventHandler<PressureEventArgs> OnPressureChange;
         
-        public WeatherSensor(string sid) : base(sid, "weather.v1") {}
+        public WeatherSensor(string sid) : base(sid, TypeKey) {}
 
         public float? Pressure { get; private set; }
 
@@ -32,7 +34,7 @@ namespace MiHomeLib.Devices
 
         public override string ToString()
         {
-            return $"{(!string.IsNullOrEmpty(Name) ? "Name: " + Name + ", " : string.Empty)}Temperature: {Temperature}°C, Humidity: {Humidity}%, Pressure: {Pressure}kPa, Voltage: {Voltage}V";
+            return $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Pressure: {Pressure}kPa, Voltage: {Voltage}V";
         }
     }
 }

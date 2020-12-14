@@ -7,8 +7,11 @@ namespace MiHomeLib.Devices
 {
     public class SocketPlug : MiHomeDevice
     {
+        public const string TypeKey = "plug";
+
         private readonly IMessageTransport _transport;
-        public SocketPlug(string sid, IMessageTransport transport) : base(sid, "plug")
+
+        public SocketPlug(string sid, IMessageTransport transport) : base(sid, TypeKey)
         {
             _transport = transport;
         }
@@ -23,29 +26,26 @@ namespace MiHomeLib.Devices
         {
             var jObject = JObject.Parse(command);
 
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float voltage))
+            Voltage = jObject.ParseVoltage();
+
+            if (jObject.ParseString("status", out string status))
             {
-                Voltage = voltage / 1000;
+                Status = status;
             }
 
-            if (jObject["inuse"] != null && int.TryParse(jObject["inuse"].ToString(), out int inuse))
+            if (jObject.ParseInt("inuse", out int inuse))
             {
                 Inuse = inuse;
             }
 
-            if (jObject["power_consumed"] != null && int.TryParse(jObject["power_consumed"].ToString(), out int powerConsumed))
+            if (jObject.ParseInt("power_consumed", out int powerConsumed))
             {
                 PowerConsumed = powerConsumed;
             }
 
-            if (jObject["load_power"] != null && float.TryParse(jObject["load_power"].ToString(), NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat, out float loadPower))
+            if (jObject.ParseFloat("load_power", out float loadPower))
             {
                 LoadPower = loadPower;
-            }
-
-            if (jObject["status"] != null)
-            {
-                Status = jObject["status"].ToString();
             }
         }
 
@@ -61,7 +61,7 @@ namespace MiHomeLib.Devices
 
         public void TurnOn()
         {
-            _transport.SendWriteCommand(Sid, Type, new SocketPlugCommand());
+            _transport.SendWriteCommand(Sid, Type, new SocketPlugCommand("on"));
         }
     }
 }

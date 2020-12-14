@@ -5,10 +5,17 @@ namespace MiHomeLib.Devices
 {
     public class DoorWindowSensor : MiHomeDevice
     {
+        public const string TypeKey = "magnet";
+
         public event EventHandler OnOpen;
+
         public event EventHandler OnClose;
 
-        public DoorWindowSensor(string sid) : base(sid, "magnet") { }
+        public event EventHandler NotClosedFor1Minute;
+
+        public event EventHandler NotClosedFor5Minutes;
+
+        public DoorWindowSensor(string sid) : base(sid, TypeKey) { }
 
         public float? Voltage { get; set; }
 
@@ -17,25 +24,28 @@ namespace MiHomeLib.Devices
         public override void ParseData(string command)
         {
             var jObject = JObject.Parse(command);
-
-            if (jObject["status"] != null)
+            
+            if (jObject.ParseString("status", out string status))
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "open")
+                if (status == "open")
                 {
+                    Status = status;
                     OnOpen?.Invoke(this, EventArgs.Empty);
                 }
-                else if (Status == "close")
+                else if (status == "close")
                 {
+                    Status = status;
                     OnClose?.Invoke(this, EventArgs.Empty);
                 }
             }
 
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
+            if (jObject.ParseInt("no_close", out int noClose))
             {
-                Voltage = v / 1000;
+                if(noClose == 60) NotClosedFor1Minute?.Invoke(this, EventArgs.Empty);
+                else if(noClose == 300) NotClosedFor5Minutes?.Invoke(this, EventArgs.Empty);
             }
+
+            Voltage = jObject.ParseVoltage();
         }
         public override string ToString()
         {
