@@ -5,13 +5,14 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiHomeConsole", "MiHomeConsole\MiHomeConsole.csproj", "{5541CE48-6FE0-41C6-A19F-7E4F6EE2D301}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiHomeLib", "MiHomeLib\MiHomeLib.csproj", "{41321779-2259-4BCF-AE60-FEFA72EB01A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiHomeLib", "MiHomeLib\MiHomeLib.csproj", "{41321779-2259-4BCF-AE60-FEFA72EB01A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiHomeUnitTests", "MiHomeUnitTests\MiHomeUnitTests.csproj", "{4BE4E438-C10B-4E47-898C-24C1CC168882}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{38649511-D75D-4245-80D3-E09CB043529B}"
 	ProjectSection(SolutionItems) = preProject
 		Makefile = Makefile
+		nuget.config = nuget.config
 	EndProjectSection
 EndProject
 Global
