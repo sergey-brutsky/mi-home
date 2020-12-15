@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
+using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib
@@ -23,6 +24,8 @@ namespace MiHomeLib
         private readonly MiHomeDeviceFactory _miHomeDeviceFactory;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
+        private readonly Dictionary<Type, Action<MiHomeDevice>> _deviceEvents = new Dictionary<Type, Action<MiHomeDevice>>();
+        
         public static bool LogRawCommands { set; private get; }
 
         public static ILoggerFactory LoggerFactory
@@ -48,8 +51,27 @@ namespace MiHomeLib
         private readonly Dictionary<ResponseCommandType, Action<ResponseCommand>> _commandsToActions;
         private readonly Task _receiveTask;
 
+        public event EventHandler<MiHomeDevice> OnAnyDevice;
+        public event EventHandler<Gateway> OnGateway;
+
+        public event EventHandler<AqaraCubeSensor> OnAqaraCubeSensor;
+        public event EventHandler<AqaraMotionSensor> OnAqaraMotionSensor;
+        public event EventHandler<AqaraOpenCloseSensor> OnAqaraOpenCloseSensor;
+        public event EventHandler<DoorWindowSensor> OnDoorWindowSensor;
+        public event EventHandler<MotionSensor> OnMotionSensor;
+        public event EventHandler<SmokeSensor> OnSmokeSensor;        
+        public event EventHandler<SocketPlug> OnSocketPlug;
+        public event EventHandler<Switch> OnSwitch;
+        public event EventHandler<ThSensor> OnThSensor;
+        public event EventHandler<WaterLeakSensor> OnWaterLeakSensor;
+        public event EventHandler<WeatherSensor> OnWeatherSensor;
+        public event EventHandler<WiredDualWallSwitch> OnWiredDualWallSwitch;
+        public event EventHandler<WirelessDualWallSwitch> OnWirelessDualWallSwitch;
+
         public MiHome(string gatewayPassword = null, string gatewaySid = null)
         {
+            _gatewaySid = gatewaySid;
+
             _commandsToActions = new Dictionary<ResponseCommandType, Action<ResponseCommand>>
             {
                 {ResponseCommandType.GetIdListAck, DiscoverGatewayAndDevices},
@@ -58,7 +80,22 @@ namespace MiHomeLib
                 {ResponseCommandType.Hearbeat, ProcessHeartbeat},
             };
 
-            _gatewaySid = gatewaySid;
+            _deviceEvents = new Dictionary<Type, Action<MiHomeDevice>>
+            {
+                { typeof(AqaraCubeSensor), x => OnAqaraCubeSensor?.Invoke(this, x as AqaraCubeSensor)},
+                { typeof(AqaraMotionSensor), x => OnAqaraMotionSensor?.Invoke(this, x as AqaraMotionSensor)},
+                { typeof(AqaraOpenCloseSensor), x => OnAqaraOpenCloseSensor?.Invoke(this, x as AqaraOpenCloseSensor)},
+                { typeof(DoorWindowSensor), x => OnDoorWindowSensor?.Invoke(this, x as DoorWindowSensor)},
+                { typeof(MotionSensor), x => OnMotionSensor?.Invoke(this, x as MotionSensor)},
+                { typeof(SmokeSensor), x => OnSmokeSensor?.Invoke(this, x as SmokeSensor)},
+                { typeof(SocketPlug), x => OnSocketPlug?.Invoke(this, x as SocketPlug)},
+                { typeof(Switch), x => OnSwitch?.Invoke(this, x as Switch)},
+                { typeof(ThSensor), x => OnThSensor?.Invoke(this, x as ThSensor)},
+                { typeof(WaterLeakSensor), x => OnWaterLeakSensor?.Invoke(this, x as WaterLeakSensor)},
+                { typeof(WeatherSensor), x => OnWeatherSensor?.Invoke(this, x as WeatherSensor)},
+                { typeof(WiredDualWallSwitch), x => OnWiredDualWallSwitch?.Invoke(this, x as WiredDualWallSwitch)},
+                { typeof(WirelessDualWallSwitch), x => OnWirelessDualWallSwitch?.Invoke(this, x as WirelessDualWallSwitch)},
+            };
 
             _transport = new UdpTransport(new KeyBuilder(gatewayPassword));
 
@@ -80,16 +117,19 @@ namespace MiHomeLib
             _namesMap = namesMap;
         }
 
-        public IReadOnlyCollection<MiHomeDevice> GetDevices()
-        {
-            return (IReadOnlyCollection<MiHomeDevice>) _devicesList.Values;
-        }
-
+        [Obsolete("Use OnGateway event instead")]
         public Gateway GetGateway()
         {
             return _gateway;
         }
 
+        [Obsolete("Use OnAnyDevice event instead")]
+        public IReadOnlyCollection<MiHomeDevice> GetDevices()
+        {
+            return (IReadOnlyCollection<MiHomeDevice>) _devicesList.Values;
+        }
+
+        [Obsolete("Use specific event, for example OnThSensor event")]
         public T GetDeviceByName<T>(string name) where T : MiHomeDevice
         {
             var device = _devicesList.Values.FirstOrDefault(x => x.Name == name);
@@ -101,6 +141,7 @@ namespace MiHomeLib
             throw new InvalidCastException($"Device with name '{name}' cannot be converted to {nameof(T)}");
         }
 
+        [Obsolete("Use specific event, for example OnThSensor event")]
         public T GetDeviceBySid<T>(string sid) where T : MiHomeDevice
         {
             if (!_devicesList.TryGetValue(sid, out var miHomeDevice))
@@ -116,6 +157,7 @@ namespace MiHomeLib
             return device;
         }
 
+        [Obsolete("Use specific event, for example OnThSensor event")]
         public IEnumerable<T> GetDevicesByType<T>() where T : MiHomeDevice
         {
             return _devicesList.Values.OfType<T>();
@@ -196,11 +238,19 @@ namespace MiHomeLib
 
                 if (cmd.Data != null) device.ParseData(cmd.Data);
 
-                _devicesList.TryAdd(cmd.Sid, device);
+                if (_devicesList.TryAdd(cmd.Sid, device))
+                {
+                    OnAnyDevice?.Invoke(this, device);
+
+                    if(_deviceEvents.ContainsKey(device.GetType()))
+                    {
+                        _deviceEvents[device.GetType()](device);
+                    }
+                }
 
                 return device;
             }
-            catch(ModelNotSupportedException e)
+            catch (ModelNotSupportedException e)
             {
                 _logger?.LogWarning(e, "Model is unknown");
 
@@ -210,22 +260,15 @@ namespace MiHomeLib
 
         private void DiscoverGatewayAndDevices(ResponseCommand cmd)
         {
-            if (_gatewaySid == null)
+            if (_gatewaySid != null && _gatewaySid != cmd.Sid)
             {
-                if (_gateway == null)
-                {
-                    _gateway = new Gateway(cmd.Sid, _transport);
-                }
-
-                _transport.Token = cmd.Token;
-            }
-            else if (_gatewaySid == cmd.Sid)
-            {
-                _gateway = new Gateway(cmd.Sid, _transport);
-                _transport.Token = cmd.Token;
+                throw new Exception("Gateway is not discovered, make sure that it is powered on");
             }
 
-            if (_gateway == null) return;
+            _transport.Token = cmd.Token;
+
+            _gateway = new Gateway(cmd.Sid, _transport);
+            OnGateway?.Invoke(this, _gateway);
 
             _transport.SendCommand(new ReadDeviceCommand(cmd.Sid));
 

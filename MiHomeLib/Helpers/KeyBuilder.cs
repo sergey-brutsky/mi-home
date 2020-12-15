@@ -14,11 +14,16 @@ namespace MiHomeLib
 
         public KeyBuilder(string gatewayPassword)
         {
-            _gatewayPassword = gatewayPassword ?? throw new Exception("You cannot send commands to gateway without password");
+            _gatewayPassword = gatewayPassword;
         }
 
         public string BuildKey(string token)
         {
+            if(_gatewayPassword == null)
+            {
+                throw new Exception("You cannot send commands to gateway without password");
+            }
+
             if (token == null)
             {
                 throw new Exception("Gateway token is null, not possible to send commands to devices");

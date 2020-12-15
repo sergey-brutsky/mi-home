@@ -4,19 +4,23 @@
     <Title>MiHomeLib</Title>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.10</PackageVersion>
+    <PackageVersion>1.0.11</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>c# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>Added new device wireless dual wall switch and fixed bugs with illumination.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+            This release mostly is code refactoring.
+            Added handling for event "window not closed for 1 minutes" and "window not closed for 5 minutes".
+            Added unit tests for all devices that I own.
+    </PackageReleaseNotes>
     <Copyright>Copyright 2017-2019 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>http://mi-home.ml/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/sergey-brutsky/mi-home/master/gateway.ico</PackageIconUrl>
-    <PackageIcon>gateway.ico</PackageIcon>
+    <!-- <PackageIcon>gateway.ico</PackageIcon> -->
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -25,14 +29,15 @@
   
 </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
   <ItemGroup>
-    <None Include="gateway.ico" Pack="true" PackagePath="\" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
     <PackageReference Include="newtonsoft.json" Version="9.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Folder Include="Helpers\" />
-  </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@ namespace MiHomeLib
     public class MiHomeDeviceFactory
     {
         private readonly IMessageTransport _transport;
+
         private readonly Dictionary<string, Func<string, MiHomeDevice>> _devicesMap;
         
         public MiHomeDeviceFactory(IMessageTransport transport)

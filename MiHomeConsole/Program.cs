@@ -7,7 +7,7 @@ using MiHomeLib.Devices;
 
 namespace MiHomeConsole
 {
-    internal class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
@@ -21,21 +21,18 @@ namespace MiHomeConsole
 
             //MiHome.LoggerFactory = LoggerFactory.Create(loggingBuilder);
             //MiHome.LogRawCommands = true;
-            
+
             // pwd of your gateway (optional, needed only to send commands to your devices) 
             // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-            //using (var miHome = new MiHome("pwd", "sid"))
-            using (var miHome = new MiHome())
+            //using var miHome = new MiHome("pwd", "sid")
+            using var miHome = new MiHome();
+
+            miHome.OnAnyDevice += (_, device) =>
             {
-                Task.Delay(5000).Wait();
+                Console.WriteLine($"{device.Sid}, {device.GetType()}, {device}"); // all discovered devices
+            };
 
-                foreach (var miHomeDevice in miHome.GetDevices())
-                {
-                    Console.WriteLine($"{miHomeDevice.Sid}, {miHomeDevice.GetType()}, {miHomeDevice}"); // all discovered devices
-                }
-
-                Console.ReadLine();
-            }
+            Console.ReadLine();
         }
     }
 }
