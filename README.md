@@ -2,9 +2,11 @@
 
 This library provides simple and flexible C# API for Xiaomi Mi Home devices.  
 
-Currently supports only Xiaomi Smart Gateway 2 device and several sensors. Please see the pictures below.
+Currently supports only Xiaomi Smart Gateway, Air Humidifier and several sensors. Please see the pictures below.
 
-![](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
+![gateway](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
+![humidifier](https://user-images.githubusercontent.com/5664637/102878695-b71f6c00-4459-11eb-92c1-518c57b34683.jpg)
+
 
 ![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
 ![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
@@ -84,9 +86,9 @@ using var miHome = new MiHome();
 miHome.OnGateway += (_, gateway) =>
 {
     gateway.EnableLight();
-    Task.Delay(3000);
+    Task.Delay(3000).Wait();
     gateway.DisableLight();
-    Task.Delay(3000);
+    Task.Delay(3000).Wait();
     gateway.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
     Task.Delay(3000).Wait();
     gateway.StopPlayMusic();
@@ -102,7 +104,7 @@ using var miHome = new MiHome();
 
 miHome.OnThSensor += (_, thSensor) =>
 {
-    if (thSensor.Sid == "158d000182dfbc") // device on kitchen
+    if (thSensor.Sid == "158d000182dfbc") // sid of specific device
     {
         Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidity: 74,66%, Voltage: 3,035V
 
@@ -130,7 +132,7 @@ miHome.OnSocketPlug += (_, socketPlug) =>
 {
     if (socketPlug.Sid == "158d00015dc6cc") // sid of specific device
     {
-        Console.WriteLine(socketPlug);
+        Console.WriteLine(socketPlug); // sample output Status: on, Inuse: 1, Load Power: 2.91V, Power Consumed: 37049W, Voltage: 3.6V
 
         socketPlug.TurnOff();
         Task.Delay(5000).Wait();
@@ -152,7 +154,7 @@ miHome.OnMotionSensor += (_, motionSensor) =>
 {
     if (motionSensor.Sid == "158d00015dc6cc") // sid of specific device
     {
-        Console.WriteLine(motionSensor);
+        Console.WriteLine(motionSensor); // sample output Status: motion, Voltage: 3.035V, NoMotion: 0s
 
         motionSensor.OnMotion += (_, __) =>
         {
@@ -180,7 +182,7 @@ miHome.OnDoorWindowSensor += (_, windowSensor) =>
 {
     if (windowSensor.Sid == "158d00015dc6cc") // sid of specific device
     {
-        Console.WriteLine(windowSensor);
+        Console.WriteLine(windowSensor); // sample output Status: close, Voltage: 3.025V
 
         windowSensor.OnOpen += (_, __) =>
         {
@@ -207,7 +209,7 @@ miHome.OnWaterLeakSensor += (_, waterLeakSensor) =>
 {
     if (waterLeakSensor.Sid == "158d00015dc6cc") // sid of specific device
     {
-        Console.WriteLine(waterLeakSensor);
+        Console.WriteLine(waterLeakSensor); // Status: no_leak, Voltage: 3.015V
 
         waterLeakSensor.OnLeak += (_, __) =>
         {
@@ -234,7 +236,7 @@ miHome.OnSmokeSensor += (_, smokeSensor) =>
 {
     if (smokeSensor.Sid == "158d00015dc6cc") // sid of specific device
     {
-        Console.WriteLine(smokeSensor);
+        Console.WriteLine(smokeSensor); // sample output Alarm: off, Density: 0, Voltage: 3.075V
 
         smokeSensor.OnAlarm += (_, __) =>
         {
@@ -308,4 +310,56 @@ miHome.OnAqaraCubeSensor += (_, aqaraQube) =>
 };
 ```
 
-When I buy more devices I will update library
+### 9.  Air Humidifier
+![humidifier](https://user-images.githubusercontent.com/5664637/102878695-b71f6c00-4459-11eb-92c1-518c57b34683.jpg)
+
+Before using the library you need to know IP and TOKEN of your air humidifier.
+If you don't know these parameters try to use the following code in order to discover air humidifiers in your LAN
+```csharp
+AirHumidifier.OnDiscovered += (_, humidifier) =>
+{
+    Console.WriteLine($"ip: {humidifier.Ip}, token: {humidifier.Token}");
+    // sample output ip: 192.168.1.5, token: 4a3a2f017b70097a850558c35c953b55
+};
+
+AirHumidifier.DiscoverDevices();
+```
+If your device hides his token follow [these instructions](https://www.home-assistant.io/integrations/xiaomi_miio#xiaomi-home-app-xiaomi-aqara-gateway-android--ios) in order to extract it.
+
+Basic scenario
+
+```csharp
+var airHumidifier = new AirHumidifier("192.168.1.5", "token here");
+Console.WriteLine(airHumidifier);
+/* sample output
+Power: on
+Mode: high
+Temperature: 32.6 °C
+Humidity: 34%
+LED brightness: bright
+Buzzer: on
+Child lock: off
+Target humidity: 50%
+Model: zhimi.humidifier.v1
+IP Address:192.168.1.5
+Token: 4a3a2f017b70097a850558c35c953b55
+*/
+```
+Functions
+```csharp
+var airHumidifier = new AirHumidifier("192.168.1.5", "token here");
+airHumidifier.PowerOn(); // power on
+airHumidifier.PowerOff(); // power off
+airHumidifier.SetMode(AirHumidifier.Mode.High); // set fan mode high/medium/low
+airHumidifier.GetTemperature(); // get temperature
+airHumidifier.GetHumidity(); // get humidity
+airHumidifier.SetBrightness(AirHumidifier.Brightness.Bright); // set brighness bright/dim/off
+airHumidifier.BuzzerOn(); // set buzzer sound on
+airHumidifier.BuzzerOff(); // set buzzer sound off
+airHumidifier.ChildLockOn(); // set child lock on
+airHumidifier.ChildLockOff(); // set child lock oаа
+airHumidifier.GetTargetHumidity(); // get humidity limit 20/30/40/50/60/70/80 %
+```
+Async versions of the operations above also supported.
+
+When I buy more devices I will update the library
