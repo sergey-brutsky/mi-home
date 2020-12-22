@@ -28,6 +28,12 @@ via nuget package manager
 ```nuget
 Install-Package MiHomeLib
 ```
+or
+```nuget
+dotnet add package MiHomeLib
+```
+or install via [GitHub packages](https://github.com/sergey-brutsky/mi-home/packages/540443)
+
 ## Setup Gateway
 Before using this library you should setup development mode on your gateway.
 
@@ -55,41 +61,14 @@ public static void Main(string[] args)
 {
     // pwd of your gateway (optional, needed only to send commands to your devices) 
     // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
-    using (var miHome = new MiHome("7c4mx86hn658f0f3"))
+    using var miHome = new MiHome();
+
+    miHome.OnAnyDevice += (_, device) =>
     {
-        Task.Delay(5000).Wait();
-
-        foreach (var miHomeDevice in miHome.GetDevices())
-        {
-            Console.WriteLine(miHomeDevice); // all discovered devices
-        }
-
-        Console.ReadLine();
-    }
-}
-```
-
-Get devices by name if you already know sid
-
-```csharp
-public static void Main(string[] args)
-{
-
-    var map = new Dictionary<string, string>
-    {
-        { "158d0001826509", "T&H sensor living room"}
+        Console.WriteLine($"{device.Sid}, {device.GetType()}, {device}"); // all discovered devices
     };
 
-    using (var miHome = new MiHome(map))
-    {
-        Task.Delay(5000).Wait();
-
-        var thSensor = miHome.GetDeviceByName<ThSensor>("T&H sensor living room");
-
-        Console.WriteLine(thSensor);
-
-        Console.ReadLine();
-    }
+    Console.ReadLine();
 }
 ```
 
@@ -100,17 +79,18 @@ public static void Main(string[] args)
 ![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
 
 ```csharp
-var gateway = miHome.GetGateway();
+using var miHome = new MiHome();
 
-Console.WriteLine(gateway); // Sample output --> Rgb: 0, Illumination: 997, ProtoVersion: 1.0.9
-
-gateway?.EnableLight(); // "white" light by default
-Task.Delay(5000).Wait();
-gateway?.DisableLight();
-
-gateway?.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
-Task.Delay(5000).Wait();
-gateway?.StopPlayMusic();
+miHome.OnGateway += (_, gateway) =>
+{
+    gateway.EnableLight();
+    Task.Delay(3000);
+    gateway.DisableLight();
+    Task.Delay(3000);
+    gateway.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
+    Task.Delay(3000).Wait();
+    gateway.StopPlayMusic();
+};
 ```
 
 ### 2. Temperature and humidity sensor
@@ -118,18 +98,24 @@ gateway?.StopPlayMusic();
 ![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
 
 ```csharp
-var thSensor = miHome.GetDeviceBySid<ThSensor>("158d000182dfbc"); // get specific device
+using var miHome = new MiHome();
 
-Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidity: 74,66%, Voltage: 3,035V
-
-th.OnTemperatureChange += (_, e) =>
+miHome.OnThSensor += (_, thSensor) =>
 {
-    Console.WriteLine($"New temperature: {e.Temperature}");
-};
+    if (thSensor.Sid == "158d000182dfbc") // device on kitchen
+    {
+        Console.WriteLine(thSensor); // Sample output --> Temperature: 22,19°C, Humidity: 74,66%, Voltage: 3,035V
 
-th.OnHumidityChange += (_, e) =>
-{
-    Console.WriteLine($"New humidity: {e.Humidity}");
+        thSensor.OnTemperatureChange += (_, e) =>
+        {
+            Console.WriteLine($"New temperature: {e.Temperature}");
+        };
+
+        thSensor.OnHumidityChange += (_, e) =>
+        {
+            Console.WriteLine($"New humidity: {e.Humidity}");
+        };
+    }
 };
 ```
 
@@ -138,13 +124,19 @@ th.OnHumidityChange += (_, e) =>
 ![socket_plug](https://user-images.githubusercontent.com/5664637/32080247-4b007520-bab7-11e7-9e0a-83e01ee37b8e.jpg)
 
 ```csharp
-var socketPlug = miHome.GetDeviceBySid<SocketPlug>("158d00015dc6cc"); // get specific socket plug
+using var miHome = new MiHome();
 
-Console.WriteLine(socketPlug); // Status: on, Load Power: 3,26V, Power Consumed: 1103W, Voltage: 3,6V
+miHome.OnSocketPlug += (_, socketPlug) =>
+{
+    if (socketPlug.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(socketPlug);
 
-socketPlug.TurnOff();
-Task.Delay(5000).Wait();
-socketPlug.TurnOn();
+        socketPlug.TurnOff();
+        Task.Delay(5000).Wait();
+        socketPlug.TurnOn();
+    }
+};
 ```
 
 ### 4. Motion sensor or Aqara motion sensor
@@ -153,17 +145,25 @@ socketPlug.TurnOn();
 ![motion_sensor_2](./images/MotionSensor2.jpg)
 
 ```csharp
-var motionSensor = miHome.GetDevicesByType<MotionSensor>().First();
-// var motionSensor = miHome.GetDevicesByType<AqaraMotionSensor>().First();
+using var miHome = new MiHome();
 
-motionSensor.OnMotion += (_, __) =>
+//miHome.OnAqaraMotionSensor += (_, motionSensor) =>
+miHome.OnMotionSensor += (_, motionSensor) =>
 {
-    Console.WriteLine($"{DateTime.Now}: Motion detected !");
-};
+    if (motionSensor.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(motionSensor);
 
-motionSensor.OnNoMotion += (_, e) =>
-{
-    Console.WriteLine($"{DateTime.Now}: No motion for {e.Seconds}s !");
+        motionSensor.OnMotion += (_, __) =>
+        {
+            Console.WriteLine($"{DateTime.Now}: Motion detected !");
+        };
+
+        motionSensor.OnNoMotion += (_, e) =>
+        {
+            Console.WriteLine($"{DateTime.Now}: No motion for {e.Seconds}s !");
+        };
+    }
 };
 ```
 
@@ -173,17 +173,26 @@ motionSensor.OnNoMotion += (_, e) =>
 ![aqara_door_window_sensor](./images/ContactSensor2.jpg)
 
 ```csharp
-var windowSensor = miHome.GetDevicesByType<DoorWindowSensor>().First();
-// var windowSensor = miHome.GetDevicesByType<AqaraOpenCloseSensor>().First();
+using var miHome = new MiHome();
 
-windowSensor.OnOpen += (_, __) =>
+//miHome.OnAqaraOpenCloseSensor += (_, windowSensor) =>
+miHome.OnDoorWindowSensor += (_, windowSensor) =>
 {
-    Console.WriteLine($"{DateTime.Now}: Window opened !");
-};
+    if (windowSensor.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(windowSensor);
 
-windowSensor.OnClose += (_, __) =>
-{
-    Console.WriteLine($"{DateTime.Now}: Window closed !");
+        windowSensor.OnOpen += (_, __) =>
+        {
+            Console.WriteLine($"{DateTime.Now}: Window opened !");
+        };
+
+        windowSensor.OnClose += (_, __) =>
+        {
+            Console.WriteLine($"{DateTime.Now}: Window closed !");
+        };
+
+    }
 };
 ```
 
@@ -192,16 +201,25 @@ windowSensor.OnClose += (_, __) =>
 ![water_sensor](https://user-images.githubusercontent.com/5664637/31301235-2d6403ee-ab01-11e7-914a-80641e3ba2bf.jpg)
 
 ```csharp
-var waterSensor = miHome.GetDevicesByType<WaterLeakSensor>().First();
+using var miHome = new MiHome();
 
-waterSensor.OnLeak += (s, e) =>
+miHome.OnWaterLeakSensor += (_, waterLeakSensor) =>
 {
-    Console.WriteLine("Water leak detected !");
-};
+    if (waterLeakSensor.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(waterLeakSensor);
 
-waterSensor.OnNoLeak += (s, e) =>
-{
-    Console.WriteLine("NO leak detected !");
+        waterLeakSensor.OnLeak += (_, __) =>
+        {
+            Console.WriteLine("Water leak detected !");
+        };
+
+        waterLeakSensor.OnNoLeak += (_, __) =>
+        {
+            Console.WriteLine("NO leak detected !");
+        };
+
+    }
 };
 ```
 
@@ -210,21 +228,29 @@ waterSensor.OnNoLeak += (s, e) =>
 ![smoke_sensor](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
 
 ```csharp
-var smokeSensor = miHome.GetDevicesByType<SmokeSensor>().First();
+using var miHome = new MiHome();
 
-smokeSensor.OnAlarm += (_, __) =>
+miHome.OnSmokeSensor += (_, smokeSensor) =>
 {
-    Console.WriteLine("Smoke detected !");
-};
+    if (smokeSensor.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(smokeSensor);
 
-smokeSensor.OnAlarmStopped += (_, __) =>
-{
-    Console.WriteLine("Smoke alarm stopped");
-};
+        smokeSensor.OnAlarm += (_, __) =>
+        {
+            Console.WriteLine("Smoke detected !");
+        };
 
-smokeSensor.OnDensityChanged += (_, e) =>
-{
-    Console.WriteLine($"Density changed {e.Density}");
+        smokeSensor.OnAlarmStopped += (_, __) =>
+        {
+            Console.WriteLine("Smoke alarm stopped");
+        };
+
+        smokeSensor.OnDensityChange += (_, e) =>
+        {
+            Console.WriteLine($"Density changed {e.Density}");
+        };
+    }
 };
 ```
 
@@ -233,23 +259,31 @@ smokeSensor.OnDensityChanged += (_, e) =>
 ![wireless dual wall switch](https://user-images.githubusercontent.com/5664637/63649478-eaa79480-c746-11e9-94ff-092814f62c6f.jpg)
 
 ```csharp
-var switch = miHome.GetDevicesByType<WirelessDualWallSwitch>().First();
+using var miHome = new MiHome();
 
-switch.OnLeftClick += (_, __) =>
+miHome.OnWirelessDualWallSwitch += (_, wirelessDualSwitch) =>
 {
-    Console.WriteLine("Left button clicked !");
-};
+    if (wirelessDualSwitch.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(wirelessDualSwitch);
 
-switch.OnRightDoubleClick += (_, __) =>
-{
-    Console.WriteLine("Right button double clicked !");
-};
+        wirelessDualSwitch.OnLeftClick += (_) =>
+        {
+            Console.WriteLine("Left button clicked !");
+        };
 
-switch.OnLeftLongClick += (_, __) =>
-{
-    Console.WriteLine("Left button long clicked !");
-};
+        wirelessDualSwitch.OnRightDoubleClick += (_) =>
+        {
+            Console.WriteLine("Right button double clicked !");
+        };
 
+        wirelessDualSwitch.OnLeftLongClick += (_) =>
+        {
+            Console.WriteLine("Left button long clicked !");
+        };
+
+    }
+};
 ```
 
 ### 8.  Aqara cube
@@ -257,13 +291,21 @@ switch.OnLeftLongClick += (_, __) =>
 ![aqara_cube_sensor](./images/MagicSquare.jpg)
 
 ```csharp
-var cube = miHome.GetDevicesByType<AqaraCubeSensor>().First();
+using var miHome = new MiHome();
 
-cube.OnStatusChanged += (sender, eventArgs) =>
+miHome.OnAqaraCubeSensor += (_, aqaraQube) =>
 {
-    Console.WriteLine($"{sender} | {eventArgs.Status}");
-};
+    if (aqaraQube.Sid == "158d00015dc6cc") // sid of specific device
+    {
+        Console.WriteLine(aqaraQube);
 
+        aqaraQube.OnStatusChanged += (sender, eventArgs) =>
+        {
+            Console.WriteLine($"{sender} | {eventArgs.Status}");
+        };
+
+    }
+};
 ```
 
 When I buy more devices I will update library
