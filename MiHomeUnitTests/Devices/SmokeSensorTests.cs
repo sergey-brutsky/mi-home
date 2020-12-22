@@ -19,7 +19,7 @@ namespace MiHomeUnitTests
         public void Check_SmokeSensor_NoAlarm_Event_Raised()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -36,7 +36,7 @@ namespace MiHomeUnitTests
                 alarmStoppedEventRaised = true;
             };
 
-            var cmd1 = JObjectHelpers
+            var cmd1 = Helpers
                 .CreateCommand("report", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -54,7 +54,7 @@ namespace MiHomeUnitTests
         public void Check_SmokeSensor_Alarm_Event_Raised()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -71,7 +71,7 @@ namespace MiHomeUnitTests
                 alarmEventRaised = true;
             };
 
-            var cmd1 = JObjectHelpers
+            var cmd1 = Helpers
                 .CreateCommand("report", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -89,7 +89,7 @@ namespace MiHomeUnitTests
         public void Check_SmokeSensor_Heartbeat_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -111,7 +111,7 @@ namespace MiHomeUnitTests
         public void Check_SmokeSensor_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {
@@ -131,7 +131,7 @@ namespace MiHomeUnitTests
         public void Check_SmokeSensor_ReadAck_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("read_ack", "smoke", "158d0001d8f8f7", 25885,
                     new Dictionary<string, object>
                     {

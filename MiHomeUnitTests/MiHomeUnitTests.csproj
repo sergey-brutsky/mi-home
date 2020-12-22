@@ -29,5 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Fixtures\" />
+    <Folder Include="Miio\" />
+    <Folder Include="Devices\" />
   </ItemGroup>
 </Project>

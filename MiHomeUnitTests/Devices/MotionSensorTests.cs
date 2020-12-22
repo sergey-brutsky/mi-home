@@ -20,7 +20,7 @@ namespace MiHomeUnitTests
         public void Check_MotionSensor_ReadAck_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("read_ack", "motion", "158d0001214e1f", 19149,
                     new Dictionary<string, object>
                     {
@@ -40,7 +40,7 @@ namespace MiHomeUnitTests
         public void Check_MotionSensor_Reports_NoMotion_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "motion", "158d00011c0", 52754,
                     new Dictionary<string, object>
                     {
@@ -73,7 +73,7 @@ namespace MiHomeUnitTests
         public void Check_MotionSensor_Reports_Motion_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "motion", "158d00011c0", 52754,
                     new Dictionary<string, object>
                     {

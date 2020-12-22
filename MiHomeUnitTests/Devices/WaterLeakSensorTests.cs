@@ -19,7 +19,7 @@ namespace MiHomeUnitTests
         public void Check_WaterLeakSensor_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {
@@ -39,7 +39,7 @@ namespace MiHomeUnitTests
         public void Check_WaterLeakSensor_Heartbeat_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {
@@ -59,7 +59,7 @@ namespace MiHomeUnitTests
         public void Check_WaterLeakSensor_Raised_Leak()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {
@@ -73,7 +73,7 @@ namespace MiHomeUnitTests
 
             device.OnLeak += (_, __) => leakRaised = true; ;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {
@@ -90,7 +90,7 @@ namespace MiHomeUnitTests
         public void Check_WaterLeakSensor_Raised_NoLeak()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {
@@ -104,7 +104,7 @@ namespace MiHomeUnitTests
 
             device.OnNoLeak += (_, __) => noleakRaised = true; ;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "sensor_wleak.aq1", "158d0001d561e2", 18101,
                     new Dictionary<string, object>
                     {

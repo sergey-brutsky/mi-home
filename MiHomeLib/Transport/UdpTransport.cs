@@ -10,16 +10,16 @@ namespace MiHomeLib
 {
     public class UdpTransport: IMessageTransport
     {
-        private readonly IKeyBuilder _keyBuilder;
+        private readonly string _gwPassword;
         private readonly string _multicastAddress;
         private readonly int _serverPort;
         private readonly Socket _socket;
         
         public string Token { get; set; }
 
-        public UdpTransport(IKeyBuilder keyBuilder, string multicastAddress = "224.0.0.50", int serverPort = 9898)
+        public UdpTransport(string gwPassword, string multicastAddress = "224.0.0.50", int serverPort = 9898)
         {
-            _keyBuilder = keyBuilder;
+            _gwPassword = gwPassword;
             _multicastAddress = multicastAddress;
             _serverPort = serverPort;
         
@@ -33,21 +33,21 @@ namespace MiHomeLib
         {
             var buffer = Encoding.ASCII.GetBytes(command.ToString());
 
-            return _socket.SendTo(buffer, 0, buffer.Length, 0, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
+            return _socket.SendTo(buffer, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
         }
 
         public int SendWriteCommand(string sid, string type, Command data)
         {
-            return SendCommand(new WriteCommand(sid, type, _keyBuilder.BuildKey(Token), data));
+            var key = CryptoProvider.BuildKey(Token, _gwPassword).ToHex();
+
+            return SendCommand(new WriteCommand(sid, type, key, data));
         }
 
         public async Task<string> ReceiveAsync()
         {
-            var data = new ArraySegment<byte>(new byte[1024]);
-            
-            var len = await _socket.ReceiveAsync(data, SocketFlags.None).ConfigureAwait(false);
+            var data = await _socket.ReceiveBytesAsync(1024).ConfigureAwait(false);
 
-            return Encoding.ASCII.GetString(data.Array, 0, len);
+            return Encoding.ASCII.GetString(data);
         }
 
         public void Dispose()

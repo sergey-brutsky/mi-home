@@ -97,7 +97,7 @@ namespace MiHomeLib
                 { typeof(WirelessDualWallSwitch), x => OnWirelessDualWallSwitch?.Invoke(this, x as WirelessDualWallSwitch)},
             };
 
-            _transport = new UdpTransport(new KeyBuilder(gatewayPassword));
+            _transport = new UdpTransport(gatewayPassword);
 
             _miHomeDeviceFactory = new MiHomeDeviceFactory(_transport);
 

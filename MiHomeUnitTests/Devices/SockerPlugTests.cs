@@ -22,7 +22,7 @@ namespace MiHomeUnitTests
         public void Check_SocketPlug_Hearbeat_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "plug", "158d00015dc332", 18916,
                     new Dictionary<string, object>
                     {
@@ -50,7 +50,7 @@ namespace MiHomeUnitTests
         public void Check_SocketPlug_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "plug", "158d00015dc332", 18916,
                     new Dictionary<string, object>
                     {

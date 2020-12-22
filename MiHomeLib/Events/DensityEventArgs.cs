@@ -2,13 +2,19 @@ using System;
 
 namespace MiHomeLib.Events
 {
-    public class DensityEventArgs : EventArgs
+    public class DiscoverEventArgs : EventArgs
     {
-        public DensityEventArgs(float t)
+        public DiscoverEventArgs(string ip, string type, string serial, string token)
         {
-            Density = t;
+            Ip = ip;
+            Type = type;
+            Serial = serial;
+            Token = token;
         }
 
-        public float Density { get; }
+        public string Ip { get; }
+        public string Type { get; }
+        public string Serial { get; }
+        public string Token { get; }
     }
 }

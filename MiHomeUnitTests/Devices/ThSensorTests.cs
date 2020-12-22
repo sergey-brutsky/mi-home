@@ -19,7 +19,7 @@ namespace MiHomeUnitTests
         public void Check_ThSensor_Raised_Temperature_And_Humdity_Change()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_ht", "158d000156a94b", 20911,
                     new Dictionary<string, object>
                     {
@@ -48,7 +48,7 @@ namespace MiHomeUnitTests
             };
 
             // Act
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_ht", "158d000156a94b", 20911,
                     new Dictionary<string, object>
                     {
@@ -70,7 +70,7 @@ namespace MiHomeUnitTests
         public void Check_ThSensor_Humidity_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "sensor_ht", "158d000156a94b", 20911,
                     new Dictionary<string, object>
                     {
@@ -90,7 +90,7 @@ namespace MiHomeUnitTests
         public void Check_ThSensor_Temperature_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "sensor_ht", "158d000156a94b", 20911,
                     new Dictionary<string, object>
                     {
@@ -111,7 +111,7 @@ namespace MiHomeUnitTests
         public void Check_ThSensor_Hearbeat_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "sensor_ht", "158d000156a94b", 20911,
                     new Dictionary<string, object>
                     {

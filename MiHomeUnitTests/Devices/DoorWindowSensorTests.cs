@@ -19,7 +19,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Hearbeat_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -41,7 +41,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Report_Data()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -63,7 +63,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Raised_Open_Event()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -77,7 +77,7 @@ namespace MiHomeUnitTests
 
             device.OnOpen += (_, __) => openRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -94,7 +94,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Raised_Closed_Event()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -108,7 +108,7 @@ namespace MiHomeUnitTests
 
             device.OnClose += (_, __) => closedRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -125,7 +125,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Raised_NotClosedFor1Minute_Event()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -139,7 +139,7 @@ namespace MiHomeUnitTests
 
             device.NotClosedFor1Minute += (_, __) => notClosedRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -156,7 +156,7 @@ namespace MiHomeUnitTests
         public void Check_DoorWindowSensor_Raised_NotClosedFor5Minutes_Event()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {
@@ -170,7 +170,7 @@ namespace MiHomeUnitTests
 
             device.NotClosedFor5Minutes += (_, __) => notClosedRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "magnet", "158d0001233529", 64996,
                     new Dictionary<string, object>
                     {

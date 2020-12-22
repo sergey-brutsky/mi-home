@@ -4,15 +4,13 @@
     <Title>MiHomeLib</Title>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.11</PackageVersion>
+    <PackageVersion>1.0.12</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>c# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-            This release mostly is code refactoring.
-            Added handling for event "window not closed for 1 minutes" and "window not closed for 5 minutes".
-            Added unit tests for all devices that I own.
+Added support for Air Humidifier of version zhimi.humidifier.v1
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2019 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
@@ -40,4 +38,8 @@
     <PackageReference Include="newtonsoft.json" Version="9.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Miio\" />
+    <Folder Include="Transport\" />
+  </ItemGroup>
 </Project>

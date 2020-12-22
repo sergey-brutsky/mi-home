@@ -24,7 +24,7 @@ namespace MiHomeUnitTests
             // Arrange
             Gateway device = new Gateway("34ce1188db36", new Mock<IMessageTransport>().Object);
 
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("heartbeat", "gateway", "34ce1188db36", 0,
                     new Dictionary<string, object>
                     {
@@ -46,7 +46,7 @@ namespace MiHomeUnitTests
             // Arrange
             Gateway device = new Gateway("34ce1188db36", new Mock<IMessageTransport>().Object);
 
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "gateway", "34ce1188db36", 0,
                     new Dictionary<string, object>
                     {

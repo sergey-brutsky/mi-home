@@ -19,7 +19,7 @@ namespace MiHomeUnitTests
         public void Check_Switch_Click_Raised()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>());
 
             // Act
@@ -29,7 +29,7 @@ namespace MiHomeUnitTests
 
             device.OnClick += (_, args) => clickRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>
                 {
                     { "status", "click" },
@@ -45,7 +45,7 @@ namespace MiHomeUnitTests
         public void Check_Switch_DoubleClick_Raised()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>());
 
             // Act
@@ -55,7 +55,7 @@ namespace MiHomeUnitTests
 
             device.OnDoubleClick += (_, args) => doubleClickRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>
                 {
                     { "status", "double_click" },
@@ -71,7 +71,7 @@ namespace MiHomeUnitTests
         public void Check_Switch_LongPressClick_Raised()
         {
             // Arrange
-            var cmd = JObjectHelpers
+            var cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>());
 
             // Act
@@ -81,7 +81,7 @@ namespace MiHomeUnitTests
 
             device.OnLongPress += (_, args) => longClickRaised = true;
 
-            cmd = JObjectHelpers
+            cmd = Helpers
                 .CreateCommand("report", "switch", "34ce0067db36", 34308, new Dictionary<string, object>
                 {
                     { "status", "long_click_press" },
