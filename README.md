@@ -5,7 +5,7 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 Currently supports only Xiaomi Smart Gateway, Air Humidifier and several sensors. Please see the pictures below.
 
 ![gateway](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
-![humidifier](https://user-images.githubusercontent.com/5664637/102878695-b71f6c00-4459-11eb-92c1-518c57b34683.jpg)
+![humidifier](https://user-images.githubusercontent.com/5664637/102880937-25b1f900-445d-11eb-83e4-1f96830510d6.jpg)
 
 
 ![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
