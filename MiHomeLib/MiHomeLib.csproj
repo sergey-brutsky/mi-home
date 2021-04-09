@@ -2,23 +2,22 @@
 
   <PropertyGroup>
     <Title>MiHomeLib</Title>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.12</PackageVersion>
+    <PackageVersion>1.0.13</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
-    <Description>c# library for using xiaomi smart gateway in your scenarious</Description>
+    <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Air Humidifier of version zhimi.humidifier.v1
+Added support for .net framework 4.7.1, 4.7.2 and 4.8
     </PackageReleaseNotes>
-    <Copyright>Copyright 2017-2019 (c) Sergey Brutsky. All rights reserved.</Copyright>
+    <Copyright>Copyright 2017-2021 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageProjectUrl>http://mi-home.ml/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/sergey-brutsky/mi-home/master/gateway.ico</PackageIconUrl>
-    <!-- <PackageIcon>gateway.ico</PackageIcon> -->
+    <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -39,6 +38,7 @@ Added support for Air Humidifier of version zhimi.humidifier.v1
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="gateway.jpeg" Pack="true" PackagePath="\"/>
     <Folder Include="Miio\" />
     <Folder Include="Transport\" />
   </ItemGroup>
