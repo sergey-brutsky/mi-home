@@ -1,148 +1,79 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
-
-[assembly: InternalsVisibleTo("MiHomeUnitTests")]
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class MiioDevice : IMiioDevice
+    public class MiioDevice
     {
-        private readonly string _token;
-        private readonly Socket _socket;
-        private readonly IPEndPoint _endpoint;
-        
-        private const int MESSAGES_TIMEOUT = 5000; // 5 seconds receive timeout
-        private const string HELLO_REQUEST = "21310020ffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        protected int _clientId;
+        protected readonly IMiioTransport _miioTransport;
 
-        private readonly Exception _helloException = new Exception("Reponse hello package is corrupted, looks like miio protocol implemenation is broken");
-
-        private readonly Exception _timeoutException = new Exception($"Response has not been received in {MESSAGES_TIMEOUT / 1000} seconds." +
-                    $"Looks like miio protocol implementation is broken");
-
-        private MiioPacket initialPacket = null;
-
-        public MiioDevice(string token, string ip, int port = 54321)
+        public MiioDevice(IMiioTransport miioTransport)
         {
-            _token = token ?? throw new Exception("Token for device communication must be provided");
-
-            if (ip == null) throw new Exception("IP of device must be provided");
-
-            _endpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MESSAGES_TIMEOUT);
+            _miioTransport = miioTransport;
         }
 
-        public string SendMessage(string msg)
+        protected void CheckMessage(string response, string errorMessage)
         {
-            try
+            if (response != $"{{\"result\":[\"ok\"],\"id\":{_clientId}}}")
             {
-                SendHelloPacketIfNeeded();
-
-                var requestHex = initialPacket.BuildMessage(msg, _token);
-                _socket.SendTo(requestHex.ToByteArray(), _endpoint);
-
-                var responseHex = _socket.ReceiveBytes().ToHex();
-                var miioPacket = new MiioPacket(responseHex);
-
-                return miioPacket.GetResponseData(_token);
-            }
-            catch (TimeoutException)
-            {
-                throw _timeoutException;
+                throw new Exception($"{errorMessage}, miio protocol error --> {response}");
             }
         }
 
-        private void SendHelloPacketIfNeeded()
+        protected string GetString(string response)
         {
-            if (initialPacket == null)
-            {
-                _socket.SendTo(HELLO_REQUEST.ToByteArray(), _endpoint);
-
-                var receviedHello = _socket.ReceiveBytes(32);
-
-                if (receviedHello.Length != 32) // hello response message must be 32 bytes
-                {
-                    throw _helloException;
-                }
-
-                initialPacket = new MiioPacket(receviedHello.ToHex());
-            }
+            return (string)GetResult(response);
         }
 
-        public async Task<string> SendMessageAsync(string msg)
+        protected int GetInteger(string response, string msg)
         {
-            try
+            var result = GetString(response);
+
+            if (!int.TryParse(result, out int number))
             {
-                await SendHelloPacketIfNeededAsync().ConfigureAwait(false);
-
-                var requestHex = initialPacket.BuildMessage(msg, _token);
-                await _socket.SendToAsync(requestHex.ToArraySegment(), SocketFlags.None, _endpoint).ConfigureAwait(false);
-
-                var responseHex = (await _socket.ReceiveBytesAsync().ConfigureAwait(false)).ToHex();
-                var miioPacket = new MiioPacket(responseHex);
-
-                return miioPacket.GetResponseData(_token);
+                throw new Exception($"{msg}, value '{result}' seems to be corrupted");
             }
-            catch (TimeoutException)
-            {
-                throw _timeoutException;
-            }
+
+            return number;
         }
 
-        private async Task SendHelloPacketIfNeededAsync()
+        private static JToken GetResult(string response)
         {
-            if (initialPacket == null)
-            {
-                await _socket.SendToAsync(HELLO_REQUEST.ToArraySegment(), SocketFlags.None, _endpoint).ConfigureAwait(false);
-
-                var receviedHello = await _socket.ReceiveBytesAsync(32).ConfigureAwait(false);
-
-                if (receviedHello.Length != 32) // hello response message must be 32 bytes
-                {
-                    throw _helloException;
-                }
-
-                initialPacket = new MiioPacket(receviedHello.ToHex());
-            }
+            return (JObject.Parse(response)["result"] as JArray)[0];
         }
 
-        public static List<(string ip, string type, string serial, string token)> SendDiscoverMessage(int port = 54321)
+        protected string BuildParams(string method, params object[] methodParams)
         {
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MESSAGES_TIMEOUT);
-            socket.Bind(new IPEndPoint(IPAddress.Any, 0));            
-            socket.SendTo(HELLO_REQUEST.ToByteArray(), new IPEndPoint(IPAddress.Broadcast, port));
+            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams)}}}";
+        }
 
-            var discoveredDevices = new List<(string ip, string type, string serial, string token)>();
-            
-            try
-            {
-                var buffer = new byte[4096];
-                var bytesRead = 0;
-                EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
-                while ((bytesRead = socket.ReceiveFrom(buffer, ref endPoint)) > 0)
-                {
-                    var ip = ((IPEndPoint)endPoint).Address.ToString();
-                    var packet = new MiioPacket(new ArraySegment<byte>(buffer, 0, bytesRead).ToArray().ToHex());
-                    discoveredDevices.Add((ip, packet.GetDeviceType(), packet.GetSerial(), packet.GetChecksum()));
-                }
-            }
-            catch { } // Normal situation, no more data in socket
+        protected string BuildSidProp(string method, string sid, string prop, int value)
+        {
+            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {{\"sid\":\"{sid}\", \"{prop}\":{value}}}}}";
+        }
 
-            socket.Close();
+        protected string[] GetProps(params string[] props)
+        {
+            var response = _miioTransport.SendMessage(BuildParams("get_prop", props));
+            var values = JObject.Parse(response)["result"] as JArray;
+            return values.Select(x => x.ToString()).ToArray();
+        }
 
-            return discoveredDevices;
+        protected async Task<string[]> GetPropsAsync(params string[] props)
+        {
+            var response = await _miioTransport.SendMessageAsync(BuildParams("get_prop", props));
+            var values = JObject.Parse(response)["result"] as JArray;
+            return values.Select(x => x.ToString()).ToArray();
         }
 
         public void Dispose()
         {
-            _socket?.Close();
+            _miioTransport?.Dispose();
         }
     }
 }

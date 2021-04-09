@@ -2,17 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using MiHomeLib.Events;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
 namespace MiHomeLib.Devices
 {
-    public class AirHumidifier: IDisposable
+    public class AirHumidifier: MiioDevice
     {
         public enum Mode
         {
@@ -35,28 +32,13 @@ namespace MiHomeLib.Devices
             { "silent", Mode.Silent},
         };
 
-        
         public const string version = "zhimi.humidifier.v1";
-
-        private int _clientId;
-        private readonly string _ip;
-        private readonly string _token;
-
-        private readonly IMiioDevice _md;
 
         public static event EventHandler<DiscoverEventArgs> OnDiscovered;
 
-        public AirHumidifier(string ip, string token): this(new MiioDevice(token, ip))
-        {
-            _ip = ip;
-            _token = token;
-        }
+        public AirHumidifier(string ip, string token) : base(new MiioTransport(ip, token)) { }
 
-        internal AirHumidifier(IMiioDevice miioDevice)
-        {
-            _md = miioDevice;
-            _clientId = 0;
-        }
+        internal AirHumidifier(IMiioTransport transport) : base(transport) { }
 
         public override string ToString()
         {
@@ -67,12 +49,12 @@ namespace MiHomeLib.Devices
             return $"Power: {values[0]}\nMode: {values[1]}\nTemperature: {temp}\n" +
                 $"Humidity: {values[3]}%\nLED brightness: {brightness}\n" +
                 $"Buzzer: {values[5]}\nChild lock: {values[6]}\nTarget humidity: {values[7]}%\n" +
-                $"Model: {version}\nIP Address:{_ip}\nToken: {_token}";
+                $"Model: {version}\nIP Address:{_miioTransport.Ip}\nToken: {_miioTransport.Token}";
         }
 
         public static void DiscoverDevices()
         {
-            var discoveredHumidifiers = MiioDevice
+            var discoveredHumidifiers = MiioTransport
                 .SendDiscoverMessage()
                 .Where(x => x.type == "0404"); // magic number identifying air humidifier
 
@@ -94,25 +76,25 @@ namespace MiHomeLib.Devices
 
         public void PowerOn()
         {
-            var response = _md.SendMessage(BuildMessage("set_power", "on"));
+            var response = _miioTransport.SendMessage(BuildParams("set_power", "on"));
             CheckMessage(response, "Unable to power on air humidifier");
         }
 
         public async Task PowerOnAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_power", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_power", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to power on air humidifier");
         }
 
         public void PowerOff()
         {
-            var response = _md.SendMessage(BuildMessage("set_power", "off"));
+            var response = _miioTransport.SendMessage(BuildParams("set_power", "off"));
             CheckMessage(response, "Unable to power off air humidifier");
         }
 
         public async Task PowerOffAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_power", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_power", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to power off air humidifier");
         }
 
@@ -128,13 +110,13 @@ namespace MiHomeLib.Devices
 
         public void SetMode(Mode mode)
         {
-            var response = _md.SendMessage(BuildMessage("set_mode", mode.ToString().ToLower()));
+            var response = _miioTransport.SendMessage(BuildParams("set_mode", mode.ToString().ToLower()));
             CheckMessage(response, "Unable to set fan mode of air humidifier");
         }
 
         public async Task SetModeAsync(Mode mode)
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_mode", mode.ToString().ToLower())).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_mode", mode.ToString().ToLower())).ConfigureAwait(false);
             CheckMessage(response, "Unable to set fan mode of air humidifier");
         }
 
@@ -170,13 +152,13 @@ namespace MiHomeLib.Devices
 
         public void SetBrightness(Brightness brightness)
         {
-            var response = _md.SendMessage(BuildMessage("set_led_b", brightness));
+            var response = _miioTransport.SendMessage(BuildParams("set_led_b", brightness));
             CheckMessage(response, "Unable to set brightness of air humidifier");
         }
 
         public async Task SetBrightnessAsync(Brightness brightness)
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_led_b", brightness)).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_led_b", brightness)).ConfigureAwait(false);
             CheckMessage(response, "Unable to set brightness of air humidifier");
         }
 
@@ -202,25 +184,25 @@ namespace MiHomeLib.Devices
 
         public void BuzzerOn()
         {
-            var response = _md.SendMessage(BuildMessage("set_buzzer", "on"));
+            var response = _miioTransport.SendMessage(BuildParams("set_buzzer", "on"));
             CheckMessage(response, "Unable to enable buzzer on air humidifier");
         }
 
         public async Task BuzzerOnAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_buzzer", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_buzzer", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to enable buzzer on air humidifier");
         }
 
         public void BuzzerOff()
         {
-            var response = _md.SendMessage(BuildMessage("set_buzzer", "off"));
+            var response = _miioTransport.SendMessage(BuildParams("set_buzzer", "off"));
             CheckMessage(response, "Unable to disable buzzer on air humidifier");
         }
 
         public async Task BuzzerOffAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_buzzer", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_buzzer", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to disable buzzer on air humidifier");
         }
 
@@ -236,58 +218,26 @@ namespace MiHomeLib.Devices
 
         public void ChildLockOn()
         {
-            var response = _md.SendMessage(BuildMessage("set_child_lock", "on"));
+            var response = _miioTransport.SendMessage(BuildParams("set_child_lock", "on"));
             CheckMessage(response, "Unable to enable child lock on air humidifier");
         }
 
         public async Task ChildLockOnAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_child_lock", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_child_lock", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to enable child lock on air humidifier");
         }
 
         public void ChildLockOff()
         {
-            var response = _md.SendMessage(BuildMessage("set_child_lock", "off"));
+            var response = _miioTransport.SendMessage(BuildParams("set_child_lock", "off"));
             CheckMessage(response, "Unable to disable child lock on air humidifier");
         }
 
         public async Task ChildLockOffAsync()
         {
-            var response = await _md.SendMessageAsync(BuildMessage("set_child_lock", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParams("set_child_lock", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to disable child lock on air humidifier");
-        }
-
-        public void Dispose()
-        {
-            _md?.Dispose();
-        }
-
-        private void CheckMessage(string response, string errorMessage)
-        {
-            if (response != $"{{\"result\":[\"ok\"],\"id\":{_clientId}}}")
-            {
-                throw new Exception($"{errorMessage}, miio protocol error --> {response}");
-            }
-        }
-
-        private string[] GetProps(params string[] props)
-        {
-            var response = _md.SendMessage(BuildMessage("get_prop", props));
-            var values = JObject.Parse(response)["result"] as JArray;
-            return values.Select(x => x.ToString()).ToArray();
-        }
-
-        private async Task<string[]> GetPropsAsync(params string[] props)
-        {
-            var response = await _md.SendMessageAsync(BuildMessage("get_prop", props));
-            var values = JObject.Parse(response)["result"] as JArray;
-            return values.Select(x => x.ToString()).ToArray();
-        }
-
-        private string BuildMessage(string method, params object[] methodParams)
-        {
-            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams)}}}";
         }
     }
 }
