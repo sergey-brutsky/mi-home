@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Title>MiHomeLib</Title>
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
     <PackageVersion>1.0.13</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>

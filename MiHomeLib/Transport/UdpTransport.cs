@@ -13,7 +13,7 @@ namespace MiHomeLib
         private readonly string _gwPassword;
         private readonly string _multicastAddress;
         private readonly int _serverPort;
-        private readonly Socket _socket;
+        private readonly UdpClient _udpClient;
         
         public string Token { get; set; }
 
@@ -23,17 +23,15 @@ namespace MiHomeLib
             _multicastAddress = multicastAddress;
             _serverPort = serverPort;
         
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);            
-            _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(IPAddress.Parse(_multicastAddress)));
-            _socket.Bind(new IPEndPoint(IPAddress.Any, _serverPort));
+            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _serverPort));
+            _udpClient.JoinMulticastGroup(IPAddress.Parse(_multicastAddress));
         }
 
         public int SendCommand(Command command)
         {
             var buffer = Encoding.ASCII.GetBytes(command.ToString());
 
-            return _socket.SendTo(buffer, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
+            return _udpClient.Send(buffer, buffer.Length, new IPEndPoint(IPAddress.Parse(_multicastAddress), _serverPort));
         }
 
         public int SendWriteCommand(string sid, string type, Command data)
@@ -45,14 +43,14 @@ namespace MiHomeLib
 
         public async Task<string> ReceiveAsync()
         {
-            var data = await _socket.ReceiveBytesAsync(1024).ConfigureAwait(false);
-
+            var data = (await _udpClient.ReceiveAsync()).Buffer;
+           
             return Encoding.ASCII.GetString(data);
         }
 
         public void Dispose()
         {
-            _socket?.Dispose();
+            _udpClient?.Dispose();
         }
     }
 }

@@ -14,8 +14,8 @@ namespace MiHomeLib.Devices
     {
         private readonly string _ip;
         private readonly string _token;
-        private readonly Socket _socket;
-        private readonly IPEndPoint _endpoint;
+        private readonly UdpClient _udpClient;
+        private IPEndPoint _endpoint;
         
         private const int MESSAGES_TIMEOUT = 5000; // 5 seconds receive timeout
         private const string HELLO_REQUEST = "21310020ffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
@@ -35,9 +35,9 @@ namespace MiHomeLib.Devices
             _ip = ip ?? throw new Exception("IP of device must be provided");
             _token = token ?? throw new Exception("Token for device communication must be provided");
 
-            _endpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            _socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MESSAGES_TIMEOUT);
+            _endpoint = new IPEndPoint(IPAddress.Parse(ip), port);            
+            _udpClient = new UdpClient();
+            _udpClient.Client.ReceiveTimeout = MESSAGES_TIMEOUT;
         }
 
         public string SendMessage(string msg)
@@ -46,10 +46,10 @@ namespace MiHomeLib.Devices
             {
                 SendHelloPacketIfNeeded();
 
-                var requestHex = initialPacket.BuildMessage(msg, _token);
-                _socket.SendTo(requestHex.ToByteArray(), _endpoint);
+                var requestHex = initialPacket.BuildMessage(msg, _token);               
+                _udpClient.SendTo(requestHex.ToByteArray(), _endpoint);
 
-                var responseHex = _socket.ReceiveBytes().ToHex();
+                var responseHex = _udpClient.Receive(ref _endpoint).ToHex();
                 var miioPacket = new MiioPacket(responseHex);
 
                 return miioPacket.GetResponseData(_token);
@@ -64,9 +64,9 @@ namespace MiHomeLib.Devices
         {
             if (initialPacket == null)
             {
-                _socket.SendTo(HELLO_REQUEST.ToByteArray(), _endpoint);
+                _udpClient.SendTo(HELLO_REQUEST.ToByteArray(), _endpoint);
 
-                var receviedHello = _socket.ReceiveBytes(32);
+                var receviedHello = _udpClient.Receive(ref _endpoint);
 
                 if (receviedHello.Length != 32) // hello response message must be 32 bytes
                 {
@@ -84,9 +84,9 @@ namespace MiHomeLib.Devices
                 await SendHelloPacketIfNeededAsync().ConfigureAwait(false);
 
                 var requestHex = initialPacket.BuildMessage(msg, _token);
-                await _socket.SendToAsync(requestHex.ToArraySegment(), SocketFlags.None, _endpoint).ConfigureAwait(false);
+                await _udpClient.SendAsync(requestHex.ToByteArray(), _endpoint).ConfigureAwait(false);
 
-                var responseHex = (await _socket.ReceiveBytesAsync().ConfigureAwait(false)).ToHex();
+                var responseHex = (await _udpClient.ReceiveAsync().ConfigureAwait(false)).Buffer.ToHex();
                 var miioPacket = new MiioPacket(responseHex);
 
                 return miioPacket.GetResponseData(_token);
@@ -101,9 +101,9 @@ namespace MiHomeLib.Devices
         {
             if (initialPacket == null)
             {
-                await _socket.SendToAsync(HELLO_REQUEST.ToArraySegment(), SocketFlags.None, _endpoint).ConfigureAwait(false);
+                await _udpClient.SendAsync(HELLO_REQUEST.ToByteArray(), _endpoint).ConfigureAwait(false);
 
-                var receviedHello = await _socket.ReceiveBytesAsync(32).ConfigureAwait(false);
+                var receviedHello = (await _udpClient.ReceiveAsync().ConfigureAwait(false)).Buffer;
 
                 if (receviedHello.Length != 32) // hello response message must be 32 bytes
                 {
@@ -145,7 +145,7 @@ namespace MiHomeLib.Devices
 
         public void Dispose()
         {
-            _socket?.Close();
+            _udpClient?.Close();
         }
     }
 }
