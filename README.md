@@ -4,7 +4,7 @@ This library provides simple and flexible C# API for Xiaomi Mi Home devices.
 
 Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi.humidifier.v1) and several sensors. See the pictures below.
 
-![gateway](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
+![gw](https://user-images.githubusercontent.com/5664637/103202603-e7f11c80-4903-11eb-947e-cc4e1208fece.jpeg)
 ![humidifier](https://user-images.githubusercontent.com/5664637/102880937-25b1f900-445d-11eb-83e4-1f96830510d6.jpg)
 
 
@@ -29,7 +29,17 @@ Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi
 2. [Setup Gateway](#setup-gateway)
 3. [Basic scenario](#basic-scenario)
 4. [Supported devices](#supported-devices)
-    - 4.1 [Gateway]()
+    - 4.1 [Gateway](#gateway)
+ 	   - 4.1.1 [Gateway radio](#gateway-radio)    
+    - 4.2 [Temparature & humidity sensor](#th-sensor)
+    - 4.3 [Socket plug](#socket-plug)
+    - 4.4 [Motion sensor](#motion-sensor)
+    - 4.5 [Door/Window sensor](#door-window-sensor)
+    - 4.6 [Water leak sensor](#water-sensor)
+    - 4.7 [Smoke sensor](#smoke-sensor)
+    - 4.8 [Wireless dual wall switch](#dual-wall-sensor)
+    - 4.9 [Aqara cube](#aqara-cube)
+    - 4.10 [Air humidifier](#air-humidifier)
 
 ## <a name="installation">Installation</a>
 via nuget package manager
@@ -50,13 +60,13 @@ This mode allows to work with the gateway via UDP multicast protocol.
 
 **Warning 1**: 
 If you bought a newer revision of Mi Home Gateway (labels in a circle) 
-![image](https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png)
+<img src="https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png" width="450">
 
 It could be possible that ports on your gateway required for UDP multicast traffic are **closed**.\
 Before using this library **ports must be opened**. [Check this instruction](https://community.openhab.org/t/solved-openhab2-xiaomi-mi-gateway-does-not-respond/52963/114).
 
 **Warning 2**: Mi Home Gateway uses udp multicast for messages handling, so your app **must** be hosted in the same LAN as your gateway.
-If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
+If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn bridging](https://forums.openvpn.net/viewtopic.php?t=21509).
 
 **Warning 3**: If your app is running on windows machine, make sure that you disabled virtual network adapters like VirtualBox, Hyper-V, Npcap, pcap etc.
 Because these adapters may prevent proper work of multicast traffic between your machine and gateway
@@ -110,7 +120,51 @@ miHome.OnGateway += (_, gateway) =>
 ```
 Yes, it is possible to upload custom sounds to your gateway and use them in various scenarios. [Check this instruction](https://smarthomehobby.com/using-the-xiaomi-door-window-sensor/).
 
-### 2. Temperature and humidity sensor
+
+#### 1.1 <a name="gateway-radio">Gateway Radio</a>
+It is possible to add/remove/play custom radio channels in this version of gateway.
+
+Bellow is a simple code snippet explaining how to use this feature.
+
+```csharp
+var gw = new MiioGateway("192.168.1.12", "<your gateway token here>");
+
+var radioChannels = gw.GetRadioChannels(); // get list of available custom radio channels
+
+foreach (var channel in radioChannels)
+{
+    Console.WriteLine(channel);
+}
+
+gw.AddRadioChannel(1025, "http://192.168.1.1/my-playlist.m3u8"); // add custom radio channel
+Task.Delay(1000).Wait();
+gw.PlayRadio(1024, 50); // play newly-added channel with volume 50%
+Task.Delay(1000).Wait();
+gw.StopRadio(); // stop playing radio
+Task.Delay(1000).Wait();
+gw.RemoveRadioChannel(1024); // remove newly-added channel
+Task.Delay(1000).Wait();
+gw.RemoveAllRadioChannels(); // remove all custom radio channels
+```
+Async methods also supported.
+
+**Warning 1**: Added radio channels are not persistant. Gateway may remove them from time to time.
+**Warning 2**: My gateway recognizes only songs in aac format (mp3 is not supported).
+
+Here is minimal working sample of m3u8 file that gateway recognizes and respects.
+```
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-MEDIA-SEQUENCE:1
+#EXTINF:240,
+http://192.168.1.2/test.aac
+```
+EXT-X-MEDIA-SEQUENCE - number of songs in your playlist.
+
+EXTINF - track length in seconds.
+
+http://192.168.1.2/test.aac - url to your song 
+### 2. <a name="th-sensor">Temperature and humidity sensor</a>
 
 ![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
 
@@ -136,7 +190,7 @@ miHome.OnThSensor += (_, thSensor) =>
 };
 ```
 
-### 3. Socket Plug
+### 3. <a name="socket-plug">Socket Plug</a>
 
 ![socket_plug](https://user-images.githubusercontent.com/5664637/32080247-4b007520-bab7-11e7-9e0a-83e01ee37b8e.jpg)
 
@@ -156,7 +210,7 @@ miHome.OnSocketPlug += (_, socketPlug) =>
 };
 ```
 
-### 4. Motion sensor or Aqara motion sensor
+### 4. <a name="motion-sensor">Motion sensor or Aqara motion sensor</a>
 
 ![motion_sensor](https://user-images.githubusercontent.com/5664637/32079992-db2366d2-bab5-11e7-9f5f-d9bf711f261f.jpg)
 ![motion_sensor_2](./images/MotionSensor2.jpg)
@@ -184,7 +238,7 @@ miHome.OnMotionSensor += (_, motionSensor) =>
 };
 ```
 
-### 5.  Door/Window sensor or Aqara open/close sensor
+### 5. <a name="door-window-sensor">Door/Window sensor or Aqara open/close sensor</a>
 
 ![door_window_sensor](https://user-images.githubusercontent.com/5664637/32079914-83947b22-bab5-11e7-8f5c-43d07ca82022.jpg)
 ![aqara_door_window_sensor](./images/ContactSensor2.jpg)
@@ -213,7 +267,7 @@ miHome.OnDoorWindowSensor += (_, windowSensor) =>
 };
 ```
 
-### 5.  Water leak sensor
+### 6. <a name="water-sensor">Water leak sensor</a>
 
 ![water_sensor](https://user-images.githubusercontent.com/5664637/31301235-2d6403ee-ab01-11e7-914a-80641e3ba2bf.jpg)
 
@@ -240,7 +294,7 @@ miHome.OnWaterLeakSensor += (_, waterLeakSensor) =>
 };
 ```
 
-### 6.  Smoke sensor
+### 7. <a name="smoke-sensor">Smoke sensor</a>
 
 ![smoke_sensor](https://user-images.githubusercontent.com/5664637/32071412-e3db3e76-ba97-11e7-840c-1d901df4b84f.jpg)
 
@@ -271,7 +325,7 @@ miHome.OnSmokeSensor += (_, smokeSensor) =>
 };
 ```
 
-### 7.  Wireless dual wall switch
+### 8. <a name="dual-wall-sensor">Wireless dual wall switch</a>
 
 ![wireless dual wall switch](https://user-images.githubusercontent.com/5664637/63649478-eaa79480-c746-11e9-94ff-092814f62c6f.jpg)
 
@@ -303,7 +357,7 @@ miHome.OnWirelessDualWallSwitch += (_, wirelessDualSwitch) =>
 };
 ```
 
-### 8.  Aqara cube
+### 9.  <a name="aqara-cube">Aqara cube</a>
 
 ![aqara_cube_sensor](./images/MagicSquare.jpg)
 
@@ -325,7 +379,7 @@ miHome.OnAqaraCubeSensor += (_, aqaraQube) =>
 };
 ```
 
-### 9.  Air Humidifier
+### 10. <a name="air-humidifier">Air Humidifier</a>
 ![humidifier](https://user-images.githubusercontent.com/5664637/102878695-b71f6c00-4459-11eb-92c1-518c57b34683.jpg)
 
 Before using the library you need to know IP and TOKEN of your air humidifier.
