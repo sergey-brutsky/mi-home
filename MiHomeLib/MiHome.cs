@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-//using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
@@ -15,8 +15,8 @@ namespace MiHomeLib
 {
     public class MiHome : IDisposable
     {
-        //private static ILogger _logger;
-        //private static ILoggerFactory _loggerFactory;
+        private static ILogger _logger;
+        private static ILoggerFactory _loggerFactory;
 
         private Gateway _gateway;
         private readonly string _gatewaySid;
@@ -28,18 +28,18 @@ namespace MiHomeLib
         
         public static bool LogRawCommands { set; private get; }
 
-        //public static ILoggerFactory LoggerFactory
-        //{
-        //    set
-        //    {
-        //        _loggerFactory = value;
-        //        _logger = _loggerFactory.CreateLogger<MiHome>();
-        //    }
-        //    get
-        //    {
-        //        return _loggerFactory;
-        //    }
-        //}
+        public static ILoggerFactory LoggerFactory
+        {
+            set
+            {
+                _loggerFactory = value;
+                _logger = _loggerFactory.CreateLogger<MiHome>();
+            }
+            get
+            {
+                return _loggerFactory;
+            }
+        }
 
         private readonly ConcurrentDictionary<string, MiHomeDevice> _devicesList =
             new ConcurrentDictionary<string, MiHomeDevice>();
@@ -180,11 +180,11 @@ namespace MiHomeLib
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
                     var respCmd = ResponseCommand.FromString(str);
 
-                    //if(LogRawCommands) _logger?.LogInformation(str);
+                    if (LogRawCommands) _logger?.LogInformation(str);
 
                     if (!_commandsToActions.TryGetValue(respCmd.Command, out var actionCommand))
                     {
-                     //   _logger?.LogInformation($"Command '{respCmd.RawCommand}' is not a response command, skipping it");
+                        _logger?.LogInformation($"Command '{respCmd.RawCommand}' is not a response command, skipping it");
                         continue;
                     }
 
@@ -192,7 +192,7 @@ namespace MiHomeLib
                 }
                 catch (Exception e)
                 {
-                    //_logger?.LogError(e, "Unexpected error");
+                    _logger?.LogError(e, "Unexpected error");
                 }
             }
         }
@@ -252,7 +252,7 @@ namespace MiHomeLib
             }
             catch (ModelNotSupportedException e)
             {
-                //_logger?.LogWarning(e, "Model is unknown");
+                _logger?.LogWarning(e, "Model is unknown");
 
                 return null;
             }

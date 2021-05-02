@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace MiHomeLib.Devices
 {
@@ -12,9 +13,13 @@ namespace MiHomeLib.Devices
         protected int _clientId;
         protected readonly IMiioTransport _miioTransport;
 
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
+        
         public MiioDevice(IMiioTransport miioTransport)
         {
             _miioTransport = miioTransport;
+            _serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
         }
 
         protected void CheckMessage(string response, string errorMessage)
@@ -42,14 +47,19 @@ namespace MiHomeLib.Devices
             return number;
         }
 
-        private static JToken GetResult(string response)
+        protected static JToken GetResult(string response)
         {
             return (JObject.Parse(response)["result"] as JArray)[0];
         }
 
-        protected string BuildParams(string method, params object[] methodParams)
+        protected string BuildParamsArray(string method, params object[] methodParams)
         {
-            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams)}}}";
+            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams, _serializerSettings)}}}";
+        }
+
+        protected string BuildParamsObject(string method, object methodParams)
+        {
+            return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams, _serializerSettings)}}}";
         }
 
         protected string BuildSidProp(string method, string sid, string prop, int value)
@@ -59,14 +69,14 @@ namespace MiHomeLib.Devices
 
         protected string[] GetProps(params string[] props)
         {
-            var response = _miioTransport.SendMessage(BuildParams("get_prop", props));
+            var response = _miioTransport.SendMessage(BuildParamsArray("get_prop", props));
             var values = JObject.Parse(response)["result"] as JArray;
             return values.Select(x => x.ToString()).ToArray();
         }
 
         protected async Task<string[]> GetPropsAsync(params string[] props)
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("get_prop", props));
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("get_prop", props));
             var values = JObject.Parse(response)["result"] as JArray;
             return values.Select(x => x.ToString()).ToArray();
         }

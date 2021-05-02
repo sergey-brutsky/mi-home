@@ -4,13 +4,14 @@
     <Title>MiHomeLib</Title>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.13</PackageVersion>
+    <PackageVersion>1.0.14</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for .net framework 4.7.1, 4.7.2 and 4.8
+Added support for .net framework 4.6.1, 4.6.2
+Added support for gateway radio add/remove/play custom channels (see details in the docs)
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2021 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
@@ -38,7 +39,7 @@ Added support for .net framework 4.7.1, 4.7.2 and 4.8
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="gateway.jpeg" Pack="true" PackagePath="\"/>
+    <None Include="gateway.jpeg" Pack="true" PackagePath="\" />
     <Folder Include="Miio\" />
     <Folder Include="Transport\" />
   </ItemGroup>

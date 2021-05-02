@@ -2,7 +2,7 @@
 
 This library provides simple and flexible C# API for Xiaomi Mi Home devices.  
 
-Currently supports only Xiaomi Smart Gateway, Air Humidifier and several sensors. Please see the pictures below.
+Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi.humidifier.v1) and several sensors. See the pictures below.
 
 ![gateway](https://xiaomi-mi.com/uploads/CatalogueImage/xiaomi-mi-smart-home-kit-00_13743_1460032023.jpg)
 ![humidifier](https://user-images.githubusercontent.com/5664637/102880937-25b1f900-445d-11eb-83e4-1f96830510d6.jpg)
@@ -23,9 +23,15 @@ Currently supports only Xiaomi Smart Gateway, Air Humidifier and several sensors
 ![wireless dual wall switch](https://user-images.githubusercontent.com/5664637/63649478-eaa79480-c746-11e9-94ff-092814f62c6f.jpg)
 ![aqara_cube_sensor](./images/MagicSquare.jpg)
 
->**Warning** : This is experimental version. It may be very unstable.
 
-## Installation
+## Table of Contents
+1. [Installation](#installation)
+2. [Setup Gateway](#setup-gateway)
+3. [Basic scenario](#basic-scenario)
+4. [Supported devices](#supported-devices)
+    - 4.1 [Gateway]()
+
+## <a name="installation">Installation</a>
 via nuget package manager
 ```nuget
 Install-Package MiHomeLib
@@ -36,35 +42,36 @@ dotnet add package MiHomeLib
 ```
 or install via [GitHub packages](https://github.com/sergey-brutsky/mi-home/packages/540443)
 
-## Setup Gateway
-Before using this library you should setup development mode on your gateway.
+## <a name="setup-gateway">Setup Gateway</a>
 
-Here is an instruction --> https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)
+Before using this library you should setup **development mode** on your gateway, [instruction how to do this](https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)).\
+This mode allows to work with the gateway via UDP multicast protocol.
 
->**Warning**: If you bought a new revision of Mi Home Gateway (see picture bellow)<br>
-![image](https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png)<br>
-it could be possible that ports on your gateway required for UDP multicast traffic are **closed**.<br>
-Before using this library they must be opened.<br>
-[Instruction](https://community.openhab.org/t/solved-openhab2-xiaomi-mi-gateway-does-not-respond/52963/114)
 
->**Warning**: Mi Home Gateway uses udp multicast for messages handling.<br>
-> So your app **must** be hosted in the same LAN as your gateway.<br>
-> If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
+**Warning 1**: 
+If you bought a newer revision of Mi Home Gateway (labels in a circle) 
+![image](https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png)
 
->**Warning** : If your app is running on windows machine, make sure that you disabled virtual network adapters like VirtualBox, Hyper-V, Npcap, pcap etc.<br>
-> Because these adapters may prevent proper work of multicast traffic between your machine and gateway
+It could be possible that ports on your gateway required for UDP multicast traffic are **closed**.\
+Before using this library **ports must be opened**. [Check this instruction](https://community.openhab.org/t/solved-openhab2-xiaomi-mi-gateway-does-not-respond/52963/114).
 
-## Usage examples
+**Warning 2**: Mi Home Gateway uses udp multicast for messages handling, so your app **must** be hosted in the same LAN as your gateway.
+If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn briding](https://forums.openvpn.net/viewtopic.php?t=21509)
 
+**Warning 3**: If your app is running on windows machine, make sure that you disabled virtual network adapters like VirtualBox, Hyper-V, Npcap, pcap etc.
+Because these adapters may prevent proper work of multicast traffic between your machine and gateway
+
+## <a name="basic-scenario">Basic scenario</a>
 Get all devices in the network
 
 ```csharp
 public static void Main(string[] args)
 {
-    // pwd of your gateway (optional, needed only to send commands to your devices) 
-    // and sid of your gateway (optional, use only when you have 2 gateways in your LAN)
+    // gateway password is optional, needed only to send commands to your devices
+    // gateway sid is optional, use only when you have 2 gateways in your LAN
+    // using var miHome = new MiHome("gateway password", "gateway sid");
     using var miHome = new MiHome();
-
+   
     miHome.OnAnyDevice += (_, device) =>
     {
         Console.WriteLine($"{device.Sid}, {device.GetType()}, {device}"); // all discovered devices
@@ -73,27 +80,35 @@ public static void Main(string[] args)
     Console.ReadLine();
 }
 ```
+## <a name="usage-examples">Supported devices</a>
 
-### Supported devices
-
-### 1. Gateway
+### 1. <a name="gateway">Gateway</a>
 
 ![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
 
 ```csharp
-using var miHome = new MiHome();
+using var miHome = new MiHome("gateway password here"); // here we using developers api 
 
 miHome.OnGateway += (_, gateway) =>
 {
-    gateway.EnableLight();
+    gateway.EnableLight(); // by default this is "white" light
     Task.Delay(3000).Wait();
-    gateway.DisableLight();
+    gateway.DisableLight(); // light off
     Task.Delay(3000).Wait();
-    gateway.StartPlayMusic(1); // Track number 1 (tracks range is 0-8, 10-13, 20-29)
+    gateway.EnableLight(255, 0, 0, 100); // turn on "red" light with full brightness 
     Task.Delay(3000).Wait();
-    gateway.StopPlayMusic();
+    gateway.DisableLight(); // light off
+    Task.Delay(3000).Wait();
+    gateway.PlaySound(Gateway.Sound.IceWorldPiano, 50); // play ice world piano sound on gateway with volume 50%
+    Task.Delay(3000).Wait();
+    gateway.SoundsOff();
+    gateway.PlayCustomSound(10_002, 50); // play custom sound with volume 50%
+    Task.Delay(3000).Wait();
+    gateway.SoundsOff();
+
 };
 ```
+Yes, it is possible to upload custom sounds to your gateway and use them in various scenarios. [Check this instruction](https://smarthomehobby.com/using-the-xiaomi-door-window-sensor/).
 
 ### 2. Temperature and humidity sensor
 

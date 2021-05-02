@@ -76,25 +76,25 @@ namespace MiHomeLib.Devices
 
         public void PowerOn()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_power", "on"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_power", "on"));
             CheckMessage(response, "Unable to power on air humidifier");
         }
 
         public async Task PowerOnAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_power", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_power", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to power on air humidifier");
         }
 
         public void PowerOff()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_power", "off"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_power", "off"));
             CheckMessage(response, "Unable to power off air humidifier");
         }
 
         public async Task PowerOffAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_power", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_power", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to power off air humidifier");
         }
 
@@ -110,13 +110,13 @@ namespace MiHomeLib.Devices
 
         public void SetMode(Mode mode)
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_mode", mode.ToString().ToLower()));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_mode", mode.ToString().ToLower()));
             CheckMessage(response, "Unable to set fan mode of air humidifier");
         }
 
         public async Task SetModeAsync(Mode mode)
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_mode", mode.ToString().ToLower())).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_mode", mode.ToString().ToLower())).ConfigureAwait(false);
             CheckMessage(response, "Unable to set fan mode of air humidifier");
         }
 
@@ -152,13 +152,13 @@ namespace MiHomeLib.Devices
 
         public void SetBrightness(Brightness brightness)
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_led_b", brightness));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_led_b", brightness));
             CheckMessage(response, "Unable to set brightness of air humidifier");
         }
 
         public async Task SetBrightnessAsync(Brightness brightness)
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_led_b", brightness)).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_led_b", brightness)).ConfigureAwait(false);
             CheckMessage(response, "Unable to set brightness of air humidifier");
         }
 
@@ -184,25 +184,25 @@ namespace MiHomeLib.Devices
 
         public void BuzzerOn()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_buzzer", "on"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_buzzer", "on"));
             CheckMessage(response, "Unable to enable buzzer on air humidifier");
         }
 
         public async Task BuzzerOnAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_buzzer", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_buzzer", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to enable buzzer on air humidifier");
         }
 
         public void BuzzerOff()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_buzzer", "off"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_buzzer", "off"));
             CheckMessage(response, "Unable to disable buzzer on air humidifier");
         }
 
         public async Task BuzzerOffAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_buzzer", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_buzzer", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to disable buzzer on air humidifier");
         }
 
@@ -218,25 +218,25 @@ namespace MiHomeLib.Devices
 
         public void ChildLockOn()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_child_lock", "on"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_child_lock", "on"));
             CheckMessage(response, "Unable to enable child lock on air humidifier");
         }
 
         public async Task ChildLockOnAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_child_lock", "on")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_child_lock", "on")).ConfigureAwait(false);
             CheckMessage(response, "Unable to enable child lock on air humidifier");
         }
 
         public void ChildLockOff()
         {
-            var response = _miioTransport.SendMessage(BuildParams("set_child_lock", "off"));
+            var response = _miioTransport.SendMessage(BuildParamsArray("set_child_lock", "off"));
             CheckMessage(response, "Unable to disable child lock on air humidifier");
         }
 
         public async Task ChildLockOffAsync()
         {
-            var response = await _miioTransport.SendMessageAsync(BuildParams("set_child_lock", "off")).ConfigureAwait(false);
+            var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_child_lock", "off")).ConfigureAwait(false);
             CheckMessage(response, "Unable to disable child lock on air humidifier");
         }
     }

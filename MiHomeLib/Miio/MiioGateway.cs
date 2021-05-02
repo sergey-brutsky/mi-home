@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MiHomeLib.Events;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
@@ -22,14 +25,14 @@ namespace MiHomeLib.Devices
 
         public bool IsArmingOn()
         {
-            var msg = _miioTransport.SendMessage(BuildParams("get_arming", new string[0]));
+            var msg = _miioTransport.SendMessage(BuildParamsArray("get_arming", new string[0]));
 
             return CheckArmingState(msg);
         }
 
         public async Task<bool> IsArmingOnAsync()
         {   
-            var msg = await _miioTransport.SendMessageAsync(BuildParams("get_arming", new string[0])).ConfigureAwait(false);
+            var msg = await _miioTransport.SendMessageAsync(BuildParamsArray("get_arming", new string[0])).ConfigureAwait(false);
 
             return CheckArmingState(msg);
         }
@@ -48,42 +51,42 @@ namespace MiHomeLib.Devices
 
         public void SetArmingOff()
         {
-            var msg = BuildParams("set_arming", "off");
+            var msg = BuildParamsArray("set_arming", "off");
             var result = _miioTransport.SendMessage(msg);
             CheckMessage(result, "Unable to set arming off");
         }
 
         public async Task SetArmingOffAsync()
         {
-            var msg = BuildParams("set_arming", "off");
+            var msg = BuildParamsArray("set_arming", "off");
             var result = await _miioTransport.SendMessageAsync(msg).ConfigureAwait(false);
             CheckMessage(result, "Unable to set arming off");
         }
 
         public void SetArmingOn()
         {
-            var msg = BuildParams("set_arming", "on");
+            var msg = BuildParamsArray("set_arming", "on");
             var result = _miioTransport.SendMessage(msg);
             CheckMessage(result, "Unable to set arming on");
         }
 
         public async Task SetArmingOnAsync()
         {
-            var msg = BuildParams("set_arming", "on");
+            var msg = BuildParamsArray("set_arming", "on");
             var result = await _miioTransport.SendMessageAsync(msg).ConfigureAwait(false);
             CheckMessage(result, "Unable to set arming on");
         }
 
         public int GetArmingWaitTime()
         {
-            var msg = BuildParams("get_arm_wait_time", new string[0]);
+            var msg = BuildParamsArray("get_arm_wait_time", new string[0]);
             var result = _miioTransport.SendMessage(msg);
             return CheckArmingWaitResult(result);
         }
 
         public async Task<int> GetArmingWaitTimeAsync()
         {
-            var msg = BuildParams("get_arm_wait_time", new string[0]);
+            var msg = BuildParamsArray("get_arm_wait_time", new string[0]);
             var result = await _miioTransport.SendMessageAsync(msg);
             return CheckArmingWaitResult(result);
         }
@@ -95,28 +98,28 @@ namespace MiHomeLib.Devices
 
         public void SetArmingWaitTime(int seconds)
         {
-            var msg = BuildParams("set_arm_wait_time", seconds);
+            var msg = BuildParamsArray("set_arm_wait_time", seconds);
             var result = _miioTransport.SendMessage(msg);
             CheckMessage(result, "Unable to set arming wait time");
         }
 
         public async Task SetArmingWaitTimeAsync(int seconds)
         {
-            var msg = BuildParams("set_arm_wait_time", seconds);
+            var msg = BuildParamsArray("set_arm_wait_time", seconds);
             var result = await _miioTransport.SendMessageAsync(msg);
             CheckMessage(result, "Unable to set arming wait time");
         }
 
         public int GetArmingOffTime()
         {
-            var msg = BuildParams("get_device_prop", "lumi.0", "alarm_time_len");
+            var msg = BuildParamsArray("get_device_prop", "lumi.0", "alarm_time_len");
             var result = _miioTransport.SendMessage(msg);
             return CheckArmingOffTimeResult(result);
         }
 
         public async Task<int> GetArmingOffTimeAsync()
         {
-            var msg = BuildParams("get_device_prop", "lumi.0", "alarm_time_len");
+            var msg = BuildParamsArray("get_device_prop", "lumi.0", "alarm_time_len");
             var result = await _miioTransport.SendMessageAsync(msg);
             return CheckArmingOffTimeResult(result);
         }
@@ -142,14 +145,14 @@ namespace MiHomeLib.Devices
 
         public int GetArmingBlinkingTime()
         {
-            var msg = BuildParams("get_device_prop", "lumi.0", "en_alarm_light");
+            var msg = BuildParamsArray("get_device_prop", "lumi.0", "en_alarm_light");
             var result = _miioTransport.SendMessage(msg);
             return CheckArmingBlinkingResult(result);
         }
 
         public async Task<int> GetArmingBlinkingTimeAsync()
         {
-            var msg = BuildParams("get_device_prop", "lumi.0", "en_alarm_light");
+            var msg = BuildParamsArray("get_device_prop", "lumi.0", "en_alarm_light");
             var result = await _miioTransport.SendMessageAsync(msg);
             return CheckArmingBlinkingResult(result);
         }
@@ -175,14 +178,14 @@ namespace MiHomeLib.Devices
 
         public int GetArmingVolume()
         {
-            var msg = BuildParams("get_alarming_volume", new string[0]);
+            var msg = BuildParamsArray("get_alarming_volume", new string[0]);
             var result = _miioTransport.SendMessage(msg);
             return CheckArmingVolumeResult(result);
         }
 
         public async Task<int> GetArmingVolumeAsync()
         {
-            var msg = BuildParams("get_alarming_volume", new string[0]);
+            var msg = BuildParamsArray("get_alarming_volume", new string[0]);
             var result = await _miioTransport.SendMessageAsync(msg);
             return CheckArmingVolumeResult(result);
         }
@@ -194,14 +197,14 @@ namespace MiHomeLib.Devices
 
         public void SetArmingVolume(int volume)
         {
-            var msg = BuildParams("set_alarming_volume", volume);
+            var msg = BuildParamsArray("set_alarming_volume", volume);
             var result = _miioTransport.SendMessage(msg);
             CheckMessage(result, "Unable to set arming volume level");
         }
 
         public async Task SetArmingVolumeAsync(int volume)
         {
-            var msg = BuildParams("set_alarming_volume", volume);
+            var msg = BuildParamsArray("set_alarming_volume", volume);
             var result = await _miioTransport.SendMessageAsync(msg);
             CheckMessage(result, "Unable to set arming volume level");
         }
@@ -212,7 +215,7 @@ namespace MiHomeLib.Devices
         /// <returns>unix timestamp seconds</returns>
         public int GetArmingLastTimeTriggeredTimestamp()
         {
-            var msg = BuildParams("get_arming_time", new string[0]);
+            var msg = BuildParamsArray("get_arming_time", new string[0]);
             var result = _miioTransport.SendMessage(msg);
             return CheckArmingLastTimeTriggeredResult(result);
         }
@@ -223,7 +226,7 @@ namespace MiHomeLib.Devices
         /// <returns>unix timestamp seconds</returns>
         public async Task<int> GetArmingLastTimeTriggeredTimestampAsync()
         {
-            var msg = BuildParams("get_arming_time", new string[0]);
+            var msg = BuildParamsArray("get_arming_time", new string[0]);
             var result = await _miioTransport.SendMessageAsync(msg);
             return CheckArmingLastTimeTriggeredResult(result);
         }
@@ -233,28 +236,167 @@ namespace MiHomeLib.Devices
             return GetInteger(result, "Unable to get timestamp when arming was triggered");
         }
 
-        public void GetRadioChannels()
+        /// <summary>
+        /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
+        /// </summary>
+        /// <returns>List of RadioChannel</returns>
+        public List<RadioChannel> GetRadioChannels()
         {
-            //var a = _miioTransport.SendMessage("{\"id\":1, \"method\":\"get_channels\",\"params\":{\"start\":0}}");
-            //var b = 1;
+            var response = _miioTransport.SendMessage(BuildParamsObject("get_channels", new { start = 0 }));
+            var channelsJson = JObject.Parse(response)["result"]["chs"].ToString();            
+            var radioChannels = JsonConvert.DeserializeObject<List<RadioChannel>>(channelsJson);
+
+            return radioChannels.Skip(1).ToList();
         }
 
-        public void AddRadioChannel()
+        /// <summary>
+        /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
+        /// </summary>
+        /// <returns>List of RadioChannel</returns>
+        public async Task<List<RadioChannel>> GetRadioChannelsAsync()
         {
-            //var a = _miioTransport.SendMessage("{\"id\":1, \"method\":\"get_channels\",\"params\":{\"start\":0}}");
-            //var b = 1;
+            var response = await _miioTransport.SendMessageAsync(BuildParamsObject("get_channels", new { start = 0 }));
+            var channelsJson = JObject.Parse(response)["result"]["chs"].ToString();
+
+            return JsonConvert.DeserializeObject<List<RadioChannel>>(channelsJson);
         }
 
-        public void RemoveRadioChannel()
+        /// <summary>
+        /// Add custom radio channel to the gateway
+        /// </summary>
+        public void AddRadioChannel(int channelId, string channelUrl)
         {
-            //var a = _miioTransport.SendMessage("{\"id\":1, \"method\":\"get_channels\",\"params\":{\"start\":0}}");
-            //var b = 1;
+            if (channelId < 1024) throw new ArgumentException($"Radio channel id must be > 1024");
+
+            if(GetRadioChannels().Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id");
+
+            var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel>{ new RadioChannel() { Id = channelId, Url = channelUrl, Type = 0} } });
+            var result = _miioTransport.SendMessage(msg);
+
+            CheckMessage(result, "Unable to add radio channel");
         }
 
-        public void PlayRadioChannel()
+        /// <summary>
+        /// Add custom radio channel to the gateway
+        /// </summary>
+        public async Task AddRadioChannelAsync(int channelId, string channelUrl)
         {
-            //var a = _miioTransport.SendMessage("{\"id\":1, \"method\":\"get_channels\",\"params\":{\"start\":0}}");
-            //var b = 1;
+            if (channelId < 1024) throw new ArgumentException($"Radio channel id must be > 1024");
+
+            if ((await GetRadioChannelsAsync()).Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id");
+
+            var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new RadioChannel() { Id = channelId, Url = channelUrl, Type = 0 } } });
+            var result = await _miioTransport.SendMessageAsync(msg);
+
+            CheckMessage(result, "Unable to add radio channel");
+        }
+
+        /// <summary>
+        /// Remove custom radio channel from gateway stations list
+        /// </summary>
+        public void RemoveRadioChannel(int channelId)
+        {
+            var radioChannels = GetRadioChannels();
+
+            if (!radioChannels.Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
+
+            radioChannels.RemoveAll(x => x.Id != channelId);
+
+            var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
+            var result = _miioTransport.SendMessage(msg);
+
+            CheckMessage(result, $"Unable to remove radio channel with id {channelId}");
+        }
+
+        /// <summary>
+        /// Remove custom radio channel from gateway stations list
+        /// </summary>
+        public async Task RemoveRadioChannelAsync(int channelId)
+        {
+            var radioChannels = await GetRadioChannelsAsync();
+
+            if (!radioChannels.Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
+
+            radioChannels.RemoveAll(x => x.Id != channelId);
+
+            var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
+            var result = await _miioTransport.SendMessageAsync(msg);
+
+            CheckMessage(result, $"Unable to remove radio channel with id {channelId}");
+        }
+
+        /// <summary>
+        /// Clear all custom radio channels from the gateway
+        /// </summary>
+        public void RemoveAllRadioChannels()
+        {
+            var radioChannels = GetRadioChannels();
+            var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
+            var result = _miioTransport.SendMessage(msg);
+            CheckMessage(result, "Unable to remove all radio channels");
+        }
+
+        /// <summary>
+        /// Clear all custom radio channels from the gateway
+        /// </summary>
+        public async Task RemoveAllRadioChannelsAsync()
+        {
+            var radioChannels = await GetRadioChannelsAsync();
+            var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
+            var result = await _miioTransport.SendMessageAsync(msg);
+            CheckMessage(result, "Unable to remove all radio channels");
+        }
+
+        /// <summary>
+        /// Start playing custom channel
+        /// </summary>
+        public void PlayRadio(int channelId, int volume)
+        {
+            if (volume < 0 || volume > 100)
+                throw new ArgumentException($"Volume must be within range 0-100");
+
+            if (!GetRadioChannels().Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
+
+            var result = _miioTransport.SendMessage(BuildParamsArray("play_specify_fm", channelId, volume));
+            CheckMessage(result, $"Unable to play channelId: {channelId} with volume {volume}");
+        }
+
+        /// <summary>
+        /// Start playing custom channel
+        /// </summary>
+        public async Task PlayRadioAsync(int channelId, int volume)
+        {
+            if (volume < 0 || volume > 100)
+                throw new ArgumentException($"Volume must be within range 0-100");
+
+            if (!(await GetRadioChannelsAsync()).Any(x => x.Id == channelId))
+                throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
+
+            var result = await _miioTransport.SendMessageAsync(BuildParamsArray("play_specify_fm", channelId, volume));
+            CheckMessage(result, $"Unable to play channelId: {channelId} with volume {volume}");
+        }
+
+        /// <summary>
+        /// Stop playing radio
+        /// </summary>
+        public void StopRadio()
+        {
+            var result = _miioTransport.SendMessage(BuildParamsArray("play_fm", "off"));
+            CheckMessage(result, $"Unable to stop playing radio");
+        }
+
+        /// <summary>
+        /// Stop playing radio
+        /// </summary>
+        public async Task StopRadioAsync()
+        {
+            var result = await _miioTransport.SendMessageAsync(BuildParamsArray("play_fm", "off"));
+            CheckMessage(result, $"Unable to stop playing radio");
         }
     }
 }
