@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -10,6 +11,16 @@ namespace MiHomeLib
 {
     public static class Helpers
     {
+        public static void SendTo(this UdpClient udpClient, byte[] bytes, IPEndPoint endpoint)
+        {
+            udpClient.Send(bytes, bytes.Length, endpoint);
+        }
+
+        public static Task<int> SendAsync(this UdpClient udpClient, byte[] bytes, IPEndPoint endpoint)
+        {
+            return udpClient.SendAsync(bytes, bytes.Length, endpoint);
+        }
+
         public static async Task<byte[]> ReceiveBytesAsync(this Socket socket, int bufferSize = 4096)
         {
             var buffer = new ArraySegment<byte>(new byte[bufferSize]);

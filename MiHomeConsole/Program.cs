@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using MiHomeLib;
-using MiHomeLib.Devices;
 
 namespace MiHomeConsole
 {

@@ -11,7 +11,7 @@ namespace MiHomeUnitTests
         public void PowerOn_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -26,7 +26,7 @@ namespace MiHomeUnitTests
         public async Task PowerOnAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -41,7 +41,7 @@ namespace MiHomeUnitTests
         public void PowerOff_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -56,7 +56,7 @@ namespace MiHomeUnitTests
         public async Task PowerOffAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -71,7 +71,7 @@ namespace MiHomeUnitTests
         public void SetMode_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -86,7 +86,7 @@ namespace MiHomeUnitTests
         public async Task SetModeAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -101,7 +101,7 @@ namespace MiHomeUnitTests
         public void IsTurnedOn_Returns_State_Power()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"on\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -117,7 +117,7 @@ namespace MiHomeUnitTests
         public async void IsTurnedOnAsync_Returns_State_Power()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"on\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -133,7 +133,7 @@ namespace MiHomeUnitTests
         public void GetDeviceMode_Returns_Valid_Mode()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"high\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -149,7 +149,7 @@ namespace MiHomeUnitTests
         public async void GetDeviceModeAsync_Returns_Valid_Mode()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"medium\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -165,7 +165,7 @@ namespace MiHomeUnitTests
         public void GetTemperature_Returns_Valid_Temperature()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"323\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -181,7 +181,7 @@ namespace MiHomeUnitTests
         public async Task GetTemperatureAsync_Returns_Valid_Temperature()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"323\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -197,7 +197,7 @@ namespace MiHomeUnitTests
         public void GetHumidity_Returns_Valid_Humidity()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"45\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -213,7 +213,7 @@ namespace MiHomeUnitTests
         public async Task GetHumidityAsync_Returns_Valid_Humidity()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"41\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -229,7 +229,7 @@ namespace MiHomeUnitTests
         public void GetBrightness_Returns_Valid_Brightness()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"0\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -245,7 +245,7 @@ namespace MiHomeUnitTests
         public async void GetBrightnessAsync_Returns_Valid_Brightness()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"2\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -261,7 +261,7 @@ namespace MiHomeUnitTests
         public void SetBrightness_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -276,7 +276,7 @@ namespace MiHomeUnitTests
         public async Task SetBrightnessAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -291,7 +291,7 @@ namespace MiHomeUnitTests
         public void GetTargetHumidity_Returns_Valid_TargetHumidity()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"50\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -307,7 +307,7 @@ namespace MiHomeUnitTests
         public async void GetTargetHumidityAsync_Returns_Valid_TargetHumidity()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"50\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -323,7 +323,7 @@ namespace MiHomeUnitTests
         public void IsBuzzerOn_Returns_Valid_BuzzerState()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"on\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -339,7 +339,7 @@ namespace MiHomeUnitTests
         public async void IsBuzzerOnAsync_Returns_Valid_BuzzerState()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"off\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -355,7 +355,7 @@ namespace MiHomeUnitTests
         public void BuzzerOn_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -370,7 +370,7 @@ namespace MiHomeUnitTests
         public async Task BuzzerOnAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -385,7 +385,7 @@ namespace MiHomeUnitTests
         public void IsChildLockOn_Returns_Valid_ChildLockState()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"on\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -401,7 +401,7 @@ namespace MiHomeUnitTests
         public async void IsChildLockOnAsync_Returns_Valid_ChildLockState()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"off\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -417,7 +417,7 @@ namespace MiHomeUnitTests
         public void ChildLockOn_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns("{\"result\":[\"ok\"],\"id\":1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -432,7 +432,7 @@ namespace MiHomeUnitTests
         public async Task ChildLockOnAsync_Should_Not_Throw_Exceptions()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
             var airHumidifier = new AirHumidifier(miioDevice.Object);
 
@@ -447,7 +447,7 @@ namespace MiHomeUnitTests
         public void ToString_Returns_Valid_State()
         {
             // Arrange
-            var miioDevice = new Mock<IMiioDevice>();
+            var miioDevice = new Mock<IMiioTransport>();
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>()))
                 .Returns("{\"result\": [\"on\", \"high\", \"323\", \"45\", \"0\", \"on\", \"off\", \"50\"], \"id\": 1}");
             var airHumidifier = new AirHumidifier(miioDevice.Object);

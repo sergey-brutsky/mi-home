@@ -99,37 +99,37 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public void Check_Gateway_StartPlayMusic_Command()
+        public void Check_Gateway_PlaySound_Command()
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { mid = 1 });
+            var command = JsonConvert.SerializeObject(new { mid = 1, vol = 85 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act
-            gateway.StartPlayMusic(1);
+            gateway.PlaySound(Gateway.Sound.PoliceСar2, 85);
 
             // Assert
             transport.Verify(x => x
                 .SendWriteCommand("34ce1188db36", "gateway",
-                    It.Is<GatewayMusicCommand>(c => c.ToString() == command)), Times.Once());
+                    It.Is<PlaySoundCommand>(c => c.ToString() == command)), Times.Once());
         }
 
         [Fact]
-        public void Check_Gateway_StopPlayMusic_Command()
+        public void Check_Gateway_SoundsOff_Command()
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { mid = 1000 });
+            var command = JsonConvert.SerializeObject(new { mid = 1000, vol = 0 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act
-            gateway.StopPlayMusic();
+            gateway.SoundsOff();
 
             // Assert
             transport.Verify(x => x
                 .SendWriteCommand("34ce1188db36", "gateway",
-                    It.Is<GatewayMusicCommand>(c => c.ToString() == command)), Times.Once());
+                    It.Is<PlaySoundCommand>(c => c.ToString() == command)), Times.Once());
         }
     }
 }

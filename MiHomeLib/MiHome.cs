@@ -180,7 +180,7 @@ namespace MiHomeLib
                     var str = await _transport.ReceiveAsync().ConfigureAwait(false);
                     var respCmd = ResponseCommand.FromString(str);
 
-                    if(LogRawCommands) _logger?.LogInformation(str);
+                    if (LogRawCommands) _logger?.LogInformation(str);
 
                     if (!_commandsToActions.TryGetValue(respCmd.Command, out var actionCommand))
                     {
