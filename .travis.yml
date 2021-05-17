@@ -6,4 +6,4 @@ dotnet: 5.0.203
 before_script:
   - dotnet restore -s https://api.nuget.org/v3/index.json
 script:  
-  - dotnet test MiHomeUnitTests -c Release -f netcoreapp3.1
+  - dotnet test MiHomeUnitTests -c Release
