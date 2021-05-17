@@ -1,6 +1,7 @@
 # C# Library for using xiaomi smart gateway in your automation scenarious
 
 [![Build Status](https://travis-ci.com/sergey-brutsky/mi-home.svg?branch=master)](https://travis-ci.com/sergey-brutsky/mi-home)
+[![Tests Status](https://img.shields.io/static/v1?label=tests&message=passed%20146&color=brightgreen)]()
 
 This library provides simple and flexible C# API for Xiaomi Mi Home devices.  
 
