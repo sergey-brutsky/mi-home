@@ -4,7 +4,6 @@ dist: focal
 mono: none
 dotnet: 5.0.203
 before_script:
-  - apt-add-repository https://packages.microsoft.com/ubuntu/20.04/prod
   - dotnet restore
 script:  
   - dotnet test MiHomeUnitTests -c Release -f netcoreapp3.1
