@@ -4,14 +4,14 @@
     <Title>MiHomeLib</Title>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>1.0.14</PackageVersion>
+    <PackageVersion>1.0.15</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for .net framework 4.6.1, 4.6.2
-Added support for gateway radio add/remove/play custom channels (see details in the docs)
+Added support for Mi Robot Vacuum (rockrobo.vacuum.v1).
+Check the details in the documentation.
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2021 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>

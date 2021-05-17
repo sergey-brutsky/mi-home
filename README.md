@@ -2,11 +2,12 @@
 
 This library provides simple and flexible C# API for Xiaomi Mi Home devices.  
 
-Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi.humidifier.v1) and several sensors. See the pictures below.
+Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi.humidifier.v1), Mi Robot vacuum (rockrobo.vacuum.v1) and several sensors. See the pictures below.
 
-![gw](https://user-images.githubusercontent.com/5664637/103202603-e7f11c80-4903-11eb-947e-cc4e1208fece.jpeg)
+![smart-home](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
+
 ![humidifier](https://user-images.githubusercontent.com/5664637/102880937-25b1f900-445d-11eb-83e4-1f96830510d6.jpg)
-
+![mirobot](https://user-images.githubusercontent.com/5664637/118375624-7de3c600-b5cb-11eb-8887-772795f7fbf5.jpeg)
 
 ![gateway](https://user-images.githubusercontent.com/5664637/32080159-d2fbd29a-bab6-11e7-9ef8-e18c048fd5fe.jpg)
 ![temperature_sensor](https://user-images.githubusercontent.com/5664637/32080111-88c9a058-bab6-11e7-9d73-82dd77e362ae.jpg)
@@ -40,6 +41,7 @@ Currently supports **only Gateway version 2 (DGNWG02LM)**, Air Humidifier (zhimi
     - 4.8 [Wireless dual wall switch](#dual-wall-sensor)
     - 4.9 [Aqara cube](#aqara-cube)
     - 4.10 [Air humidifier](#air-humidifier)
+    - 4.11 [Mi Robot Vacuum](#mi-robot-v1)
 
 ## <a name="installation">Installation</a>
 via nuget package manager
@@ -54,7 +56,7 @@ or install via [GitHub packages](https://github.com/sergey-brutsky/mi-home/packa
 
 ## <a name="setup-gateway">Setup Gateway</a>
 
-Before using this library you should setup **development mode** on your gateway, [instruction how to do this](https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)).\
+Before using this library you should setup **development mode** on your gateway, [instructions how to do this](https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)).\
 This mode allows to work with the gateway via UDP multicast protocol.
 
 
@@ -190,7 +192,7 @@ miHome.OnThSensor += (_, thSensor) =>
 };
 ```
 
-### 3. <a name="socket-plug">Socket Plug</a>
+### 3. <a name="socket-plug">Socket Plug (zigbee version)</a>
 
 ![socket_plug](https://user-images.githubusercontent.com/5664637/32080247-4b007520-bab7-11e7-9e0a-83e01ee37b8e.jpg)
 
@@ -393,12 +395,12 @@ AirHumidifier.OnDiscovered += (_, humidifier) =>
 
 AirHumidifier.DiscoverDevices();
 ```
-If your device hides his token follow [these instructions](https://www.home-assistant.io/integrations/xiaomi_miio#xiaomi-home-app-xiaomi-aqara-gateway-android--ios) in order to extract it.
+If your device hides his token follow [these instructions](https://github.com/Maxmudjon/com.xiaomi-miio/blob/master/docs/obtain_token.md) in order to extract it.
 
 Basic scenario
 
 ```csharp
-var airHumidifier = new AirHumidifier("192.168.1.5", "token here");
+var airHumidifier = new AirHumidifier("<ip here>", "<token here>");
 Console.WriteLine(airHumidifier);
 /* sample output
 Power: on
@@ -416,7 +418,7 @@ Token: 4a3a2f017b70097a850558c35c953b55
 ```
 Functions
 ```csharp
-var airHumidifier = new AirHumidifier("192.168.1.5", "token here");
+var airHumidifier = new AirHumidifier("<ip here>", "<token here>");
 airHumidifier.PowerOn(); // power on
 airHumidifier.PowerOff(); // power off
 airHumidifier.SetMode(AirHumidifier.Mode.High); // set fan mode high/medium/low
@@ -431,4 +433,45 @@ airHumidifier.GetTargetHumidity(); // get humidity limit 20/30/40/50/60/70/80 %
 ```
 Async versions of the operations above also supported.
 
-When I buy more devices I will update the library
+### 11. <a name="mi-robot-v1">Mi Robot Vacuum</a>
+![mirobot](https://user-images.githubusercontent.com/5664637/118375492-a6b78b80-b5ca-11eb-86d3-3b9065ac3892.jpeg)
+
+Before using the library you need to know IP and TOKEN of your Mi Robot.
+
+If you don't know these parameters try to use the following code in order to discover **mi robots** in your LAN
+```csharp
+MiRobotV1.OnDiscovered += (_, e) =>
+{
+	Console.WriteLine($"{e.Ip}, {e.Serial}, {e.Type}, {e.Token}");
+};
+
+MiRobotV1.DiscoverDevices()
+```
+If your device hides his token (you get 'ffffffffffffffffffffffffffffffff' instead of token) follow [these instructions](https://github.com/Maxmudjon/com.xiaomi-miio/blob/master/docs/obtain_token.md) in order to extract it.
+
+Supported methods
+```csharp
+var miRobot = new MiRobotV1("<ip here>", "<token here>");
+miRobot.Start(); // start the clean up
+miRobot.Stop(); // stop the clean up
+miRobot.Pause(); // pause the clean up
+miRobot.Spot(); // start spot clean up
+miRobot.Home(); // go back to the base station
+miRobot.FindMe(); // tell the robot to give a voice
+```
+Async versions of the operations above also supported.
+
+**Warning**: 
+Mi Robot stores client requests in memory and doesn't allow to send request with the same client id twice.
+
+It means that if you run the code snippet bellow twice.
+```csharp
+var miRobot = new MiRobotV1("<ip here>", "<token here>");
+miRobot.Start(); // start the clean up
+```
+The second attempt will fail.
+Work around is to set client id manually (usually increasing to 1 works)
+```csharp
+var miRobot = new MiRobotV1("<ip here>", "<token here>", 2); // client request id is set to 2
+miRobot.Start(); // start the clean up
+```
