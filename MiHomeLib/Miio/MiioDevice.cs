@@ -15,16 +15,17 @@ namespace MiHomeLib.Devices
 
         private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings();
         
-        public MiioDevice(IMiioTransport miioTransport)
+        public MiioDevice(IMiioTransport miioTransport, int initialClientId = 0)
         {
             _miioTransport = miioTransport;
+            _clientId = initialClientId;
             _serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
         }
 
         protected void CheckMessage(string response, string errorMessage)
         {
-            if (response != $"{{\"result\":[\"ok\"],\"id\":{_clientId}}}")
+            if (response.TrimEnd('\0') != $"{{\"result\":[\"ok\"],\"id\":{_clientId}}}")
             {
                 throw new Exception($"{errorMessage}, miio protocol error --> {response}");
             }
