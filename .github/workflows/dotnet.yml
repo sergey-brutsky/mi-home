@@ -24,4 +24,11 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal MiHomeUnitTests
+      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" MiHomeUnitTests
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success()
+      with:
+        name: xUnit Tests
+        path: MiHomeUnitTests/TestResults/test-results.trx
+        reporter: dotnet-trx
