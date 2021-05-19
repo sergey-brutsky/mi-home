@@ -35,3 +35,13 @@ jobs:
       run: echo "PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep passed | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV && echo "FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep failed | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV
     - name: Print test results
       run: echo ${{ env.PASSED }} passed ${{ env.FAILED }} failed
+    - name: Create the Badge
+      uses: schneegans/dynamic-badges-action@v1.0.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: d70d7e06eb53484b7514bfd63cec6885
+        filename: test_results.json
+        label: tests
+        message: ${{ env.PASSED }} passed ${{ env.FAILED }} failed
+        color: green
+
