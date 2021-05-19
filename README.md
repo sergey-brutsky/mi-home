@@ -1,7 +1,6 @@
 # C# Library for using xiaomi smart gateway in your automation scenarious
 
 [![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Tests](https://github.com/sergey-brutsky/mi-home/actions/workflows/test.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/test.yml)
 [![Nuget](https://buildstats.info/nuget/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sergey-brutsky/mi-home/blob/master/LICENSE.md)
 
