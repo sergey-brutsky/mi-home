@@ -31,3 +31,11 @@ jobs:
         name: xUnit Tests
         path: MiHomeUnitTests/TestResults/test-results.trx
         reporter: dotnet-trx
+    - name: Tests badge
+      uses: RubbaBoy/BYOB@v1.2.0
+      with:
+        NAME: tests
+        LABEL: 'tests'
+        STATUS: '146 passed'
+        COLOR: blue
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
