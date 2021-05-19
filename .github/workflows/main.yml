@@ -32,6 +32,6 @@ jobs:
         path: MiHomeUnitTests/TestResults/test-results.trx
         reporter: dotnet-trx
     - name: Get test report results
-      run: echo "PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep passed | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV 
+      run: echo "PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep passed | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV && echo "FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep failed | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV
     - name: Print test results
-      run: echo ${{ env.PASSED }}
+      run: echo ${{ env.PASSED }} passed ${{ env.FAILED }} failed
