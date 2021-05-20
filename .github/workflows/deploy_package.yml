@@ -1,0 +1,39 @@
+name: deploy package
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'tag'
+        required: true
+        default: 'refs/tags/v1.0.15'
+
+# on:
+#   push:
+#     tags:
+#       - 'v*'
+
+
+jobs:
+  deploy_package:
+    name: 'Build & Test'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set release version
+        # run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: TAG_VERSION=${${{ github.event.inputs.tag }}#refs/*/} && RELEASE_VERSION=${tag_version:1}
+      - name: Test
+        run: |
+          echo $RELEASE_VERSION
+    - name: Setup dotnet core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore -s https://api.nuget.org/v3/index.json
+    - name: Build
+      run: dotnet build MiHomeLib -c Release
+    - name: Deploy to nuget
+      run: echo "dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key test --source https://api.nuget.org/v3/index.js"
+    
