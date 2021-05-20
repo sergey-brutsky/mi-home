@@ -1,0 +1,27 @@
+name: deploy package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy_package:
+    name: 'Build & Deploy package'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set release version
+      run: tmp1=${GITHUB_REF#refs/*/} && echo "RELEASE_VERSION=${tmp1:1}" >> $GITHUB_ENV
+    - name: Setup dotnet core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore -s https://api.nuget.org/v3/index.json
+    - name: Build
+      run: dotnet build MiHomeLib -c Release
+    - name: Deploy to nuget
+      run: dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.js
+    - name: Deploy to github packages
+      run: dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
