@@ -9,7 +9,7 @@ build:
 	dotnet build MiHomeLib -c Debug
 
 run:
-	dotnet run -p MiHomeConsole
+	dotnet run --project MiHomeConsole
 
 test:
 	dotnet test MiHomeUnitTests

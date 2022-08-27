@@ -35,15 +35,33 @@ Check the details in the documentation.
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="13.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="MQTTnet" Version="4.1.0.247" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Microsoft.Extensions.Logging.Console" />
+    <None Remove="MQTTnet" />
+    <None Remove="Gateway3\" />
+    <None Remove="Gateway3\Devices\" />
+    <None Remove="Gateway3\Events\" />
+    <None Remove="Gateway2\" />
+    <None Remove="Gateway2\Commands\" />
+    <None Remove="Gateway2\Devices\" />
+    <None Remove="Gateway2\Events\" />
+    <None Remove="Gateway2\Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="gateway.jpeg" Pack="true" PackagePath="\" />
     <Folder Include="Miio\" />
     <Folder Include="Transport\" />
+    <Folder Include="Gateway3\" />
+    <Folder Include="Gateway3\Devices\" />
+    <Folder Include="Gateway3\Events\" />
+    <Folder Include="Gateway2\" />
+    <Folder Include="Gateway2\Commands\" />
+    <Folder Include="Gateway2\Devices\" />
+    <Folder Include="Gateway2\Events\" />
+    <Folder Include="Gateway2\Exceptions\" />
   </ItemGroup>
 </Project>
