@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Globalization;
+using System.Threading;
 using MiHomeLib;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
@@ -15,6 +17,7 @@ namespace MiHomeUnitTests
 
         public SockerPlugTests(MiHomeDeviceFactoryFixture deviceFactory)
         {
+			Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             _deviceFactory = deviceFactory;
         }
 

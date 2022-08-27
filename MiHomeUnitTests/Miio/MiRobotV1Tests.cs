@@ -2,6 +2,8 @@ using System.Threading.Tasks;
 using MiHomeLib.Devices;
 using Moq;
 using Xunit;
+using System.Threading;
+using System.Globalization;
 
 namespace MiHomeUnitTests
 {
@@ -10,6 +12,8 @@ namespace MiHomeUnitTests
         [Fact]
         public void ToString_Returns_Valid_State()
         {
+		    Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
             // Arrange
             var response = "{\"result\":[{\"msg_ver\":8,\"msg_seq\":54,\"state\":8,\"battery\":100,\"clean_time\":729,\"clean_area\":9795000,\"error_code\":0,\"map_present\":1,\"in_cleaning\":0,\"fan_power\":60,\"dnd_enabled\":0}],\"id\":6}\0";
             var miioDevice = GetMiioDevice("get_status", response);
