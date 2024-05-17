@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>MiHomeLib</Title>
-    <TargetFrameworks>netstandard2.0;net471</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net481</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
     <PackageVersion>1.0.15</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
@@ -13,10 +13,9 @@
 Added support for Mi Robot Vacuum (rockrobo.vacuum.v1).
 Check the details in the documentation.
     </PackageReleaseNotes>
-    <Copyright>Copyright 2017-2021 (c) Sergey Brutsky. All rights reserved.</Copyright>
+    <Copyright>Copyright 2017-2024 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home smarthome csharp netstandard13 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageProjectUrl>http://mi-home.ml/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,8 +33,8 @@ Check the details in the documentation.
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="newtonsoft.json" Version="13.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
+    <PackageReference Include="newtonsoft.json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
