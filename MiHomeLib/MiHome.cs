@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
-using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib

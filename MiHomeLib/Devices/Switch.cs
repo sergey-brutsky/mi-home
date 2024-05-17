@@ -43,7 +43,7 @@ namespace MiHomeLib.Devices
                 }
             }
 
-            Voltage = jObject.ParseVoltage();
+            Voltage = jObject.ParseVoltage() ?? Voltage;
         }
 
         public override string ToString()
