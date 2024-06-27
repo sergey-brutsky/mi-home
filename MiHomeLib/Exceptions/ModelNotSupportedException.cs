@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace MiHomeLib
+namespace MiHomeLib;
+
+[Serializable]
+public class ModelNotSupportedException : Exception
 {
-    [Serializable]
-    public class ModelNotSupportedException : Exception
+    public ModelNotSupportedException()
     {
-        public ModelNotSupportedException()
-        {
-        }
+    }
 
-        public ModelNotSupportedException(string message) : base(message)
-        {
-        }
+    public ModelNotSupportedException(string message) : base(message)
+    {
+    }
 
-        public ModelNotSupportedException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+    public ModelNotSupportedException(string message, Exception innerException) : base(message, innerException)
+    {
+    }
 
-        protected ModelNotSupportedException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    protected ModelNotSupportedException(SerializationInfo info, StreamingContext context) : base(info, context)
+    {
     }
 }

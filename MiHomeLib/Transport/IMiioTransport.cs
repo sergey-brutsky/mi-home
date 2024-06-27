@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib;
+
+public interface IMiioTransport: IDisposable
 {
-    public interface IMiioTransport: IDisposable
-    {
-        public string Ip { get;}
-        public string Token { get;}
-        string SendMessage(string msg);
-        Task<string> SendMessageAsync(string msg);
-    }
+    public string Ip { get;}
+    public string Token { get;}
+    string SendMessageRepeated(string msg, int times = 3);
+    string SendMessage(string msg);
+    Task<string> SendMessageAsync(string msg);
 }

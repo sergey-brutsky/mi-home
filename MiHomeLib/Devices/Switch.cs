@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
 {
-    public class Switch : MiHomeDevice
+    public class Switch(string sid) : MiHomeDevice(sid, TypeKey)
     {
         public const string TypeKey = "switch";
 
@@ -12,8 +12,6 @@ namespace MiHomeLib.Devices
         public event EventHandler OnDoubleClick;
 
         public event EventHandler OnLongPress;
-
-        public Switch(string sid) : base(sid, TypeKey) {}
 
         public float? Voltage { get; set; }
 

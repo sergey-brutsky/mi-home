@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MiHomeLib.Devices;
+using MiHomeLib;
+using MiHomeLib.MiioDevices;
 using Moq;
 using Xunit;
 
@@ -751,7 +752,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
-            var miioGateway = new MiioGateway(miioDevice.Object);
+            var miioGateway = new MiioGateway(miioDevice.Object);            
 
             miioDevice.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("play_fm"))))
                 .Returns(Task.FromResult("{\"result\":[\"ok\"],\"id\":1}"));
