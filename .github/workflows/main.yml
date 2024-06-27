@@ -36,7 +36,7 @@ jobs:
     - name: Print test results
       run: echo ${{ env.PASSED }} passed ${{ env.FAILED }} failed
     - name: Create the Badge
-      uses: schneegans/dynamic-badges-action@v1.0.0
+      uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
         gistID: d70d7e06eb53484b7514bfd63cec6885
