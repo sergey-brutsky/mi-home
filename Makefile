@@ -24,7 +24,7 @@ publish-nuget: check-version check-secrets
 	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(NUGET_SECRET) --source https://api.nuget.org/v3/index.json
 
 publish-github: check-version check-secrets
-	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(GITHUB_SECRET) --source "github"
+	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(GITHUB_SECRET) --source https://nuget.pkg.github.com/sergey-brutsky/index.json
 
 check-version:
 ifndef v
