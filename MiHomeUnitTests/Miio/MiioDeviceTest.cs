@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using MiHomeLib.Devices;
+using MiHomeLib;
 using Moq;
 
 namespace MiHomeUnitTests
 {
     public class MiioDeviceTest
     {
-        protected Mock<IMiioTransport> GetMiioDevice(string method, string response)
+        protected static Mock<IMiioTransport> GetMiioDevice(string method, string response)
         {
             var miioDevice = new Mock<IMiioTransport>();
 
@@ -17,7 +17,7 @@ namespace MiHomeUnitTests
             return miioDevice;
         }
 
-        protected Mock<IMiioTransport> GetMiioDevice(string method, int id = 1)
+        protected static Mock<IMiioTransport> GetMiioDevice(string method, int id = 1)
         {
             var miioDevice = new Mock<IMiioTransport>();
 
@@ -28,7 +28,7 @@ namespace MiHomeUnitTests
             return miioDevice;
         }
 
-        protected Mock<IMiioTransport> GetMiioDeviceAsync(string method, int id = 1)
+        protected static Mock<IMiioTransport> GetMiioDeviceAsync(string method, int id = 1)
         {
             var miioDevice = new Mock<IMiioTransport>();
 

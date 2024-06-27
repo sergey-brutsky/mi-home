@@ -5,10 +5,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using MiHomeLib.MiioDevices;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Transport
 {
     public class MiioTransport : IMiioTransport
     {
@@ -16,13 +17,15 @@ namespace MiHomeLib.Devices
         private readonly string _token;
         private readonly UdpClient _udpClient;
         private IPEndPoint _endpoint;
-        
-        private const int MESSAGES_TIMEOUT = 5000; // 5 seconds receive timeout
+
+        private const int MESSAGES_TIMEOUT_MS = 5000;
         private const string HELLO_REQUEST = "21310020ffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
-        private readonly Exception _helloException = new Exception("Reponse hello package is corrupted, looks like miio protocol implemenation is broken");
+        private readonly Exception _helloException =
+            new("Reponse hello package is corrupted, looks like miio protocol implemenation is broken");
 
-        private readonly Exception _timeoutException = new Exception($"Response has not been received in {MESSAGES_TIMEOUT / 1000} seconds." +
+        private readonly Exception _timeoutException =
+            new($"Response has not been received in {MESSAGES_TIMEOUT_MS / 1000} seconds." +
                     $"Looks like miio protocol implementation is broken");
 
         private MiioPacket initialPacket = null;
@@ -35,9 +38,33 @@ namespace MiHomeLib.Devices
             _ip = ip ?? throw new Exception("IP of device must be provided");
             _token = token ?? throw new Exception("Token for device communication must be provided");
 
-            _endpoint = new IPEndPoint(IPAddress.Parse(ip), port);            
+            _endpoint = new IPEndPoint(IPAddress.Parse(ip), port);
             _udpClient = new UdpClient();
-            _udpClient.Client.ReceiveTimeout = MESSAGES_TIMEOUT;
+            _udpClient.Client.ReceiveTimeout = MESSAGES_TIMEOUT_MS;
+        }
+
+        public string SendMessageRepeated(string msg, int times)
+        {
+            string result = string.Empty;
+            Exception ex = null;
+
+            for (int i = 0; i < times; i++)
+            {
+                bool exceptionRaised = false;
+                try
+                {
+                    result = SendMessage(msg);
+                }
+                catch (Exception e)
+                {
+                    ex = e;
+                    exceptionRaised = true;
+                }
+
+                if (!exceptionRaised) return result;
+            }
+
+            throw ex;
         }
 
         public string SendMessage(string msg)
@@ -46,7 +73,7 @@ namespace MiHomeLib.Devices
             {
                 SendHelloPacketIfNeeded();
 
-                var requestHex = initialPacket.BuildMessage(msg, _token);               
+                var requestHex = initialPacket.BuildMessage(msg, _token);
                 _udpClient.SendTo(requestHex.ToByteArray(), _endpoint);
 
                 var responseHex = _udpClient.Receive(ref _endpoint).ToHex();
@@ -118,12 +145,12 @@ namespace MiHomeLib.Devices
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MESSAGES_TIMEOUT);
-            socket.Bind(new IPEndPoint(IPAddress.Any, 0));            
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MESSAGES_TIMEOUT_MS);
+            socket.Bind(new IPEndPoint(IPAddress.Any, 0));
             socket.SendTo(HELLO_REQUEST.ToByteArray(), new IPEndPoint(IPAddress.Broadcast, port));
 
             var discoveredDevices = new List<(string ip, string type, string serial, string token)>();
-            
+
             try
             {
                 var buffer = new byte[4096];
@@ -147,5 +174,7 @@ namespace MiHomeLib.Devices
         {
             _udpClient?.Close();
         }
+
+
     }
 }

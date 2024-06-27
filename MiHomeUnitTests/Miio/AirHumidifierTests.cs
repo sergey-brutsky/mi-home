@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using MiHomeLib.Devices;
+using MiHomeLib;
+using MiHomeLib.MiioDevices;
 using Moq;
 using Xunit;
 
@@ -114,7 +115,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void IsTurnedOnAsync_Returns_State_Power()
+        public async Task IsTurnedOnAsync_Returns_State_Power()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
@@ -146,7 +147,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void GetDeviceModeAsync_Returns_Valid_Mode()
+        public async Task GetDeviceModeAsync_Returns_Valid_Mode()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
@@ -242,7 +243,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void GetBrightnessAsync_Returns_Valid_Brightness()
+        public async Task GetBrightnessAsync_Returns_Valid_Brightness()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
@@ -304,7 +305,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void GetTargetHumidityAsync_Returns_Valid_TargetHumidity()
+        public async Task GetTargetHumidityAsync_Returns_Valid_TargetHumidity()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
@@ -336,7 +337,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void IsBuzzerOnAsync_Returns_Valid_BuzzerState()
+        public async Task IsBuzzerOnAsync_Returns_Valid_BuzzerState()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();
@@ -398,7 +399,7 @@ namespace MiHomeUnitTests
         }
 
         [Fact]
-        public async void IsChildLockOnAsync_Returns_Valid_ChildLockState()
+        public async Task IsChildLockOnAsync_Returns_Valid_ChildLockState()
         {
             // Arrange
             var miioDevice = new Mock<IMiioTransport>();

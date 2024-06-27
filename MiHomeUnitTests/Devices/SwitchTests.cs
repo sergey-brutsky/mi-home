@@ -4,16 +4,11 @@ using MiHomeLib.Commands;
 using MiHomeLib.Devices;
 using Xunit;
 
-namespace MiHomeUnitTests
+namespace MiHomeUnitTests.Devices
 {
-    public class SwitchTests: IClassFixture<MiHomeDeviceFactoryFixture>
+    public class SwitchTests(MiHomeDeviceFactoryFixture fixture) : IClassFixture<MiHomeDeviceFactoryFixture>
     {
-        private readonly MiHomeDeviceFactoryFixture _fixture;
-
-        public SwitchTests(MiHomeDeviceFactoryFixture fixture)
-        {
-            _fixture = fixture;
-        }
+        private readonly MiHomeDeviceFactoryFixture _fixture = fixture;
 
         [Fact]
         public void Check_Switch_Click_Raised()

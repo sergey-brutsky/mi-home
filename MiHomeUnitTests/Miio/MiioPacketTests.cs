@@ -1,4 +1,4 @@
-using MiHomeLib.Devices;
+using MiHomeLib.MiioDevices;
 using Xunit;
 
 namespace MiHomeUnitTests

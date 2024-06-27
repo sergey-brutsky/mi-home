@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
-using MiHomeLib.Devices;
 using Moq;
 using Xunit;
 using System.Threading;
 using System.Globalization;
+using MiHomeLib.MiioDevices;
 
 namespace MiHomeUnitTests
 {
