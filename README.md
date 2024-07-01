@@ -7,7 +7,7 @@
 
 This library provides simple and flexible C# API for Xiaomi smart devices.  
 
-Currently supports **only Gateway version 2 (DGNWG02LM), Gateway version 3 (ZNDMWG03LM)**,  Air Humidifier (zhimi.humidifier.v1), Mi Robot vacuum (rockrobo.vacuum.v1) and several sensors. See table below.
+Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Gateway version 3](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-3) (ZNDMWG03LM)**,  [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1) and several sensors. See table below.
 
 ![xiaomi-gateway-2](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
 
@@ -16,24 +16,24 @@ Currently supports **only Gateway version 2 (DGNWG02LM), Gateway version 3 (ZNDM
 |:---: |:---: |:---: |
 | [Xiaomi Door/Window Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Door-Window-sensor-(MCCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ01LM.png" width="150"><br>MCCGQ01LM | yes | yes |
 | [Xiaomi Door/Window Sensor 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Door-Window-sensor-2-(MCCGQ02HL))<br><img src="https://github.com/sergey-brutsky/mi-home/assets/5664637/4ac8671c-394d-4ef1-ba7a-be5f670ca103" width="150"><br>MCCGQ02HL | no | yes |
-| [Aqara Door/Window Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ11LM.png" width="150"><br>MCCGQ11LM | yes | yes |
-| [Xiaomi TH Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WSDCGQ01LM.png" width="150"><br>WSDCGQ01LM | yes | yes |
-| [Xiaomi TH Sensor 2](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/LYWSD03MMC.png" width="150"><br>LYWSD03MMC | no | yes |
-| [Aqara TH Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WSDCGQ11LM.png" width="150"><br>WSDCGQ11LM | yes | yes |
-| [Aqara Water Leak Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/SJCGQ11LM.png" width="150"><br>SJCGQ11LM | yes | yes |
-| [Xiaomi Motion Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/RTCGQ01LM.png" width="150"><br>RTCGQ01LM | yes | yes |
-| [Xiaomi Motion Sensor 2](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/RTCGQ12LM.png" width="150"><br>RTCGQ02LM | no | yes |
-| [Aqara Relay T1 EU (with N)](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/SSM-U01.png" width="150"><br>SSM-U01 | no | yes |
-| [Aqara Relay CN](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/LLKZMK11LM.png" width="150"><br>LLKZMK11LM | no | yes |
-| [Aqara Opple Switch (2 buttons)](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WXCJKG11LM.png" width="150"><br>WXCJKG11LM | no | yes |
-| [Aqara Opple Switch (4 buttons)](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WXCJKG12LM.png" width="150"><br>WXCJKG12LM | no | yes |
-| [Honeywell Smoke Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/JTYJ-GD-01LM-BW.png" width="150"><br>JTYJ-GD-01LM/BW | yes | yes |
-| [Honeywell Smoke Alarm](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/JTYJ-GD-01LM-BW.png" width="150"><br>JTYJ-GD-03MI | no | yes |
-| [Xiaomi Wireless Button](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WXKG01LM.png" width="150"><br>WXKG01LM | yes | yes |
-| [Xiaomi Plug CN](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/ZNCZ02LM.png" width="150"><br>ZNCZ02LM | yes | yes |
-| [Aqara Double Wall Switch (no N)](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/QBKG03LM.png" width="150"><br>QBKG03LM | yes | no |
-| [Aqara Double Wall Button CN](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WXKG02LM_rev2.png" width="150"><br>WXKG02LM | yes | no |
-| [Aqara Cube EU](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/MFKZQ01LM.png" width="150"><br>MFKZQ01LM | yes | no |
+| [Aqara Door/Window Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Door-Window-sensor-(MCCGQ11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ11LM.png" width="150"><br>MCCGQ11LM | yes | yes |
+| [Xiaomi TH Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-TH-sensor-(WSDCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WSDCGQ01LM.png" width="150"><br>WSDCGQ01LM | yes | yes |
+| [Xiaomi TH Sensor 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-TH-sensor-2-(LYWSD03MMC))<br><img src="https://www.zigbee2mqtt.io/images/devices/LYWSD03MMC.png" width="150"><br>LYWSD03MMC | no | yes |
+| [Aqara TH Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-TH-sensor-(WSDCGQ11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WSDCGQ11LM.png" width="150"><br>WSDCGQ11LM | yes | yes |
+| [Aqara Water Leak Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Water-Leak-sensor-(SJCGQ11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/SJCGQ11LM.png" width="150"><br>SJCGQ11LM | yes | yes |
+| [Xiaomi Motion Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Motion-sensor-(RTCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/RTCGQ01LM.png" width="150"><br>RTCGQ01LM | yes | yes |
+| [Xiaomi Motion Sensor 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Motion-sensor-2-(RTCGQ02LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/RTCGQ12LM.png" width="150"><br>RTCGQ02LM | no | yes |
+| [Aqara Relay T1 EU (with N)](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Relay-T1-EU-(SSM%E2%80%90U01))<br><img src="https://www.zigbee2mqtt.io/images/devices/SSM-U01.png" width="150"><br>SSM-U01 | no | yes |
+| [Aqara Relay CN](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Relay-CN-(LLKZMK11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/LLKZMK11LM.png" width="150"><br>LLKZMK11LM | no | yes |
+| [Aqara Opple Switch (2 buttons)](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Opple-Switch-(2-buttons)-(WXCJKG11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WXCJKG11LM.png" width="150"><br>WXCJKG11LM | no | yes |
+| [Aqara Opple Switch (4 buttons)](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Opple-Switch-(4-buttons)-(WXCJKG12LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WXCJKG12LM.png" width="150"><br>WXCJKG12LM | no | yes |
+| [Honeywell Smoke Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Honeywell-Smoke-Sensor-(JTYJ%E2%80%90GD%E2%80%9001LM-BW))<br><img src="https://www.zigbee2mqtt.io/images/devices/JTYJ-GD-01LM-BW.png" width="150"><br>JTYJ-GD-01LM/BW | yes | yes |
+| [Honeywell Smoke Alarm](https://github.com/sergey-brutsky/mi-home/wiki/Honeywell-Smoke-Alarm-(JTYJ%E2%80%90GD%E2%80%9003MI))<br><img src="https://www.zigbee2mqtt.io/images/devices/JTYJ-GD-01LM-BW.png" width="150"><br>JTYJ-GD-03MI | no | yes |
+| [Xiaomi Wireless Button](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Wireless-Button-(WXKG01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WXKG01LM.png" width="150"><br>WXKG01LM | yes | yes |
+| [Xiaomi Plug CN](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Plug-CN-(ZNCZ02LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/ZNCZ02LM.png" width="150"><br>ZNCZ02LM | yes | yes |
+| [Aqara Double Wall Switch (no N)](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Double-Wall-Switch-(no-N)-(QBKG03LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/QBKG03LM.png" width="150"><br>QBKG03LM | yes | no |
+| [Aqara Double Wall Button CN](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Double-Wall-Button-CN-(WXKG02LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WXKG02LM_rev2.png" width="150"><br>WXKG02LM | yes | no |
+| [Aqara Cube EU](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Cube-EU-(MFKZQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MFKZQ01LM.png" width="150"><br>MFKZQ01LM | yes | no |
 
 ## <a name="installation">Installation</a>
 via nuget package manager
