@@ -43,9 +43,9 @@ Usage: $ make [TARGETS]
 TARGETS
 	build		Build app
 	release		Build release
-	publish		Upload nuget package to nuget.org
-	publish-github	Upload nuget package to github packages
 	test		Run unit tests
 	run		Run console application
 	clean		Clean
+	publish-nuget	Upload nuget package to nuget.org
+	publish-github	Upload nuget package to github packages repo	
 endef

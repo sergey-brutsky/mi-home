@@ -14,8 +14,8 @@ Currently supports **only Gateway version 2 (DGNWG02LM), Gateway version 3 (ZNDM
 ## Supported gateway devices/sensors
 | Device| Gateway 2 support| Gateway 3 support |
 |:---: |:---: |:---: |
-| [Xiaomi Door/Window Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ01LM.png" width="150"><br>MCCGQ01LM | yes | yes |
-| [Xiaomi Door/Window Sensor 2](#link-to-wiki-here)<br><img src="https://github.com/sergey-brutsky/mi-home/assets/5664637/4ac8671c-394d-4ef1-ba7a-be5f670ca103" width="150"><br>MCCGQ02HL | yes | yes |
+| [Xiaomi Door/Window Sensor](./wiki/Xiaomi-Door-Window-sensor-(MCCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ01LM.png" width="150"><br>MCCGQ01LM | yes | yes |
+| [Xiaomi Door/Window Sensor 2](#link-to-wiki-here)<br><img src="https://github.com/sergey-brutsky/mi-home/assets/5664637/4ac8671c-394d-4ef1-ba7a-be5f670ca103" width="150"><br>MCCGQ02HL | no | yes |
 | [Aqara Door/Window Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ11LM.png" width="150"><br>MCCGQ11LM | yes | yes |
 | [Xiaomi TH Sensor](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/WSDCGQ01LM.png" width="150"><br>WSDCGQ01LM | yes | yes |
 | [Xiaomi TH Sensor 2](#link-to-wiki-here)<br><img src="https://www.zigbee2mqtt.io/images/devices/LYWSD03MMC.png" width="150"><br>LYWSD03MMC | no | yes |
