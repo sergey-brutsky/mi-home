@@ -23,7 +23,9 @@ namespace MiHomeLib
             _multicastAddress = multicastAddress;
             _serverPort = serverPort;
         
-            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _serverPort));
+            _udpClient = new UdpClient();
+            _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, _serverPort));
             _udpClient.JoinMulticastGroup(IPAddress.Parse(_multicastAddress));
         }
 
