@@ -2,7 +2,8 @@
 
 [![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
 [![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Nuget](https://buildstats.info/nuget/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
+[![Nuget](https://img.shields.io/nuget/dt/mihomelib
+)](https://www.nuget.org/packages/MiHomeLib)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sergey-brutsky/mi-home/blob/master/LICENSE.md)
 
 This library provides simple and flexible C# API for Xiaomi smart devices.  

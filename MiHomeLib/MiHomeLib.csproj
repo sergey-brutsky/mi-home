@@ -3,16 +3,16 @@
     <Title>MiHomeLib</Title>
     <TargetFrameworks>netstandard2.0;net481</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.0.1</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Xiaomi Gateway 3 (ZNDMWG03LM) and several sensors
-Check details in the documentation.
+Added support for Aqara vibration sensor DJT11LM
+Switched from System.Data.SQlite to Microsoft.Data.Sqlite because the first one is not supported on apple m3 max arm64 arch :(
     </PackageReleaseNotes>
-    <Copyright>Copyright 2017-2024 (c) Sergey Brutsky. All rights reserved.</Copyright>
+    <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home gateway3 gateway2 smarthome csharp netstandard2 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
