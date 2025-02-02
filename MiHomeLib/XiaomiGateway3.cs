@@ -57,7 +57,7 @@ public class XiaomiGateway3 : MiioDevice, IDisposable
             var model  = type.GetField("MODEL", bindFlags).GetValue(type).ToString();
 
             XiaomiGateway3SubDevice addDevice(string did) =>
-                type.IsSubclassOf(typeof(ZigBeeManageableDevice)) ? 
+                (type.IsSubclassOf(typeof(ZigBeeManageableDevice)) || type.IsSubclassOf(typeof(ZigBeeManageableBatteryDevice))) ? 
                     Activator.CreateInstance(type, did, _mqttTransport, _loggerFactory) as XiaomiGateway3SubDevice:
                     Activator.CreateInstance(type, did, _loggerFactory) as XiaomiGateway3SubDevice;
 

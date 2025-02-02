@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 
 namespace MiHomeLib.Devices
@@ -40,8 +39,6 @@ namespace MiHomeLib.Devices
             {
                 Voltage = v / 1000;
             }
-
-            Debug.WriteLine($"Sid: {Sid}, Type: {GetType().Name}, Command: {command}, Sensor: {this}");
         }
 
         public override string ToString()

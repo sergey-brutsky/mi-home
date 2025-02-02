@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using MiHomeLib.Events;
 using Newtonsoft.Json.Linq;
 
@@ -54,8 +53,6 @@ namespace MiHomeLib.Devices
             {
                 Voltage = v / 1000;
             }
-
-            Debug.WriteLine($"Sid: {Sid}, Type: {GetType().Name}, Command: {command}, Sensor: {this}");
         }
 
         public DateTime? MotionDate { get; private set; }

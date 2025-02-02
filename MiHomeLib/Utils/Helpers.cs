@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using MiHomeLib.DevicesV3;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -68,6 +69,17 @@ public static class Helpers
 
         return System.Text.Json.JsonSerializer.Serialize(dict);
     }
+    public static bool ParseString(this JsonObject jObject, string key, out string s)
+    {
+        if (jObject[key] != null)
+        {
+            s = jObject[key].ToString();
+            return true;
+        }
+
+        s = null;
+        return false;
+    }
     public static bool ParseString(this JObject jObject, string key, out string s)
     {
         if (jObject[key] != null)
@@ -77,6 +89,17 @@ public static class Helpers
         }
 
         s = null;
+        return false;
+    }
+    public static bool ParseInt(this JsonObject jObject, string key, out int i)
+    {
+        if (jObject[key] != null && int.TryParse(jObject[key].ToString(), out int f1))
+        {
+            i = f1;
+            return true;
+        }
+
+        i = 0;
         return false;
     }
     public static bool ParseInt(this JObject jObject, string key, out int i)
@@ -90,6 +113,17 @@ public static class Helpers
         i = 0;
         return false;
     }
+    public static bool ParseFloat(this JsonObject jObject, string key, out float f)
+    {
+        if (jObject[key] != null && float.TryParse(jObject[key].ToString(), out float f1))
+        {
+            f = f1;
+            return true;
+        }
+
+        f = 0;
+        return false;
+    }
     public static bool ParseFloat(this JObject jObject, string key, out float f)
     {
         if (jObject[key] != null && float.TryParse(jObject[key].ToString(), out float f1))
@@ -100,6 +134,15 @@ public static class Helpers
 
         f = 0;
         return false;
+    }
+    public static float? ParseVoltage(this JsonObject jObject)
+    {
+        if (jObject.ParseFloat("voltage", out float v))
+        {
+            return v / 1000;
+        }
+
+        return null;
     }
     public static float? ParseVoltage(this JObject jObject)
     {
