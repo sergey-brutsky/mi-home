@@ -54,6 +54,7 @@ public class MiHome : IDisposable
     public event EventHandler<MiHomeDevice> OnAnyDevice;
     public event EventHandler<Gateway> OnGateway;
 
+    public event EventHandler<AqaraVirationSensor> OnAqaraVirationSensor;
     public event EventHandler<AqaraCubeSensor> OnAqaraCubeSensor;
     public event EventHandler<AqaraMotionSensor> OnAqaraMotionSensor;
     public event EventHandler<AqaraOpenCloseSensor> OnAqaraOpenCloseSensor;
@@ -82,6 +83,7 @@ public class MiHome : IDisposable
 
         _deviceEvents = new Dictionary<Type, Action<MiHomeDevice>>
         {
+            { typeof(AqaraVirationSensor), x => OnAqaraVirationSensor?.Invoke(this, x as AqaraVirationSensor)},
             { typeof(AqaraCubeSensor), x => OnAqaraCubeSensor?.Invoke(this, x as AqaraCubeSensor)},
             { typeof(AqaraMotionSensor), x => OnAqaraMotionSensor?.Invoke(this, x as AqaraMotionSensor)},
             { typeof(AqaraOpenCloseSensor), x => OnAqaraOpenCloseSensor?.Invoke(this, x as AqaraOpenCloseSensor)},
@@ -178,6 +180,7 @@ public class MiHome : IDisposable
             try
             {
                 var str = await _transport.ReceiveAsync().ConfigureAwait(false);
+                Console.WriteLine(str);
                 var respCmd = ResponseCommand.FromString(str);
 
                 if (LogRawCommands) _logger?.LogInformation(str);

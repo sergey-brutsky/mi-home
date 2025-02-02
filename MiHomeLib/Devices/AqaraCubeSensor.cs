@@ -48,12 +48,10 @@ namespace MiHomeLib.Devices
                 Status = CubeStatus.Rotated;
             }
 
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out var v))
+            if (jObject["voltage"] != null)
             {
-                Voltage = v / 1000;
+                Voltage = jObject.ParseVoltage();
             }
-
-            Debug.WriteLine($"Sid: {Sid}, Type: {GetType().Name}, Command: {command}, Sensor: {this}");
         }
 
         public override string ToString()

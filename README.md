@@ -14,6 +14,7 @@ Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/
 ## Supported gateway devices/sensors
 | Device| Gateway 2 support| Gateway 3 support |
 |:---: |:---: |:---: |
+| [Aqara Vibration Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Vibration-sensor-(DJT11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/DJT11LM.png" width="150"><br>DJT11LM | yes | yes |
 | [Xiaomi Door/Window Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Door-Window-sensor-(MCCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ01LM.png" width="150"><br>MCCGQ01LM | yes | yes |
 | [Xiaomi Door/Window Sensor 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Door-Window-sensor-2-(MCCGQ02HL))<br><img src="https://github.com/sergey-brutsky/mi-home/assets/5664637/4ac8671c-394d-4ef1-ba7a-be5f670ca103" width="150"><br>MCCGQ02HL | no | yes |
 | [Aqara Door/Window Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Door-Window-sensor-(MCCGQ11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ11LM.png" width="150"><br>MCCGQ11LM | yes | yes |

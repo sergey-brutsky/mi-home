@@ -17,6 +17,7 @@ namespace MiHomeLib
 
             _devicesMap = new Dictionary<string, Func<string, MiHomeDevice>>
             {
+                {AqaraVirationSensor.TypeKey, sid => new AqaraVirationSensor(sid)},
                 {ThSensor.TypeKey, sid => new ThSensor(sid)},
                 {WeatherSensor.TypeKey, sid => new WeatherSensor(sid)},
                 {MotionSensor.TypeKey, sid => new MotionSensor(sid)},

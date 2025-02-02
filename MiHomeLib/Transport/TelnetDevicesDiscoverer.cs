@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
+using Microsoft.Data.Sqlite;
 
 namespace MiHomeLib.Transport;
 
@@ -79,7 +79,7 @@ internal class TelnetDevicesDiscoverer(string host, int port) : IDevicesDiscover
         var tmpName = Path.GetTempFileName();
         File.WriteAllBytes(tmpName, ReadFileByPath(BLE_DEVICES_PATH));
 
-        using var conn = new SQLiteConnection($"Data Source={tmpName}");
+        using var conn = new SqliteConnection($"Data Source={tmpName}");
         conn.Open();
 
         var command = conn.CreateCommand();

@@ -31,10 +31,10 @@ Check details in the documentation.
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.1" />
     <PackageReference Include="newtonsoft.json" Version="13.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="MQTTnet" Version="4.3.6.1152" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
   </ItemGroup>
   <ItemGroup>
     <None Include="gateway.jpeg" Pack="true" PackagePath="\" />

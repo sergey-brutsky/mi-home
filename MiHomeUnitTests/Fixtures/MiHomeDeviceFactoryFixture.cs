@@ -1,4 +1,5 @@
-﻿using MiHomeLib;
+﻿using AutoFixture;
+using MiHomeLib;
 using MiHomeLib.Commands;
 using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
@@ -8,6 +9,8 @@ namespace MiHomeUnitTests
 {
     public class MiHomeDeviceFactoryFixture
     {
+        protected readonly Fixture _fixture = new();
+        
         public MiHomeDeviceFactory MiHomeDeviceFactory { get; private set; }
 
         public MiHomeDeviceFactoryFixture()
