@@ -1,29 +1,28 @@
 ﻿using AutoFixture;
 using MiHomeLib;
 using MiHomeLib.Commands;
-using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
+using MiHomeLib.Transport;
 using Moq;
 
-namespace MiHomeUnitTests
+namespace MiHomeUnitTests;
+
+public class MiHomeDeviceFactoryFixture
 {
-    public class MiHomeDeviceFactoryFixture
+    protected readonly Fixture _fixture = new();
+    
+    public MiHomeDeviceFactory MiHomeDeviceFactory { get; private set; }
+
+    public MiHomeDeviceFactoryFixture()
     {
-        protected readonly Fixture _fixture = new();
-        
-        public MiHomeDeviceFactory MiHomeDeviceFactory { get; private set; }
+        MiHomeDeviceFactory = new MiHomeDeviceFactory(new Mock<IMessageTransport>().Object);
+    }
 
-        public MiHomeDeviceFactoryFixture()
-        {
-            MiHomeDeviceFactory = new MiHomeDeviceFactory(new Mock<IMessageTransport>().Object);
-        }
-
-        public T GetDeviceByCommand<T>(string cmd) where T : MiHomeDevice
-        {
-            var respCmd = ResponseCommand.FromString(cmd);
-            T device = MiHomeDeviceFactory.CreateByModel(respCmd.Model, respCmd.Sid) as T;
-            device.ParseData(respCmd.Data);
-            return device;
-        }
+    public T GetDeviceByCommand<T>(string cmd) where T : MiHomeDevice
+    {
+        var respCmd = ResponseCommand.FromString(cmd);
+        T device = MiHomeDeviceFactory.CreateByModel(respCmd.Model, respCmd.Sid) as T;
+        device.ParseData(respCmd.Data);
+        return device;
     }
 }

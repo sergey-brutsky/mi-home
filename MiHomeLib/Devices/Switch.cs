@@ -1,52 +1,47 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class Switch(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class Switch(string sid) : MiHomeDevice(sid, TypeKey)
+    public const string TypeKey = "switch";
+
+    public event EventHandler OnClick;
+
+    public event EventHandler OnDoubleClick;
+
+    public event EventHandler OnLongPress;
+
+    public float? Voltage { get; set; }
+
+    public string Status { get; private set; }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "switch";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler OnClick;
-
-        public event EventHandler OnDoubleClick;
-
-        public event EventHandler OnLongPress;
-
-        public float? Voltage { get; set; }
-
-        public string Status { get; private set; }
-
-        public override void ParseData(string command)
+        if (jObject.ParseString("status", out string status))
         {
-            var jObject = JObject.Parse(command);
+            Status = status;
 
-            if (jObject["status"] != null)
+            if (Status == "click")
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "click")
-                {
-                    OnClick?.Invoke(this, EventArgs.Empty);
-                }
-
-                if (Status == "double_click")
-                {
-                    OnDoubleClick?.Invoke(this, EventArgs.Empty);
-                }
-
-                if (Status == "long_click_press")
-                {
-                    OnLongPress?.Invoke(this, EventArgs.Empty);
-                }
+                OnClick?.Invoke(this, EventArgs.Empty);
+            } 
+            else if (Status == "double_click")
+            {
+                OnDoubleClick?.Invoke(this, EventArgs.Empty);
             }
-
-            Voltage = jObject.ParseVoltage() ?? Voltage;
+            else if (Status == "long_click_press")
+            {
+                OnLongPress?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        public override string ToString()
-        {
-            return $"Last status: {Status}, Voltage: {Voltage}V";
-        }
+        Voltage = jObject.ParseVoltage();
     }
+
+    public override string ToString() => $"Last status: {Status}, Voltage: {Voltage}V";
 }

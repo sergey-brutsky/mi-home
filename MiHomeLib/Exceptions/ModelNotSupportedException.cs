@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace MiHomeLib;
+namespace MiHomeLib.Exceptions;
 
 [Serializable]
 public class ModelNotSupportedException : Exception

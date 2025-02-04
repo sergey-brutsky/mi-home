@@ -1,58 +1,49 @@
 ﻿using System;
+using System.Text.Json.Nodes;
 using MiHomeLib.Events;
-using Newtonsoft.Json.Linq;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class MotionSensor(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class MotionSensor : MiHomeDevice
+    public const string TypeKey = "motion";
+
+    public event EventHandler OnMotion;
+    public event EventHandler<NoMotionEventArgs> OnNoMotion;
+
+    public float? Voltage { get; set; }
+
+    public string Status { get; private set; }
+
+    public int NoMotion { get; set; }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "motion";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler OnMotion;
-        public event EventHandler<NoMotionEventArgs> OnNoMotion;
-
-        public MotionSensor(string sid) : base(sid, TypeKey) {}
-
-        public float? Voltage { get; set; }
-
-        public string Status { get; private set; }
-
-        public int NoMotion { get; set; }
-
-        public override void ParseData(string command)
+        if (jObject.ParseString("status", out string status))
         {
-            var jObject = JObject.Parse(command);
+            Status = status;
 
-            if (jObject["status"] != null)
+            if (Status == "motion")
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "motion")
-                {
-                    MotionDate = DateTime.Now;
-                    OnMotion?.Invoke(this, EventArgs.Empty);
-                }
+                MotionDate = DateTime.Now;
+                OnMotion?.Invoke(this, EventArgs.Empty);
             }
-
-            if (jObject["no_motion"] != null)
-            {
-                Status = "no motion";
-
-                NoMotion = int.Parse(jObject["no_motion"].ToString());
-                
-                OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
-            }
-
-            Voltage = jObject.ParseVoltage();
         }
 
-        public DateTime? MotionDate { get; private set; }
-
-        public override string ToString()
+        if (jObject.ParseInt("no_motion", out int noMotion))
         {
-            return $"Status: {Status}, Voltage: {Voltage}V, NoMotion: {NoMotion}s";
+            Status = "no motion";
+            NoMotion = noMotion;                
+            OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
         }
 
-        
+        Voltage = jObject.ParseVoltage();
     }
+
+    public DateTime? MotionDate { get; private set; }
+
+    public override string ToString() => $"Status: {Status}, Voltage: {Voltage}V, NoMotion: {NoMotion}s";
 }

@@ -1,8 +1,8 @@
-using MiHomeLib;
 using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using MiHomeLib.DevicesV3;
+using MiHomeLib.Utils;
 
 namespace MiHomeUnitTests.DevicesV3;
 public class MiThMonitor2Tests: MiHome3DeviceTests

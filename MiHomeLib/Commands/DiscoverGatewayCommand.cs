@@ -1,10 +1,9 @@
-namespace MiHomeLib.Commands
+namespace MiHomeLib.Commands;
+
+internal class DiscoverGatewayCommand: Command
 {
-    internal class DiscoverGatewayCommand: Command
+    public override string ToString()
     {
-        public override string ToString()
-        {
-            return "{\"cmd\":\"get_id_list\"}";
-        }
+        return "{\"cmd\":\"get_id_list\"}";
     }
 }

@@ -1,9 +1,9 @@
-using MiHomeLib;
 using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using System;
 using MiHomeLib.DevicesV3;
+using MiHomeLib.Utils;
 
 namespace MiHomeUnitTests.DevicesV3;
 

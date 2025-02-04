@@ -9,6 +9,7 @@ using System.Reflection;
 using MiHomeLib.ActionProcessors;
 using MiHomeLib.MiioDevices;
 using MiHomeLib.Transport;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib;
 

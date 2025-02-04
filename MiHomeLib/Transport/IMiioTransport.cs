@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace MiHomeLib;
+namespace MiHomeLib.Transport;
 
 public interface IMiioTransport: IDisposable
 {

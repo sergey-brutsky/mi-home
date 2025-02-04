@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using MiHomeLib.Transport;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
@@ -23,14 +23,14 @@ public class MiioGateway : MiioDevice
 
     public bool IsArmingOn()
     {
-        var msg = _miioTransport.SendMessage(BuildParamsArray("get_arming", new string[0]));
+        var msg = _miioTransport.SendMessage(BuildParamsArray("get_arming", []));
 
         return CheckArmingState(msg);
     }
 
     public async Task<bool> IsArmingOnAsync()
     {
-        var msg = await _miioTransport.SendMessageAsync(BuildParamsArray("get_arming", new string[0])).ConfigureAwait(false);
+        var msg = await _miioTransport.SendMessageAsync(BuildParamsArray("get_arming", [])).ConfigureAwait(false);
 
         return CheckArmingState(msg);
     }
@@ -176,14 +176,14 @@ public class MiioGateway : MiioDevice
 
     public int GetArmingVolume()
     {
-        var msg = BuildParamsArray("get_alarming_volume", new string[0]);
+        var msg = BuildParamsArray("get_alarming_volume", []);
         var result = _miioTransport.SendMessage(msg);
         return CheckArmingVolumeResult(result);
     }
 
     public async Task<int> GetArmingVolumeAsync()
     {
-        var msg = BuildParamsArray("get_alarming_volume", new string[0]);
+        var msg = BuildParamsArray("get_alarming_volume", []);
         var result = await _miioTransport.SendMessageAsync(msg);
         return CheckArmingVolumeResult(result);
     }
@@ -213,7 +213,7 @@ public class MiioGateway : MiioDevice
     /// <returns>unix timestamp seconds</returns>
     public int GetArmingLastTimeTriggeredTimestamp()
     {
-        var msg = BuildParamsArray("get_arming_time", new string[0]);
+        var msg = BuildParamsArray("get_arming_time", []);
         var result = _miioTransport.SendMessage(msg);
         return CheckArmingLastTimeTriggeredResult(result);
     }
@@ -224,7 +224,7 @@ public class MiioGateway : MiioDevice
     /// <returns>unix timestamp seconds</returns>
     public async Task<int> GetArmingLastTimeTriggeredTimestampAsync()
     {
-        var msg = BuildParamsArray("get_arming_time", new string[0]);
+        var msg = BuildParamsArray("get_arming_time", []);
         var result = await _miioTransport.SendMessageAsync(msg);
         return CheckArmingLastTimeTriggeredResult(result);
     }
@@ -241,10 +241,9 @@ public class MiioGateway : MiioDevice
     public List<RadioChannel> GetRadioChannels()
     {
         var response = _miioTransport.SendMessage(BuildParamsObject("get_channels", new { start = 0 }));
-        var channelsJson = JObject.Parse(response)["result"]["chs"].ToString();
-        var radioChannels = JsonConvert.DeserializeObject<List<RadioChannel>>(channelsJson);
-
-        return radioChannels.Skip(1).ToList();
+        var channelsJson = JsonNode.Parse(response)["result"]["chs"].ToString();
+        var radioChannels = JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
+        return [.. radioChannels.Skip(1)];
     }
 
     /// <summary>
@@ -254,9 +253,8 @@ public class MiioGateway : MiioDevice
     public async Task<List<RadioChannel>> GetRadioChannelsAsync()
     {
         var response = await _miioTransport.SendMessageAsync(BuildParamsObject("get_channels", new { start = 0 }));
-        var channelsJson = JObject.Parse(response)["result"]["chs"].ToString();
-
-        return JsonConvert.DeserializeObject<List<RadioChannel>>(channelsJson);
+        var channelsJson = JsonNode.Parse(response)["result"]["chs"].ToString();
+        return JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
     }
 
     /// <summary>
@@ -269,7 +267,7 @@ public class MiioGateway : MiioDevice
         if (GetRadioChannels().Any(x => x.Id == channelId))
             throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id");
 
-        var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new RadioChannel() { Id = channelId, Url = channelUrl, Type = 0 } } });
+        var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new() { Id = channelId, Url = channelUrl, Type = 0 } } });
         var result = _miioTransport.SendMessage(msg);
 
         CheckMessage(result, "Unable to add radio channel");
@@ -285,7 +283,7 @@ public class MiioGateway : MiioDevice
         if ((await GetRadioChannelsAsync()).Any(x => x.Id == channelId))
             throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id");
 
-        var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new RadioChannel() { Id = channelId, Url = channelUrl, Type = 0 } } });
+        var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new() { Id = channelId, Url = channelUrl, Type = 0 } } });
         var result = await _miioTransport.SendMessageAsync(msg);
 
         CheckMessage(result, "Unable to add radio channel");

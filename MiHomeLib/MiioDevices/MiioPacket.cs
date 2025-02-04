@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib.MiioDevices;
 

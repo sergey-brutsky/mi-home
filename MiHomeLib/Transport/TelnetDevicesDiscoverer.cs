@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
 using Microsoft.Data.Sqlite;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib.Transport;
 

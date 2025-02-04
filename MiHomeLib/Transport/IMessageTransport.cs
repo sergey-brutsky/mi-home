@@ -2,16 +2,15 @@
 using System.Threading.Tasks;
 using MiHomeLib.Commands;
 
-namespace MiHomeLib.Contracts
+namespace MiHomeLib.Transport;
+
+public interface IMessageTransport: IDisposable
 {
-    public interface IMessageTransport: IDisposable
-    {
-        int SendCommand(Command command);
+    int SendCommand(Command command);
 
-        int SendWriteCommand(string sid, string type, Command data);
+    int SendWriteCommand(string sid, string type, Command data);
 
-        Task<string> ReceiveAsync();
+    Task<string> ReceiveAsync();
 
-        string Token { get; set; }
-    }
+    string Token { get; set; }
 }

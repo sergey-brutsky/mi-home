@@ -1,11 +1,10 @@
-﻿namespace MiHomeLib.Commands
-{
+﻿namespace MiHomeLib.Commands;
+
 public enum ResponseCommandType
-    {
-        Unknown,
-        GetIdListAck,
-        ReadAck,
-        Hearbeat,
-        Report,
-    }
+{
+    Unknown,
+    GetIdListAck,
+    ReadAck,
+    Hearbeat,
+    Report,
 }

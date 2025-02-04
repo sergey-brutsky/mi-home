@@ -1,45 +1,40 @@
 using System;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class WaterLeakSensor(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class WaterLeakSensor : MiHomeDevice
+    public const string TypeKey = "sensor_wleak.aq1";
+
+    public event EventHandler OnLeak;
+    public event EventHandler OnNoLeak;
+
+    public string Status { get; private set; }
+
+    public float? Voltage { get; set; }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "sensor_wleak.aq1";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler OnLeak;
-        public event EventHandler OnNoLeak;
-        
-        public WaterLeakSensor(string sid) : base(sid, TypeKey) { }
-
-        public string Status { get; private set; }
-
-        public float? Voltage { get; set; }
-
-        public override void ParseData(string command)
+        if (jObject.ParseString("status", out string status))
         {
-            var jObject = JObject.Parse(command);
+            Status = status;
 
-            if (jObject["status"] != null)
+            if (Status == "leak")
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "leak")
-                {
-                    OnLeak?.Invoke(this, EventArgs.Empty);
-                }
-                else if (Status == "no_leak")
-                {
-                    OnNoLeak?.Invoke(this, EventArgs.Empty);
-                }
+                OnLeak?.Invoke(this, EventArgs.Empty);
             }
-
-            Voltage = jObject.ParseVoltage();
+            else if (Status == "no_leak")
+            {
+                OnNoLeak?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        public override string ToString()
-        {
-            return $"Status: {Status}, Voltage: {Voltage}V";
-        }
+        Voltage = jObject.ParseVoltage();
     }
+
+    public override string ToString() => $"Status: {Status}, Voltage: {Voltage}V";
 }

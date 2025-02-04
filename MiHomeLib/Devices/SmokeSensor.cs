@@ -1,59 +1,54 @@
 ﻿using System;
+using System.Text.Json.Nodes;
 using MiHomeLib.Events;
-using Newtonsoft.Json.Linq;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class SmokeSensor(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class SmokeSensor : MiHomeDevice
+    public const string TypeKey = "smoke";
+    public event EventHandler<DensityEventArgs> OnDensityChange;
+    public event EventHandler<EventArgs> OnAlarm;
+    public event EventHandler<EventArgs> OnAlarmStopped;
+    public float? Voltage { get; private set; }
+    public bool Alarm { get; private set; }
+    public float? Density { get; private set; }
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "smoke";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler<DensityEventArgs> OnDensityChange;
-        public event EventHandler<EventArgs> OnAlarm;
-        public event EventHandler<EventArgs> OnAlarmStopped;
-
-        public SmokeSensor(string sid) : base(sid, TypeKey) {}
-
-        public float? Voltage { get; private set; }
-        public bool Alarm { get; private set; }
-        public float? Density { get; private set; }
-
-        public override void ParseData(string command)
+        if(jObject.ParseInt("alarm", out int alarm))
         {
-            var jObject = JObject.Parse(command);
+            Alarm = alarm == 1;
 
-            if(jObject.ParseInt("alarm", out int alarm))
+            if (Alarm)
             {
-                Alarm = alarm == 1;
-
-                if (Alarm)
-                {
-                    OnAlarm?.Invoke(this, new EventArgs());
-                }
-                else
-                {
-                    OnAlarmStopped?.Invoke(this, new EventArgs());
-                }
+                OnAlarm?.Invoke(this, new EventArgs());
             }
-
-            if (jObject.ParseFloat("density", out float h))
+            else
             {
-                var newDensity = h / 100;
-
-                if (Density != null && Math.Abs(newDensity - Density.Value) > 0.01)
-                {
-                    OnDensityChange?.Invoke(this, new DensityEventArgs(newDensity));
-                }
-
-                Density = newDensity;
+                OnAlarmStopped?.Invoke(this, new EventArgs());
             }
-
-            Voltage = jObject.ParseVoltage();
         }
 
-        public override string ToString()
+        if (jObject.ParseFloat("density", out float h))
         {
-            return $"{(!string.IsNullOrEmpty(Name) ? "Name: " + Name + ", " : string.Empty)}Alarm: {(Alarm ? "on" : "off")}, Density: {Density ?? 0}, Voltage: {Voltage}V";
+            var newDensity = h / 100;
+
+            if (Density != null && Math.Abs(newDensity - Density.Value) > 0.01)
+            {
+                OnDensityChange?.Invoke(this, new DensityEventArgs(newDensity));
+            }
+
+            Density = newDensity;
         }
+
+        Voltage = jObject.ParseVoltage();
+    }
+
+    public override string ToString()
+    {
+        return $"{(!string.IsNullOrEmpty(Name) ? "Name: " + Name + ", " : string.Empty)}Alarm: {(Alarm ? "on" : "off")}, Density: {Density ?? 0}, Voltage: {Voltage}V";
     }
 }

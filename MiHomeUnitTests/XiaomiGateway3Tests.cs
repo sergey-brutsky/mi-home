@@ -14,6 +14,7 @@ using static MiHomeLib.JsonResponses.BleAsyncEventResponse;
 using static MiHomeLib.JsonResponses.BleAsyncEventResponse.BleAsyncEventParams;
 using MiHomeLib.Transport;
 using MiHomeUnitTests.DevicesV3;
+using MiHomeLib.Utils;
 
 namespace MiHomeUnitTests;
 

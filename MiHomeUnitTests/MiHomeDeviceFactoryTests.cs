@@ -1,5 +1,6 @@
 using MiHomeLib;
 using MiHomeLib.Devices;
+using MiHomeLib.Exceptions;
 using Xunit;
 
 namespace MiHomeUnitTests

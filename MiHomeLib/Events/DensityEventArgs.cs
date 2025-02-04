@@ -1,20 +1,11 @@
 using System;
 
-namespace MiHomeLib.Events
-{
-    public class DiscoverEventArgs : EventArgs
-    {
-        public DiscoverEventArgs(string ip, string type, string serial, string token)
-        {
-            Ip = ip;
-            Type = type;
-            Serial = serial;
-            Token = token;
-        }
+namespace MiHomeLib.Events;
 
-        public string Ip { get; }
-        public string Type { get; }
-        public string Serial { get; }
-        public string Token { get; }
-    }
+public class DiscoverEventArgs(string ip, string type, string serial, string token) : EventArgs
+{
+    public string Ip { get; } = ip;
+    public string Type { get; } = type;
+    public string Serial { get; } = serial;
+    public string Token { get; } = token;
 }

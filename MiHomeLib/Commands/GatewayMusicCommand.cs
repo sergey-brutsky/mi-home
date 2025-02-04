@@ -1,17 +1,8 @@
-﻿namespace MiHomeLib.Commands
+﻿namespace MiHomeLib.Commands;
+
+public class GatewayMusicCommand(int midNo) : Command
 {
-    public class GatewayMusicCommand : Command
-    {
-        private readonly int _midNo;
+    private readonly int _midNo = midNo;
 
-        public GatewayMusicCommand(int midNo)
-        {
-            _midNo = midNo;
-        }
-
-        public override string ToString()
-        {
-            return $"{{\"mid\":{_midNo}}}";
-        }
-    }
+    public override string ToString() => $"{{\"mid\":{_midNo}}}";
 }

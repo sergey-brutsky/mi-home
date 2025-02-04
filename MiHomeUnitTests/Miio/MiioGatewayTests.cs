@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MiHomeLib;
 using MiHomeLib.MiioDevices;
+using MiHomeLib.Transport;
 using Moq;
 using Xunit;
 
@@ -397,7 +397,7 @@ namespace MiHomeUnitTests
             var msg = "{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}";
 
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns(msg);
@@ -429,7 +429,7 @@ namespace MiHomeUnitTests
             var msg = "{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}";
 
             miioDevice.Setup(x => x.SendMessageAsync(It.IsAny<string>())).Returns(Task.FromResult(msg));
@@ -465,7 +465,7 @@ namespace MiHomeUnitTests
             var msg = "{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1045,\"type\":0,\"url\":\"http://192.168.1.1/radio.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}";
 
             miioDevice.Setup(x => x.SendMessage(It.IsAny<string>())).Returns(msg);
@@ -486,7 +486,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}");
 
             miioDevice.Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("add_channels"))))
@@ -511,7 +511,7 @@ namespace MiHomeUnitTests
                 .Returns(Task.FromResult("{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}"));
 
             miioDevice.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("add_channels"))))
@@ -535,7 +535,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}");
 
             // Act & Assert
@@ -553,7 +553,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}");
 
             miioDevice.Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("remove_channels"))))
@@ -578,7 +578,7 @@ namespace MiHomeUnitTests
                 .Returns(Task.FromResult("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}"));
 
             miioDevice.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("remove_channels"))))
@@ -603,7 +603,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}");
 
             miioDevice.Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("remove_channels"))))
@@ -632,7 +632,7 @@ namespace MiHomeUnitTests
                 .Returns(Task.FromResult("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}"));
 
             miioDevice.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("remove_channels"))))
@@ -672,7 +672,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                 "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                 "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
             "]}}");
 
             // Act & Assert
@@ -690,7 +690,7 @@ namespace MiHomeUnitTests
                 .Returns("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}");
 
             miioDevice.Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("play_specify_fm"))))
@@ -715,7 +715,7 @@ namespace MiHomeUnitTests
                 .Returns(Task.FromResult("{\"result\":{\"chs\":[" +
                     "{\"id\":1025,\"type\":0,\"url\":\"http://192.168.1.1/radio1.m3u8\"}," +
                     "{\"id\":1026,\"type\":0,\"url\":\"http://192.168.1.1/radio2.m3u8\"}," +
-                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}," +
+                    "{\"id\":1027,\"type\":0,\"url\":\"http://192.168.1.1/radio3.m3u8\"}" +
                 "]}}"));
 
             miioDevice.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("play_specify_fm"))))

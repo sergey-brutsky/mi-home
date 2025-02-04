@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
-using MiHomeLib;
 using MiHomeLib.MiioDevices;
+using MiHomeLib.Transport;
 using Moq;
 using Xunit;
 

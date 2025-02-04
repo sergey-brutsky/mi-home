@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Nodes;
-using MiHomeLib.DevicesV3;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace MiHomeLib;
+namespace MiHomeLib.Utils;
 public static class Helpers
 {
     public static byte[] ToByteArray(this string hex)
@@ -25,13 +23,13 @@ public static class Helpers
     public static float ToBleFloat(this string hex)
     {
         // hex string is little endian !
-        var arr = ToByteArray(hex);
+        var arr = hex.ToByteArray();
         arr.Reverse();
         return BitConverter.ToInt16(arr, 0)/10f;
     }
     public static byte ToBleByte(this string hex)
     {
-        return ToByteArray(hex)[0];
+        return hex.ToByteArray()[0];
     }
 
     public static int ToBleInt256(this string hex)
@@ -39,14 +37,14 @@ public static class Helpers
         var res = 0;
         var start = 0;
         
-        foreach (var val in ToByteArray(hex)) res += val*(int)Math.Pow(256, start++);
+        foreach (var val in hex.ToByteArray()) res += val*(int)Math.Pow(256, start++);
         
         return res;
     }
 
     public static DateTime UnixSecondsToDateTime(this double unixTimeStamp)
     {
-        return UnixMilliSecondsToDateTime(unixTimeStamp * 1000); 
+        return (unixTimeStamp * 1000).UnixMilliSecondsToDateTime(); 
     }
 
     public static DateTime UnixMilliSecondsToDateTime(this double unixTimeStamp)
@@ -64,23 +62,12 @@ public static class Helpers
             { "model", model},
             { "sid", sid},
             { "short_id", short_id},
-            { "data", JsonConvert.SerializeObject(data) },
+            { "data", JsonSerializer.Serialize(data) },
         };
 
-        return System.Text.Json.JsonSerializer.Serialize(dict);
+        return JsonSerializer.Serialize(dict);
     }
     public static bool ParseString(this JsonObject jObject, string key, out string s)
-    {
-        if (jObject[key] != null)
-        {
-            s = jObject[key].ToString();
-            return true;
-        }
-
-        s = null;
-        return false;
-    }
-    public static bool ParseString(this JObject jObject, string key, out string s)
     {
         if (jObject[key] != null)
         {
@@ -102,17 +89,7 @@ public static class Helpers
         i = 0;
         return false;
     }
-    public static bool ParseInt(this JObject jObject, string key, out int i)
-    {
-        if (jObject[key] != null && int.TryParse(jObject[key].ToString(), out int f1))
-        {
-            i = f1;
-            return true;
-        }
-
-        i = 0;
-        return false;
-    }
+    
     public static bool ParseFloat(this JsonObject jObject, string key, out float f)
     {
         if (jObject[key] != null && float.TryParse(jObject[key].ToString(), out float f1))
@@ -124,27 +101,8 @@ public static class Helpers
         f = 0;
         return false;
     }
-    public static bool ParseFloat(this JObject jObject, string key, out float f)
-    {
-        if (jObject[key] != null && float.TryParse(jObject[key].ToString(), out float f1))
-        {
-            f = f1;
-            return true;
-        }
-
-        f = 0;
-        return false;
-    }
+    
     public static float? ParseVoltage(this JsonObject jObject)
-    {
-        if (jObject.ParseFloat("voltage", out float v))
-        {
-            return v / 1000;
-        }
-
-        return null;
-    }
-    public static float? ParseVoltage(this JObject jObject)
     {
         if (jObject.ParseFloat("voltage", out float v))
         {

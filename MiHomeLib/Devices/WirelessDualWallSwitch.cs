@@ -1,64 +1,55 @@
 ﻿using System;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class WirelessDualWallSwitch(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class WirelessDualWallSwitch : MiHomeDevice
+    public const string TypeKey = "remote.b286acn01";
+    private const string LeftChannel = "channel_0";
+    private const string RightChannel = "channel_1";
+
+    public event Action<EventArgs> OnRightClick;
+    public event Action<EventArgs> OnLeftClick;
+    public event Action<EventArgs> OnRightDoubleClick;
+    public event Action<EventArgs> OnLeftDoubleClick;
+    public event Action<EventArgs> OnRightLongClick;
+    public event Action<EventArgs> OnLeftLongClick;
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "remote.b286acn01";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        private const string LeftChannel = "channel_0";
-        private const string RightChannel = "channel_1";
-
-        public event Action<EventArgs> OnRightClick;
-        public event Action<EventArgs> OnLeftClick;
-
-        public event Action<EventArgs> OnRightDoubleClick;
-        public event Action<EventArgs> OnLeftDoubleClick;
-
-        public event Action<EventArgs> OnRightLongClick;
-        public event Action<EventArgs> OnLeftLongClick;
-
-        public WirelessDualWallSwitch(string sid) : base(sid, TypeKey) { }
-
-        public override void ParseData(string command)
+        if (jObject.ParseString(LeftChannel, out string leftChannel))
         {
-            var jObject = JObject.Parse(command);
-
-            if (jObject[LeftChannel] != null)
+            if (leftChannel == "click")
             {
-
-                if (jObject[LeftChannel].Value<string>() == "click")
-                {
-                    OnLeftClick?.Invoke(new EventArgs());
-                }
-                else if (jObject[LeftChannel].Value<string>() == "double_click")
-                {
-                    OnLeftDoubleClick?.Invoke(new EventArgs());
-                }
-                else if (jObject[LeftChannel].Value<string>() == "long_click")
-                {
-                    OnLeftLongClick?.Invoke(new EventArgs());
-                }
-
+                OnLeftClick?.Invoke(new EventArgs());
             }
-
-            if (jObject[RightChannel] != null)
+            else if (leftChannel == "double_click")
             {
-                if (jObject[RightChannel].Value<string>() == "click")
-                {
-                    OnRightClick?.Invoke(new EventArgs());
-                }
-                else if (jObject[RightChannel].Value<string>() == "double_click")
-                {
-                    OnRightDoubleClick?.Invoke(new EventArgs());
-                }
-                else if (jObject[RightChannel].Value<string>() == "long_click")
-                {
-                    OnRightLongClick?.Invoke(new EventArgs());
-                }
+                OnLeftDoubleClick?.Invoke(new EventArgs());
             }
+            else if (leftChannel == "long_click")
+            {
+                OnLeftLongClick?.Invoke(new EventArgs());
+            }
+        }
 
+        if (jObject.ParseString(RightChannel, out string rightChannel))
+        {
+            if (rightChannel == "click")
+            {
+                OnRightClick?.Invoke(new EventArgs());
+            }
+            else if (rightChannel == "double_click")
+            {
+                OnRightDoubleClick?.Invoke(new EventArgs());
+            }
+            else if (rightChannel == "long_click")
+            {
+                OnRightLongClick?.Invoke(new EventArgs());
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MiHomeLib;
+namespace MiHomeLib.Transport;
 
 public interface IDevicesDiscoverer
 {

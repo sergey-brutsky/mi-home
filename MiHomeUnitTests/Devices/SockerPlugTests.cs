@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json;
 using System.Threading;
-using MiHomeLib;
 using MiHomeLib.Commands;
-using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
+using MiHomeLib.Transport;
+using MiHomeLib.Utils;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace MiHomeUnitTests
@@ -74,7 +74,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { status = "on" });
+            var command = JsonSerializer.Serialize(new { status = "on" });
             var socketPlug = new SocketPlug("158d00015dc332", transport.Object);
 
             // Act
@@ -91,7 +91,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { status = "off" });
+            var command = JsonSerializer.Serialize(new { status = "off" });
             var socketPlug = new SocketPlug("158d00015dc332", transport.Object);
 
             // Act
