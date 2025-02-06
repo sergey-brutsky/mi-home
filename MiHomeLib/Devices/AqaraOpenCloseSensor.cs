@@ -1,49 +1,44 @@
 using System;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class AqaraOpenCloseSensor(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class AqaraOpenCloseSensor : MiHomeDevice
+    public const string TypeKey = "sensor_magnet.aq2";
+
+    public event EventHandler OnOpen;
+
+    public event EventHandler OnClose;
+
+    public float? Voltage { get; set; }
+
+    public string Status { get; private set; }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "sensor_magnet.aq2";
-
-        public event EventHandler OnOpen;
-
-        public event EventHandler OnClose;
-
-        public AqaraOpenCloseSensor(string sid) : base(sid, TypeKey) {}
-
-        public float? Voltage { get; set; }
-
-        public string Status { get; private set; }
-
-        public override void ParseData(string command)
+        var jObject = JsonNode.Parse(command).AsObject();
+        
+        if (jObject.ParseString("status", out string status))
         {
-            var jObject = JObject.Parse(command);
+            Status = status;
 
-            if (jObject["status"] != null)
+            if (Status == "open")
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "open")
-                {
-                    OnOpen?.Invoke(this, EventArgs.Empty);
-                }
-                else if (Status == "close")
-                {
-                    OnClose?.Invoke(this, EventArgs.Empty);
-                }
+                OnOpen?.Invoke(this, EventArgs.Empty);
             }
-
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
+            else if (Status == "close")
             {
-                Voltage = v / 1000;
+                OnClose?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public override string ToString()
-        {
-            return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}";
-        }
+        Voltage = jObject.ParseVoltage();
+    }
+
+    public override string ToString()
+    {
+        return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}";
     }
 }

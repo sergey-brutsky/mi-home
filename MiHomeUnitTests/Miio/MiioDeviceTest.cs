@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using MiHomeLib;
+using MiHomeLib.Transport;
 using Moq;
 
 namespace MiHomeUnitTests

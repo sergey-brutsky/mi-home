@@ -1,58 +1,55 @@
 ﻿using System;
+using System.Text.Json.Nodes;
 using MiHomeLib.Events;
-using Newtonsoft.Json.Linq;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class ThSensor : MiHomeDevice
 {
-    public class ThSensor : MiHomeDevice
+    public const string TypeKey = "sensor_ht";
+
+    public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
+
+    public event EventHandler<HumidityEventArgs> OnHumidityChange;
+
+    public ThSensor(string sid) : base(sid, TypeKey) {}
+    public ThSensor(string sid, string TypeKey) : base(sid, TypeKey) { }
+
+    public float? Voltage { get; private set; }
+    public float? Temperature { get; private set; }
+    public float? Humidity { get; private set;  }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "sensor_ht";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler<TemperatureEventArgs> OnTemperatureChange;
-
-        public event EventHandler<HumidityEventArgs> OnHumidityChange;
-
-        public ThSensor(string sid) : base(sid, TypeKey) {}
-        public ThSensor(string sid, string TypeKey) : base(sid, TypeKey) { }
-
-        public float? Voltage { get; private set; }
-        public float? Temperature { get; private set; }
-        public float? Humidity { get; private set;  }
-
-        public override void ParseData(string command)
+        if(jObject.ParseFloat("temperature", out float t))
         {
-            var jObject = JObject.Parse(command);
+            var newTemperature = t / 100;
 
-            if(jObject.ParseFloat("temperature", out float t))
+            if (Temperature != null && Math.Abs(newTemperature - Temperature.Value) > 0.01)
             {
-                var newTemperature = t / 100;
-
-                if (Temperature != null && Math.Abs(newTemperature - Temperature.Value) > 0.01)
-                {
-                    OnTemperatureChange?.Invoke(this, new TemperatureEventArgs(newTemperature));
-                }
-
-                Temperature = newTemperature;
+                OnTemperatureChange?.Invoke(this, new TemperatureEventArgs(newTemperature));
             }
 
-            if (jObject.ParseFloat("humidity", out float h))
+            Temperature = newTemperature;
+        }
+
+        if (jObject.ParseFloat("humidity", out float h))
+        {
+            var newHumidity = h / 100;
+
+            if (Humidity != null && Math.Abs(newHumidity - Humidity.Value) > 0.01)
             {
-                var newHumidity = h / 100;
-
-                if (Humidity != null && Math.Abs(newHumidity - Humidity.Value) > 0.01)
-                {
-                    OnHumidityChange?.Invoke(this, new HumidityEventArgs(newHumidity));
-                }
-
-                Humidity = newHumidity;
+                OnHumidityChange?.Invoke(this, new HumidityEventArgs(newHumidity));
             }
 
-            Voltage = jObject.ParseVoltage();
+            Humidity = newHumidity;
         }
 
-        public override string ToString()
-        {
-            return $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
-        }
+        Voltage = jObject.ParseVoltage();
     }
+
+    public override string ToString() => $"Temperature: {Temperature}°C, Humidity: {Humidity}%, Voltage: {Voltage}V";
 }

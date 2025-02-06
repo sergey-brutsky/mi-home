@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using MiHomeLib;
 using MiHomeLib.Commands;
 using MiHomeLib.Devices;
+using MiHomeLib.Utils;
 using Xunit;
 
 namespace MiHomeUnitTests.Devices

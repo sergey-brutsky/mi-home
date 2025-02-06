@@ -1,22 +1,17 @@
 using System.Collections.Generic;
-using MiHomeLib;
+using System.Text.Json;
 using MiHomeLib.Commands;
-using MiHomeLib.Contracts;
 using MiHomeLib.Devices;
+using MiHomeLib.Transport;
+using MiHomeLib.Utils;
 using Moq;
-using Newtonsoft.Json;
 using Xunit;
 
 namespace MiHomeUnitTests
 {
-    public class GatewayTests : IClassFixture<MiHomeDeviceFactoryFixture>
+    public class GatewayTests(MiHomeDeviceFactoryFixture deviceFactory) : IClassFixture<MiHomeDeviceFactoryFixture>
     {
-        private readonly MiHomeDeviceFactoryFixture _deviceFactory;
-
-        public GatewayTests(MiHomeDeviceFactoryFixture deviceFactory)
-        {
-            _deviceFactory = deviceFactory;
-        }
+        private readonly MiHomeDeviceFactoryFixture _deviceFactory = deviceFactory;
 
         [Fact]
         public void Check_Gateway_Hearbeat_Data()
@@ -69,7 +64,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { rgb = 1694433280 });
+            var command = JsonSerializer.Serialize(new { rgb = 1694433280 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act
@@ -86,7 +81,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { rgb = 0 });
+            var command = JsonSerializer.Serialize(new { rgb = 0 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act
@@ -103,7 +98,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { mid = 1, vol = 85 });
+            var command = JsonSerializer.Serialize(new { mid = 1, vol = 85 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act
@@ -120,7 +115,7 @@ namespace MiHomeUnitTests
         {
             // Arrange
             var transport = new Mock<IMessageTransport>();
-            var command = JsonConvert.SerializeObject(new { mid = 1000, vol = 0 });
+            var command = JsonSerializer.Serialize(new { mid = 1000, vol = 0 });
             var gateway = new Gateway("34ce1188db36", transport.Object);
 
             // Act

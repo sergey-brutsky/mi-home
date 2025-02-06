@@ -1,65 +1,59 @@
 using System;
+using System.Text.Json.Nodes;
 using MiHomeLib.Events;
-using Newtonsoft.Json.Linq;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class AqaraMotionSensor(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class AqaraMotionSensor : MiHomeDevice
+    public const string TypeKey = "sensor_motion.aq2";
+    
+    public event EventHandler OnMotion;
+
+    public event EventHandler<NoMotionEventArgs> OnNoMotion;
+
+    public float? Voltage { get; set; }
+
+    public string Status { get; private set; }
+
+    public int Lux { get; private set; }
+
+    public int NoMotion { get; set; }
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "sensor_motion.aq2";
-        
-        public event EventHandler OnMotion;
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler<NoMotionEventArgs> OnNoMotion;
-
-        public AqaraMotionSensor(string sid) : base(sid, TypeKey) {}
-
-        public float? Voltage { get; set; }
-
-        public string Status { get; private set; }
-
-        public int Lux { get; private set; }
-
-        public int NoMotion { get; set; }
-
-        public override void ParseData(string command)
+        if (jObject.ParseString("status", out string status))
         {
-            var jObject = JObject.Parse(command);
+            Status = status;
 
-            if (jObject["status"] != null)
+            if (Status == "motion")
             {
-                Status = jObject["status"].ToString();
-
-                if (Status == "motion")
-                {
-                    MotionDate = DateTime.Now;
-                    OnMotion?.Invoke(this, EventArgs.Empty);
-                }
-            }
-
-            if (jObject["lux"] != null)
-            {
-                Lux = int.Parse(jObject["lux"].ToString());
-            }
-
-            if (jObject["no_motion"] != null)
-            {
-                NoMotion = int.Parse(jObject["no_motion"].ToString());
-
-                OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
-            }
-
-            if (jObject["voltage"] != null && float.TryParse(jObject["voltage"].ToString(), out float v))
-            {
-                Voltage = v / 1000;
+                MotionDate = DateTime.Now;
+                OnMotion?.Invoke(this, EventArgs.Empty);
             }
         }
 
-        public DateTime? MotionDate { get; private set; }
-
-        public override string ToString()
+        if (jObject.ParseInt("lux", out int lux))
         {
-            return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}, {nameof(Lux)}:{Lux}, {nameof(NoMotion)}: {NoMotion}s";
+            Lux = lux;
         }
+
+        if (jObject.ParseInt("no_motion", out int noMotion))
+        {
+            NoMotion = noMotion;
+            OnNoMotion?.Invoke(this, new NoMotionEventArgs(NoMotion));
+        }
+
+        Voltage = jObject.ParseVoltage();
+    }
+
+    public DateTime? MotionDate { get; private set; }
+
+    public override string ToString()
+    {
+        return $"{nameof(Voltage)}: {Voltage}V, {nameof(Status)}: {Status}, {nameof(Lux)}:{Lux}, {nameof(NoMotion)}: {NoMotion}s";
     }
 }

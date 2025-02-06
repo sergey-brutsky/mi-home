@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib.DevicesV3;
 public abstract class AqaraOppleWirelesSwitch(string did, ILoggerFactory loggerFactory) : ZigBeeBatteryDevice(did, loggerFactory)

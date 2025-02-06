@@ -1,14 +1,8 @@
 using System;
 
-namespace MiHomeLib.Events
-{
-    public class PressureEventArgs : EventArgs
-    {
-        public PressureEventArgs(float p)
-        {
-            Pressure = p;
-        }
+namespace MiHomeLib.Events;
 
-        public float Pressure { get; }
-    }
+public class PressureEventArgs(float p) : EventArgs
+{
+    public float Pressure { get; } = p;
 }

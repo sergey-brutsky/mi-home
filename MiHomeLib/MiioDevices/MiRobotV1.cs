@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using MiHomeLib.Events;
 using MiHomeLib.Transport;
-using Newtonsoft.Json.Linq;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
@@ -45,8 +46,7 @@ public class MiRobotV1 : MiioDevice
     {
         var response = _miioTransport.SendMessage(BuildParamsArray("get_status", ""));
 
-        var values = (JObject.Parse(response)["result"] as JArray)[0]
-            .ToObject<Dictionary<string, string>>();
+        var values = JsonNode.Parse(response)["result"][0].Deserialize<Dictionary<string, object>>().ToDictionary(x => x.Key, x => x.Value.ToString());
 
         return $"Model: {version}\nState: {(Status)int.Parse(values["state"])}\n" +
             $"Battery: {values["battery"]} %\nFanspeed: {values["fan_power"]} %\n" +

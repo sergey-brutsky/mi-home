@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib.DevicesV3;
 

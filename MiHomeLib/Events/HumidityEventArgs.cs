@@ -1,14 +1,8 @@
 using System;
 
-namespace MiHomeLib.Events
-{
-    public class HumidityEventArgs : EventArgs
-    {
-        public HumidityEventArgs(float t)
-        {
-            Humidity = t;
-        }
+namespace MiHomeLib.Events;
 
-        public float Humidity { get; }
-    }
+public class HumidityEventArgs(float t) : EventArgs
+{
+    public float Humidity { get; } = t;
 }

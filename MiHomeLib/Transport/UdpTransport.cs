@@ -4,7 +4,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using MiHomeLib.Commands;
-using MiHomeLib.Contracts;
+using MiHomeLib.Transport;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib
 {

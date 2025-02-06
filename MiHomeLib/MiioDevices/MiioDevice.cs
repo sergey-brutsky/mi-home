@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using MiHomeLib.Transport;
 
 namespace MiHomeLib.MiioDevices;
 
 public class MiioDevice
 {
     protected int _clientId;
+    private JsonSerializerOptions _serializerSettings;
     protected readonly IMiioTransport _miioTransport;
-    private readonly JsonSerializerSettings _serializerSettings = new();
 
     public MiioDevice(IMiioTransport miioTransport, int? initialClientId = null)
     {
         _miioTransport = miioTransport;
         _clientId = initialClientId is null ? new Random().Next(1, 255) : initialClientId.Value;
-        _serializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
+        _serializerSettings = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
     }
 
     protected void CheckMessage(string response, string errorMessage)
@@ -31,8 +32,9 @@ public class MiioDevice
     }
     protected string GetString(string response)
     {
-        return (string)GetResult(response);
+        return System.Text.Json.Nodes.JsonNode.Parse(response)["result"][0].ToString();
     }
+
     protected int GetInteger(string response, string msg)
     {
         var result = GetString(response);
@@ -44,19 +46,17 @@ public class MiioDevice
 
         return number;
     }
-    protected static JToken GetResult(string response)
-    {
-        return (JObject.Parse(response)["result"] as JArray)[0];
-    }
-
+    
     protected string BuildParamsArray(string method, params object[] methodParams)
     {
-        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams, _serializerSettings)}}}";
+        var params1 = JsonSerializer.Serialize(methodParams, _serializerSettings);
+        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {params1}}}";
     }
 
     protected string BuildParamsObject(string method, object methodParams)
     {
-        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {JsonConvert.SerializeObject(methodParams, _serializerSettings)}}}";
+        var params1 = JsonSerializer.Serialize(methodParams, _serializerSettings);
+        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {params1}}}";
     }
 
     protected string BuildSidProp(string method, string sid, string prop, int value)
@@ -67,20 +67,21 @@ public class MiioDevice
     protected string[] GetProps(params string[] props)
     {
         var response = _miioTransport.SendMessage(BuildParamsArray("get_prop", props));
-        var values = JObject.Parse(response)["result"] as JArray;
+        var values = System.Text.Json.Nodes.JsonNode.Parse(response)["result"].AsArray();
         return values.Select(x => x.ToString()).ToArray();
+        // var values = JObject.Parse(response)["result"] as JArray;
+        // return values.Select(x => x.ToString()).ToArray();
     }
 
     protected async Task<string[]> GetPropsAsync(params string[] props)
     {
         var response = await _miioTransport.SendMessageAsync(BuildParamsArray("get_prop", props));
-        var values = JObject.Parse(response)["result"] as JArray;
+        var values = System.Text.Json.Nodes.JsonNode.Parse(response)["result"].AsArray();
         return values.Select(x => x.ToString()).ToArray();
+        // var values = JObject.Parse(response)["result"] as JArray;
+        // return values.Select(x => x.ToString()).ToArray();
     }
 
     public int GetClientId() => _clientId;
-    public void Dispose()
-    {
-        _miioTransport?.Dispose();
-    }
+    public void Dispose() => _miioTransport?.Dispose();
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 using MiHomeLib.DevicesV3;
+using MiHomeLib.Utils;
 
 namespace MiHomeLib.ActionProcessors;
 

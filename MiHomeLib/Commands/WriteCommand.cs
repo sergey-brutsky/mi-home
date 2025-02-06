@@ -1,28 +1,26 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
-namespace MiHomeLib.Commands
+namespace MiHomeLib.Commands;
+
+public class WriteCommand: Command
 {
-    public class WriteCommand: Command
+    private readonly string _sid;
+    private readonly string _type;
+    private readonly string _data;
+
+    public WriteCommand(string sid, string type, string key, Command data)
     {
-        private readonly string _sid;
-        private readonly string _type;
-        private readonly string _data;
+        _sid = sid;
+        _type = type;
+        
+        var jObject = JsonNode.Parse(data.ToString());
+        jObject["key"] = key;
+        _data = JsonSerializer.Serialize(jObject);
+    }
 
-        public WriteCommand(string sid, string type, string key, Command data)
-        {
-            _sid = sid;
-            _type = type;
-            
-            var jObject = JObject.Parse(data.ToString());
-            jObject["key"] = key;
-
-            _data = JsonConvert.SerializeObject(jObject.ToString(Formatting.None));
-        }
-
-        public override string ToString()
-        {
-            return $"{{\"cmd\":\"write\",\"model\":\"{_type}\",\"sid\":\"{_sid}\", \"data\":{_data}}}";
-        }
+    public override string ToString()
+    {
+        return $"{{\"cmd\":\"write\",\"model\":\"{_type}\",\"sid\":\"{_sid}\", \"data\":{_data}}}";
     }
 }

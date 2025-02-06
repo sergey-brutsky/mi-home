@@ -1,14 +1,8 @@
 ﻿using System;
 
-namespace MiHomeLib.Events
-{
-    public class NoMotionEventArgs: EventArgs
-    {
-        public NoMotionEventArgs(int seconds)
-        {
-            Seconds = seconds;
-        }
+namespace MiHomeLib.Events;
 
-        public int Seconds { get; }
-    }
+public class NoMotionEventArgs(int seconds) : EventArgs
+{
+    public int Seconds { get; } = seconds;
 }

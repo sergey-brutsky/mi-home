@@ -1,45 +1,37 @@
 ﻿using System;
+using System.Text.Json.Nodes;
 using MiHomeLib.Events;
-using Newtonsoft.Json.Linq;
+using MiHomeLib.Utils;
 
-namespace MiHomeLib.Devices
+namespace MiHomeLib.Devices;
+
+public class WiredDualWallSwitch(string sid) : MiHomeDevice(sid, TypeKey)
 {
-    public class WiredDualWallSwitch : MiHomeDevice
+    public const string TypeKey = "ctrl_neutral2";
+
+    public event EventHandler OnSwitchChannelRight;
+
+    public event EventHandler OnSwitchChannelLeft;
+
+    public string StatusLeft { get; private set; } = "idle";
+    public string StatusRight { get; private set; } = "idle";
+
+    public override void ParseData(string command)
     {
-        public const string TypeKey = "ctrl_neutral2";
+        var jObject = JsonNode.Parse(command).AsObject();
 
-        public event EventHandler OnSwitchChannelRight;
-
-        public event EventHandler OnSwitchChannelLeft;
-
-        public WiredDualWallSwitch(string sid) : base(sid, TypeKey)
+        if (jObject.ParseString("channel_0", out string channel0))
         {
-            StatusLeft = "idle";
-            StatusRight = "idle";
-        }
-
-        public string StatusLeft { get; private set; }
-        public string StatusRight { get; private set; }
-
-        public override void ParseData(string command)
-        {
-            var jObject = JObject.Parse(command);
-
-            if (jObject["channel_0"] != null)
-            {
-                StatusLeft = jObject["channel_0"].ToString();
-                OnSwitchChannelLeft?.Invoke(this, new WallSwitchEventArgs(StatusLeft));
-            }
-            if (jObject["channel_1"] != null)
-            {
-                StatusRight = jObject["channel_1"].ToString();
-                OnSwitchChannelRight?.Invoke(this, new WallSwitchEventArgs(StatusRight));
-            } 
+            StatusLeft = channel0;
+            OnSwitchChannelLeft?.Invoke(this, new WallSwitchEventArgs(StatusLeft));
         }
         
-        public override string ToString()
+        if (jObject.ParseString("channel_1", out string channel1))
         {
-            return $"Status Left: {StatusLeft}, Right: {StatusRight}";
-        }
+            StatusRight = channel1;
+            OnSwitchChannelRight?.Invoke(this, new WallSwitchEventArgs(StatusRight));
+        } 
     }
+
+    public override string ToString() => $"Status Left: {StatusLeft}, Right: {StatusRight}";
 }

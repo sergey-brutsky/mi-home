@@ -1,14 +1,8 @@
 using System;
 
-namespace MiHomeLib.Events
-{
-    public class WallSwitchEventArgs: EventArgs
-    {
-        public WallSwitchEventArgs(string state)
-        {
-            State = state;
-        }
+namespace MiHomeLib.Events;
 
-        public string State { get; }
-    }
+public class WallSwitchEventArgs(string state) : EventArgs
+{
+    public string State { get; } = state;
 }

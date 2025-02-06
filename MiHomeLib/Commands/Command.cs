@@ -1,7 +1,6 @@
-namespace MiHomeLib.Commands
+namespace MiHomeLib.Commands;
+
+public abstract class Command
 {
-    public abstract class Command
-    {
-        public abstract override string ToString();
-    }
+    public abstract override string ToString();
 }
