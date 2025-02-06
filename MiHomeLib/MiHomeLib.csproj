@@ -3,7 +3,6 @@
     <Title>MiHomeLib</Title>
     <TargetFrameworks>netstandard2.0;net481</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
-    <PackageVersion>2.0.2</PackageVersion>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
@@ -18,9 +17,7 @@ Removed redundant Newtonsoft.Json dependency in favor of native System.Text.Json
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.10</Version>  
+    <Version>2.0.2</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
