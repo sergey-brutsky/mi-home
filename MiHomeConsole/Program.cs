@@ -1,21 +1,22 @@
 ﻿using System;
-using MiHomeLib;
+using System.Threading.Tasks;
+using MiHomeLib.XiaomiGateway2;
 
 namespace MiHomeConsole;
 public class Program
 {
     public static void Main()
     {
-        using var gw3 = new XiaomiGateway3("<gateway ip>", "<gateway token>");
+        using var gw2 = new XiaomiGateway2("192.168.1.13", "8ac2ffaa10eec2469b5d585f34dd1663");
         {
-            gw3.OnDeviceDiscovered += gw3SubDevice =>
+            gw2.OnDeviceDiscoveredAsync += d =>
             {
-                Console.WriteLine(gw3SubDevice.ToString());
+                Console.WriteLine(d.ToString());
+                return Task.CompletedTask;
             };
 
-            gw3.DiscoverDevices();
+            gw2.DiscoverDevices();
         }
-        
         Console.ReadLine();
     }
 }

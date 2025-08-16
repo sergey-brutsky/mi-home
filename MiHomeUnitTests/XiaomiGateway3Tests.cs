@@ -1,24 +1,25 @@
 ﻿using FluentAssertions;
-using MiHomeLib;
 using Moq;
 using Xunit;
 using AutoFixture;
 using System;
 using System.Collections.Generic;
-using MiHomeLib.DevicesV3;
 using System.Linq;
-using static MiHomeLib.JsonResponses.ZigbeeHearbeatResponse;
-using static MiHomeLib.JsonResponses.ZigbeeHearbeatResponse.ZigbeeHearbeatItem;
-using MiHomeLib.JsonResponses;
-using static MiHomeLib.JsonResponses.BleAsyncEventResponse;
-using static MiHomeLib.JsonResponses.BleAsyncEventResponse.BleAsyncEventParams;
+using static MiHomeLib.XiaomiGateway3.JsonResponses.ZigbeeHearbeatResponse;
+using static MiHomeLib.XiaomiGateway3.JsonResponses.ZigbeeHearbeatResponse.ZigbeeHearbeatItem;
+using static MiHomeLib.XiaomiGateway3.JsonResponses.BleAsyncEventResponse;
+using static MiHomeLib.XiaomiGateway3.JsonResponses.BleAsyncEventResponse.BleAsyncEventParams;
 using MiHomeLib.Transport;
-using MiHomeUnitTests.DevicesV3;
-using MiHomeLib.Utils;
+using MiHomeLib.XiaomiGateway3;
+using MiHomeLib.XiaomiGateway3.Devices;
+using MiHomeLib.XiaomiGateway3.JsonResponses;
+using MiHomeUnitTests.XiaomiGateway3SubDevices;
+using System.Threading.Tasks;
+using MiHomeLib;
 
 namespace MiHomeUnitTests;
 
-public class XiaomiGateway3Tests: MiHome3DeviceTests
+public class XiaomiGateway3Tests: Gw3DeviceTests
 {
     private readonly Mock<IMiioTransport> _miioTransport;
     private readonly Mock<IDevicesDiscoverer> _devicesDiscoverer;
@@ -172,22 +173,24 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var mac = _fixture.Create<string>()[..12];
         
         SetupZigBeeDevices([
-            (switchDid, MiWirelesSwitch.MODEL, [3032, 100, 192, 88]),
+            (switchDid, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
         ]);
 
         SetupBleDevices([
-            (thDid, MiThMonitor2.PDID, mac),
+            (thDid, XiaomiBluetoothHygrothermograph2.PDID, mac),
         ]);
 
         var counter = 0;
 
-        _gateway.OnDeviceDiscovered += device => 
+        _gateway.OnDeviceDiscoveredAsync += device => 
         {
             counter++;
             eventRaised = true;
 
-            if(device is MiWirelesSwitch sw) sw.Did.Should().Be(switchDid);
-            if(device is MiThMonitor2 th) th.Did.Should().Be(thDid);
+            if(device is XiaomiSmartWirelessSwitch sw) sw.Did.Should().Be(switchDid);
+            if(device is XiaomiBluetoothHygrothermograph2 th) th.Did.Should().Be(thDid);
+
+            return Task.CompletedTask;
         };        
         
         // Act    
@@ -206,19 +209,22 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var time = (double)DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         SetupZigBeeDevices([
-            (did, MiWirelesSwitch.MODEL, [3032, 100, 192, 88]),
+            (did, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
         ]);
 
-        _gateway.OnDeviceDiscovered += device =>
+        _gateway.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
-            var sw = device as MiWirelesSwitch;
+            var sw = device as XiaomiSmartWirelessSwitch;
 
-            sw.OnClick += clickArgs =>
+            sw.OnClickAsync += clickArgs =>
             {
-                eventRaised = clickArgs == MiWirelesSwitch.ClickArg.SingleClick;
+                eventRaised = clickArgs == XiaomiSmartWirelessSwitch.ClickArg.SingleClick;
                 sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                return Task.CompletedTask;
             };
+
+            return Task.CompletedTask;
         };
 
         // Act    
@@ -238,20 +244,23 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var time = (double)DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         SetupZigBeeMiSpecDevices([
-            (did, AqaraOneChannelRelayEu.MODEL),
+            (did, AqaraT1WithNeutral.MODEL),
         ]);
 
-        _gateway.OnDeviceDiscovered += device =>
+        _gateway.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
             
-            var aqaraRelay = device as AqaraOneChannelRelayEu;
+            var aqaraRelay = device as AqaraT1WithNeutral;
 
-            aqaraRelay.OnLoadPowerChange += x =>
+            aqaraRelay.OnLoadPowerChangeAsync += x =>
             {
                 eventRaised = true;
                 aqaraRelay.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                return Task.CompletedTask;
             };
+
+            return Task.CompletedTask;
         };
 
         // Act    
@@ -276,21 +285,22 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var time = (double)DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
         SetupZigBeeDevices([
-            (did, MiWirelesSwitch.MODEL, [oldVoltage, oldBatteryPerent, 192, 88]),
+            (did, XiaomiSmartWirelessSwitch.MODEL, [oldVoltage, oldBatteryPerent, 192, 88]),
         ]);
 
-        _gateway.OnDeviceDiscovered += device =>
+        _gateway.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
 
-            var sw = device as MiWirelesSwitch;
+            var sw = device as XiaomiSmartWirelessSwitch;
             
-            sw.OnVoltageChange += oldValue =>
+            sw.OnVoltageChangeAsync += oldValue =>
             {
                 voltageEventRaised = true;
                 (oldVoltage/1000f).Should().Be(oldValue);
                 sw.Voltage.Should().Be(newVoltage/1000f);
                 sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                return Task.CompletedTask;
             };
 
             sw.OnBatteryPercentChange += oldValue =>
@@ -299,7 +309,10 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
                 oldBatteryPerent.Should().Be(oldBatteryPerent);
                 sw.BatteryPercent.Should().Be((byte)newBatteryPerent);
                 sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                return Task.CompletedTask;
             };
+
+            return Task.CompletedTask;
         };
 
         // Act    
@@ -317,31 +330,34 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         // Arrange
         var temperatureEventRaised = false;
         var did = _fixture.Create<string>();
-        var mac = Helpers.DecodeMacAddress(_fixture.Create<string>()[..12]);
+        var mac = _gateway.DecodeMacAddress(_fixture.Create<string>()[..12]);
         
         double time = DateTimeOffset.Now.ToUnixTimeSeconds();
 
         SetupBleDevices([
-            (did, MiThMonitor2.PDID, mac),
+            (did, XiaomiBluetoothHygrothermograph2.PDID, mac),
         ]);
 
-        _gateway.OnDeviceDiscovered += device =>
+        _gateway.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
 
-            var th = device as MiThMonitor2;
+            var th = device as XiaomiBluetoothHygrothermograph2;
             
-            th.OnTemperatureChange += oldValue =>
+            th.OnTemperatureChangeAsync += oldValue =>
             {
                 temperatureEventRaised = true;
                 th.LastTimeMessageReceived.Should().Be(time.UnixSecondsToDateTime());
+                return Task.CompletedTask;
             };
+            
+            return Task.CompletedTask;
         };
 
         // Act    
         _gateway.DiscoverDevices();
         
-        RaiseBleAsyncEvent(MiThMonitor2.PDID, did, mac, time, [(4100, "e500")]);
+        RaiseBleAsyncEvent(XiaomiBluetoothHygrothermograph2.PDID, did, mac, time, [(4100, "e500")]);
 
         // Assert
         temperatureEventRaised.Should().BeTrue();
@@ -357,12 +373,12 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var mac = _fixture.Create<string>()[..12];
         
         SetupZigBeeDevices([
-            (switchDid, MiWirelesSwitch.MODEL, [3032, 100, 192, 88]),
-            (thSensorDid, XiaomiThSensor.MODEL, [3032, 100, 192, 88]),
+            (switchDid, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+            (thSensorDid, XiaomiTemperatureHumiditySensor.MODEL, [3032, 100, 192, 88]),
         ]);
 
         SetupBleDevices([
-            (thMonitorDid, MiThMonitor2.PDID, mac),
+            (thMonitorDid, XiaomiBluetoothHygrothermograph2.PDID, mac),
         ]);
 
         // Act    
@@ -371,9 +387,9 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         
         // Assert
         devices.Count.Should().Be(3);
-        devices.Any(x => x.Did == switchDid && x.GetType() == typeof(MiWirelesSwitch)).Should().BeTrue();
-        devices.Any(x => x.Did == thSensorDid && x.GetType() == typeof(XiaomiThSensor)).Should().BeTrue();
-        devices.Any(x => x.Did == thMonitorDid && x.GetType() == typeof(MiThMonitor2)).Should().BeTrue();
+        devices.Any(x => x.Did == switchDid && x.GetType() == typeof(XiaomiSmartWirelessSwitch)).Should().BeTrue();
+        devices.Any(x => x.Did == thSensorDid && x.GetType() == typeof(XiaomiTemperatureHumiditySensor)).Should().BeTrue();
+        devices.Any(x => x.Did == thMonitorDid && x.GetType() == typeof(XiaomiBluetoothHygrothermograph2)).Should().BeTrue();
     }
     
     [Fact]
@@ -398,7 +414,7 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         _gateway.DiscoverDevices();
         
         // Assert
-        _gateway.GetDeviceByDid<MiWirelesSwitch>(did).Should().BeNull();
+        _gateway.GetDeviceByDid<XiaomiSmartWirelessSwitch>(did).Should().BeNull();
     }
 
     [Fact]
@@ -408,12 +424,12 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var switchDid = _fixture.Create<string>();
         
         SetupZigBeeDevices([
-            (switchDid, MiWirelesSwitch.MODEL, [3032, 100, 192, 88]),
-            (_fixture.Create<string>(), XiaomiThSensor.MODEL, [3032, 100, 192, 88]),
+            (switchDid, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+            (_fixture.Create<string>(), XiaomiTemperatureHumiditySensor.MODEL, [3032, 100, 192, 88]),
         ]);
 
         SetupBleDevices([
-            (_fixture.Create<string>(), MiThMonitor2.PDID, _fixture.Create<string>()),
+            (_fixture.Create<string>(), XiaomiBluetoothHygrothermograph2.PDID, _fixture.Create<string>()),
         ]);
 
         // Act    
@@ -421,11 +437,11 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         
         // Assert
         _gateway
-            .GetDeviceByDid<MiWirelesSwitch>(switchDid)
+            .GetDeviceByDid<XiaomiSmartWirelessSwitch>(switchDid)
                 .Should()
                 .NotBeNull()
                 .And
-                .Match<MiWirelesSwitch>(x => x.Did == switchDid);
+                .Match<XiaomiSmartWirelessSwitch>(x => x.Did == switchDid);
     }
 
     [Fact]
@@ -435,18 +451,18 @@ public class XiaomiGateway3Tests: MiHome3DeviceTests
         var switchDid = _fixture.Create<string>();
         
         SetupZigBeeDevices([
-            (switchDid, MiWirelesSwitch.MODEL, [3032, 100, 192, 88]),
-            (_fixture.Create<string>(), XiaomiThSensor.MODEL, [3032, 100, 192, 88]),
+            (switchDid, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+            (_fixture.Create<string>(), XiaomiTemperatureHumiditySensor.MODEL, [3032, 100, 192, 88]),
         ]);
 
         SetupBleDevices([
-            (_fixture.Create<string>(), MiThMonitor2.PDID, _fixture.Create<string>()),
+            (_fixture.Create<string>(), XiaomiBluetoothHygrothermograph2.PDID, _fixture.Create<string>()),
         ]);
 
         // Act    
         _gateway.DiscoverDevices();
         
         // Assert
-        _gateway.GetDeviceByDid<XiaomiThSensor>(switchDid).Should().BeNull();
+        _gateway.GetDeviceByDid<XiaomiTemperatureHumiditySensor>(switchDid).Should().BeNull();
     }   
 }

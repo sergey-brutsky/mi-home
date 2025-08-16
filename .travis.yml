@@ -1,9 +1,0 @@
-language: csharp  
-sudo: required  
-dist: focal
-mono: none
-dotnet: 5.0.203
-before_script:
-  - dotnet restore -s https://api.nuget.org/v3/index.json
-script:  
-  - dotnet test MiHomeUnitTests -c Release
