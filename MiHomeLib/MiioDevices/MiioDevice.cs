@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using MiHomeLib.Transport;
 
 namespace MiHomeLib.MiioDevices;
 
-public class MiioDevice
+public abstract class MiioDevice
 {
-    protected int _clientId;
-    private JsonSerializerOptions _serializerSettings;
+    private int _initialId = 0;
+    private readonly JsonSerializerOptions _serializerSettings;
     protected readonly IMiioTransport _miioTransport;
 
-    public MiioDevice(IMiioTransport miioTransport, int? initialClientId = null)
+    public MiioDevice(IMiioTransport miioTransport, int initialIdExternal = 0)
     {
         _miioTransport = miioTransport;
-        _clientId = initialClientId is null ? new Random().Next(1, 255) : initialClientId.Value;
+        _initialId = initialIdExternal;
+        
         _serializerSettings = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -25,19 +28,15 @@ public class MiioDevice
 
     protected void CheckMessage(string response, string errorMessage)
     {
-        if (response.TrimEnd('\0') != $"{{\"result\":[\"ok\"],\"id\":{_clientId}}}")
+        if (response != $"{{\"result\":[\"ok\"],\"id\":{_initialId}}}")
         {
             throw new Exception($"{errorMessage}, miio protocol error --> {response}");
         }
     }
-    protected string GetString(string response)
-    {
-        return System.Text.Json.Nodes.JsonNode.Parse(response)["result"][0].ToString();
-    }
-
+    
     protected int GetInteger(string response, string msg)
     {
-        var result = GetString(response);
+        var result = JsonNode.Parse(response)["result"][0].ToString();
 
         if (!int.TryParse(result, out int number))
         {
@@ -45,43 +44,52 @@ public class MiioDevice
         }
 
         return number;
-    }
-    
+    }  
     protected string BuildParamsArray(string method, params object[] methodParams)
     {
-        var params1 = JsonSerializer.Serialize(methodParams, _serializerSettings);
-        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {params1}}}";
+        return JsonSerializer.Serialize(new Dictionary<string, object>(){
+            { "id", Interlocked.Increment(ref _initialId) },
+            { "method", method},
+            { "params", methodParams}
+        }, _serializerSettings);
     }
 
     protected string BuildParamsObject(string method, object methodParams)
     {
-        var params1 = JsonSerializer.Serialize(methodParams, _serializerSettings);
-        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {params1}}}";
+        return JsonSerializer.Serialize(new Dictionary<string, object>(){
+            { "id", Interlocked.Increment(ref _initialId) },
+            { "method", method},
+            { "params", methodParams }
+        }, _serializerSettings);
     }
 
     protected string BuildSidProp(string method, string sid, string prop, int value)
     {
-        return $"{{\"id\": {Interlocked.Increment(ref _clientId)}, \"method\": \"{method}\", \"params\": {{\"sid\":\"{sid}\", \"{prop}\":{value}}}}}";
+        return JsonSerializer.Serialize(new Dictionary<string, object>(){
+            { "id", Interlocked.Increment(ref _initialId) },
+            { "method", method},
+            { "params", new Dictionary<string, object> 
+                {
+                    { "sid", sid },
+                    { prop, value },
+                }
+            }
+        }, _serializerSettings);
     }
-
     protected string[] GetProps(params string[] props)
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("get_prop", props));
-        var values = System.Text.Json.Nodes.JsonNode.Parse(response)["result"].AsArray();
-        return values.Select(x => x.ToString()).ToArray();
-        // var values = JObject.Parse(response)["result"] as JArray;
-        // return values.Select(x => x.ToString()).ToArray();
+        return ResultProps(_miioTransport.SendMessage(BuildParamsArray("get_prop", props)));
     }
-
     protected async Task<string[]> GetPropsAsync(params string[] props)
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("get_prop", props));
-        var values = System.Text.Json.Nodes.JsonNode.Parse(response)["result"].AsArray();
-        return values.Select(x => x.ToString()).ToArray();
-        // var values = JObject.Parse(response)["result"] as JArray;
-        // return values.Select(x => x.ToString()).ToArray();
+        return ResultProps(await _miioTransport.SendMessageAsync(BuildParamsArray("get_prop", props)));
     }
 
-    public int GetClientId() => _clientId;
+    private static string[] ResultProps(string response) => JsonNode
+                        .Parse(response)["result"]
+                        .AsArray()
+                        .Select(x => x.ToString())
+                        .ToArray();
+
     public void Dispose() => _miioTransport?.Dispose();
 }

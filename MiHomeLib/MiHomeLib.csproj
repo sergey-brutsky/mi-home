@@ -5,10 +5,12 @@
     <PackageId>MiHomeLib</PackageId>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
-    <Description>C# library for using xiaomi smart gateway in your scenarious</Description>
+    <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Removed redundant Newtonsoft.Json dependency in favor of native System.Text.Json package
+Warning ! This is a breaking changes release !
+All devices and contracts have been fully refactored and adjusted to be used the same way.
+Please refer to github wiki on how to properly use this library.
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home gateway3 gateway2 smarthome csharp netstandard2 netcore2 mihome</PackageTags>
@@ -17,7 +19,7 @@ Removed redundant Newtonsoft.Json dependency in favor of native System.Text.Json
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.0.2</Version>  
+    <Version>2.1.0</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
