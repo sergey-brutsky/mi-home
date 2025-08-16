@@ -93,15 +93,17 @@ public static void Main(string[] args)
 {
     // gateway password is optional, needed only to send commands to your devices
     // gateway sid is optional, use only when you have 2 gateways in your LAN
-    // using var gw2 = new XiaomiGateway2("gateway password", "gateway sid");
-    using var gw2 = new XiaomiGateway2();
-   
-    gw2.OnAnyDevice += (_, device) =>
+    // using var gw2 = new XiaomiGateway2("ip", "token", "gateway password", "gateway sid");
+    using var gw2 = new XiaomiGateway2("<gateway ip>", "<gateway token>");
     {
-        Console.WriteLine($"{device.Sid}, {device.GetType()}, {device}"); // all discovered devices
-    };
+        gw2.OnDeviceDiscoveredAsync += d =>
+        {
+            Console.WriteLine(d.ToString());
+            return Task.CompletedTask;
+        };
 
-    Console.ReadLine();
+        gw2.DiscoverDevices();
+    }
 }
 ```
 
@@ -111,15 +113,15 @@ Get all devices in the network from the **Xiaomi Gateway 3**
 public static void Main(string[] args)
 {
     using var gw3 = new XiaomiGateway3("<gateway ip>", "<gateway token>");
-
-    gw3.OnDeviceDiscovered += gw3SubDevice =>
     {
-        Console.WriteLine(gw3SubDevice.ToString()); // all discovered devices
-    };
+        gw3.OnDeviceDiscoveredAsync += d =>
+        {
+            Console.WriteLine(d.ToString());
+            return Task.CompletedTask;
+        };
 
-    gw3.DiscoverDevices();
-
-    Console.ReadLine();
+        gw3.DiscoverDevices();
+    }
 }
 ```
 

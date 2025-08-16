@@ -7,7 +7,7 @@ public class Program
 {
     public static void Main()
     {
-        using var gw2 = new XiaomiGateway2("192.168.1.13", "8ac2ffaa10eec2469b5d585f34dd1663");
+        using var gw2 = new XiaomiGateway2("ip", "token");
         {
             gw2.OnDeviceDiscoveredAsync += d =>
             {
