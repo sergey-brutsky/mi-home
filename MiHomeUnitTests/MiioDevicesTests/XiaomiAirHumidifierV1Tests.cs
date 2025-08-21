@@ -247,7 +247,7 @@ public class XiaomiAirHumidifierV1Tests: MiioDeviceBase
         _airHumidifier.SetBrightness(XiaomiAirHumidifierV1.Brightness.Bright);
 
         // Assert
-        VerifyMethod("set_led_b", 0);
+        VerifyMethod("set_led_b", 1, 0);
     }
 
     [Fact]

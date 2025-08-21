@@ -16,7 +16,6 @@ namespace MiHomeUnitTests;
 
 public class XiaomiGateway2Tests: Gw2DeviceTests
 {
-    // TODO: Rewrite all Assert.Throws statements to use fluent assertions
     private readonly string _gatewaySid;
     private readonly XiaomiGateway2 _gateway;    
     private static string ToRadioListJson(int[] radioChannelIds)
@@ -24,10 +23,7 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
         var list = radioChannelIds
             .Select(x => new { id = x, type = 0, url = $"http://192.168.1.1/radio{x}.m3u8"});
 
-        return JsonSerializer.Serialize(new
-        {
-            result = new { chs = list }
-        });
+        return JsonSerializer.Serialize(new { result = new { chs = list }});
     }
     
     public XiaomiGateway2Tests()
@@ -911,7 +907,10 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void AddRadioChannel_with_Id_less_than_1024_throws_exception()
     {
         // Act
-        Assert.Throws<ArgumentException>(() => _gateway.AddRadioChannel(1000, "url here"));
+        var actual = _gateway.Invoking(x => x.AddRadioChannel(1000, "url here"));
+
+        // Assert
+        actual.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -923,7 +922,9 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
             .Returns(ToRadioListJson([1025, 1045, 1027]));
 
         // Act
-        Assert.Throws<ArgumentException>(() => _gateway.AddRadioChannel(1045, "http://192.168.1.1/radio.m3u8"));
+        var actual = _gateway.Invoking(x => x.AddRadioChannel(1045, "http://192.168.1.1/radio.m3u8"));
+        // Assert
+        actual.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -985,7 +986,9 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
             .Returns(ToRadioListJson([1025, 1026, 1027]));
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => _gateway.RemoveRadioChannel(1045));
+        var actual = _gateway.Invoking(x => x.RemoveRadioChannel(1045));
+        // Assert
+        actual.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -1102,7 +1105,9 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void PlayRadio_Should_Throw_Exception_When_Wrong_Volume()
     {
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => _gateway.PlayRadio(1045, 120));
+        var actual = _gateway.Invoking(x => x.PlayRadio(1045, 120));
+        // Assert
+        actual.Should().Throw<ArgumentException>();
     }
 
     [Fact]
@@ -1114,7 +1119,10 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
             .Returns(ToRadioListJson([1025, 1026, 1027]));
 
         // Act & Assert
-        Assert.Throws<ArgumentException>(() => _gateway.PlayRadio(1045, 50));
+        var actual = _gateway.Invoking(x => x.PlayRadio(1045, 50));
+
+        // Assert
+        actual.Should().Throw<ArgumentException>();
     }
 
     [Fact]
