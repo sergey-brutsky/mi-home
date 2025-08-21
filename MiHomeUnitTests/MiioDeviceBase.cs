@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MiHomeLib.Transport;
@@ -8,58 +9,77 @@ namespace MiHomeUnitTests;
 
 public class MiioDeviceBase
 {
-    protected Mock<IMiioTransport> _miioTransport; 
+    protected Mock<IMiioTransport> _miioTransport;
     public MiioDeviceBase()
     {
         _miioTransport = new Mock<IMiioTransport>();
     }
-    protected static string ToJson(Dictionary<string, object> data) => JsonSerializer.Serialize(data);
-    protected static string ResultOkJson(int ok = 1)
-    {
-        return ToJson(new()
-            {
-                { "result", new[] { "ok" } },
-                { "id", ok },
-            });
-    }
+    //TODO: Refactor me ! No need to use dictionary here
+    protected static string ToJson(Dictionary<string, object> data) => ToJson((object)data);
+    protected static string ToJson(object data) => JsonSerializer.Serialize(data);
+    protected static string ResultOkJson(int ok = 1) => ToJson(new { result = new[] { "ok" }, id = ok });
     protected void VerifyMethod(string method, params object[] args)
     {
+        VerifyMethod(method, 1, args);
+    }
+
+    protected void VerifyMethod(string method, int id, params object[] args)
+    {
         _miioTransport
-            .Verify(x => x.SendMessage(ToJson(new()
-            {
-                { "id", 1 },
-                { "method", method },
-                { "params", args },
-            })), Times.Once());
+            .Verify(x => x.SendMessage(ToJson(new { id, method, @params = args})), Times.Once());
     }
     protected void VerifyMethodAsync(string method, params object[] args)
     {
         _miioTransport
-            .Verify(x => x.SendMessageAsync(ToJson(new()
-            {
-                { "id", 1 },
-                { "method", method },
-                { "params", args },
-            })), Times.Once());
-    }     
+            .Verify(x => x.SendMessageAsync(ToJson(new { id = 1, method, @params = args})), Times.Once());
+    }
     protected void SendResultMethodAsync(string method, params object[] args)
     {
         _miioTransport
             .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains(method))))
-            .Returns(Task.FromResult(ToJson(new()
-            {
-                { "result", args},
-                { "id", 1}
-            })));
+            .Returns(Task.FromResult(ToJson(new { result = args, id = 1})));
     }
     protected void SendResultMethod(string method, params object[] args)
     {
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains(method))))
-            .Returns(ToJson(new()
+            .Returns(ToJson(new { result = args, id = 1}));
+    }
+
+    protected void SetupGetProperties(params (int siid, int piid, object value)[] args)
+    {
+        SendResultMethod("get_properties", [.. args.Select(x => new { did = $"{x.siid}-{x.piid}", x.value, code = 0 })]);
+    }
+    protected void SetupSetProperties()
+    {
+        SendResultMethod("set_properties", new { code = 0 });
+    }
+    protected void VerifyGetProperties(int siid, int piid, int initialId = 2)
+    {
+        VerifyGetProperties(initialId, (siid, piid));
+    }
+    protected void VerifyGetProperties(int initialId, params (int siid, int piid)[] args)
+    {
+        VerifyMethod("get_properties", initialId, [.. args.Select(x => new { did = $"{x.siid}-{x.piid}", x.siid, x.piid })]);
+    }
+    protected void VerifySetProperties(int siid, int piid, object value, int initialId = 2)
+    {
+        VerifyMethod("set_properties", initialId, new { did = $"set-{siid}-{piid}", siid, piid, value });
+    }
+    protected void SetupCallAction()
+    {
+         _miioTransport
+            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("action"))))
+            .Returns(ToJson(new { result = new { code = 0}, id = 1}));
+    }
+    protected void VerifyCallAction(int siid, int aiid, int initialId = 2)
+    {
+        _miioTransport
+            .Verify(x => x.SendMessage(ToJson(new
             {
-                { "result", args},
-                { "id", 1}
-            }));
-    }  
+                id = initialId,
+                method = "action",
+                @params = new { did = $"call-{siid}-{aiid}", siid, aiid, @in = new string[] { } }
+            })), Times.Once());
+    }
 }

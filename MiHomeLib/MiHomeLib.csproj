@@ -8,9 +8,8 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Warning ! This is a breaking changes release !
-All devices and contracts have been fully refactored and adjusted to be used the same way.
-Please refer to github wiki on how to properly use this library.
+Added support for Mi Robot Mop3C (B106CN) vacuum
+Please refer to github wiki on how to work with this device
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home gateway3 gateway2 smarthome csharp netstandard2 netcore2 mihome</PackageTags>
@@ -19,7 +18,7 @@ Please refer to github wiki on how to properly use this library.
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.1.0</Version>  
+    <Version>2.1.1</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>

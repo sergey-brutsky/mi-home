@@ -8,7 +8,8 @@
 
 This library provides simple and flexible C# API for Xiaomi smart devices.  
 
-Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Gateway version 3](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-3) (ZNDMWG03LM)**,  [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1) and several sensors. See table below.
+Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Gateway version 3](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-3) (ZNDMWG03LM)**,  [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1),
+[Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) (ijai.vacuum.v18) and several sensors. See table below.
 
 ![xiaomi-gateway-2](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
 

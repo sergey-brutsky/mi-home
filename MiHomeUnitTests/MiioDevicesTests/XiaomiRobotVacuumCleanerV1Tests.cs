@@ -76,21 +76,16 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
         // Assert
         VerifyMethodAsync("find_me", string.Empty);
     }
-   
+
     [Fact]
     public void Home_Should_Now_Throw_Exceptions()
     {
         // Arrange
         SendResultMethod("app_pause", "ok");
-        
-        // TODO: Refactor me !
+
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(ToJson(new()
-            {
-                { "result", new[] {"ok"}},
-                { "id", 2 }
-            }));    
+            .Returns(ToJson(new { result = new[] { "ok" }, id = 2 }));    
         
         // Act
         _miRobot.Home();
@@ -99,12 +94,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
         VerifyMethod("app_pause", string.Empty);
         
         _miioTransport
-            .Verify(x => x.SendMessage(ToJson(new()
-            {
-                { "id", 2 },
-                { "method", "app_charge" },
-                { "params", new[] {string.Empty} },
-            })), Times.Once());
+            .Verify(x => x.SendMessage(ToJson(new { id = 2, method = "app_charge", @params = new[] {string.Empty} })), Times.Once());
     }
 
     [Fact]
@@ -115,11 +105,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
 
         _miioTransport
             .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(Task.FromResult(ToJson(new()
-            {
-                { "result", new[] {"ok"}},
-                { "id", 2 }
-            })));
+            .Returns(Task.FromResult(ToJson(new { result = new[] { "ok" }, id = 2 })));
         
         // Act
         await _miRobot.HomeAsync();
@@ -128,12 +114,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
         VerifyMethodAsync("app_pause", string.Empty);
 
         _miioTransport
-            .Verify(x => x.SendMessageAsync(ToJson(new()
-            {
-                { "id", 2 },
-                { "method", "app_charge" },
-                { "params", new[] {""} },
-            })), Times.Once());
+            .Verify(x => x.SendMessageAsync(ToJson(new { id = 2, method = "app_charge", @params = new[] {string.Empty}})), Times.Once());
     }
 
     [Fact]
