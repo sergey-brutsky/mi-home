@@ -22,6 +22,6 @@ jobs:
     - name: Build
       run: dotnet build MiHomeLib -c Release
     - name: Deploy to nuget
-      run: dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.js
+      run: dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json
     - name: Deploy to github packages
       run: dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.$RELEASE_VERSION.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
