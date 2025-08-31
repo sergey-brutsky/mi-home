@@ -38,7 +38,13 @@ internal class MqttDotNetTransport : IMqttTransport, IDisposable
         
         Array.ForEach(listenTopics, topic => subscriptionBuilder.WithTopicFilter(topic));
 
-        _mqttClient.ConnectAsync(mqttClientOptions).Wait(TimeSpan.FromMilliseconds(TIMEOUT_MS));
+        var connected = _mqttClient.ConnectAsync(mqttClientOptions).Wait(TimeSpan.FromMilliseconds(TIMEOUT_MS));
+
+        if (!connected)
+        {
+            throw new Exception($"Looks like MQTT brokker is not running on the {ip}:{port} . Please refer to the WIKI how to enable it on your hub");
+        }
+
         _logger.LogInformation($"MQTT client connected to the broker --> {ip}:{port}");
 
         _mqttClient.SubscribeAsync(subscriptionBuilder.Build()).Wait(TimeSpan.FromMilliseconds(TIMEOUT_MS));

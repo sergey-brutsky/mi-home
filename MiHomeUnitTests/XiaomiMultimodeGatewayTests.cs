@@ -9,7 +9,6 @@ using static MiHomeLib.MultimodeGateway.JsonResponses.ZigbeeHearbeatResponse;
 using static MiHomeLib.MultimodeGateway.JsonResponses.ZigbeeHearbeatResponse.ZigbeeHearbeatItem;
 using static MiHomeLib.MultimodeGateway.JsonResponses.BleAsyncEventResponse;
 using static MiHomeLib.MultimodeGateway.JsonResponses.BleAsyncEventResponse.BleAsyncEventParams;
-using MiHomeLib.Transport;
 using System.Threading.Tasks;
 using MiHomeLib;
 using MiHomeLib.MultimodeGateway;
@@ -21,14 +20,9 @@ namespace MiHomeUnitTests;
 
 public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
 {
-    private readonly Mock<IMiioTransport> _miioTransport;
-    private readonly Mock<IDevicesDiscoverer> _devicesDiscoverer;
     private readonly MultimodeGateway _gateway; 
     public XiaomiMultimodeGatewayTests()
-    {
-        _miioTransport = new Mock<IMiioTransport>();
-        _devicesDiscoverer = new Mock<IDevicesDiscoverer>();
-        
+    {   
         _devicesDiscoverer
             .Setup(x => x.DiscoverZigBeeDevices())
             .Returns([]);
@@ -36,6 +30,34 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
         _devicesDiscoverer
             .Setup(x => x.DiscoverBleDevices())
             .Returns([]);
+
+        _miioTransport
+            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
+            .Returns(ToJson(new
+            {
+                id = 1,
+                result = new
+                {
+                    uptime = 502175,
+                    miio_ver = "0.0.9",
+                    mac = "34:EF:44:49:BC:63",
+                    fw_ver = "1.0.5_0008",
+                    hw_ver = "Linux",
+                    ap = new
+                    {
+                        ssid = "ssid1",
+                        bssid = "bssid1",
+                        rssi = -35,
+                        freq = 2437,
+                    },
+                    netif = new
+                    {
+                        localIp = "192.168.1.100",
+                        mask = "255.255.255.0",
+                        gw = "192.168.1.1",
+                    }
+                }
+            }));
 
         _gateway = new MultimodeGateway(_miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
     }
@@ -163,6 +185,7 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
 
         _mqttTransport.Raise(x => x.OnMessageReceived += null, "miio/report", asyncEventResponse.ToString());
     }
+
     [Fact]
     public void OnDeviceDiscovered_Works()
     {
@@ -199,7 +222,8 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
         // Assert
         eventRaised.Should().BeTrue();
         counter.Should().Be(2);
-    } 
+    }
+
     [Fact]
     public void ZigbeeReportCommand_Works()
     {
@@ -235,6 +259,7 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
         // Assert
         eventRaised.Should().BeTrue();
     }
+
     [Fact]
     public void ZigbeeReportCommandWithMiSpec_Works()
     {
@@ -271,6 +296,7 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
         // Assert
         eventRaised.Should().BeTrue();
     }
+
     [Fact]
     public void ZigbeeHeartbeatCommand_Works()
     {
@@ -324,6 +350,7 @@ public class XiaomiMultimodeGatewayTests: MultimodeGatewayDeviceTests
         voltageEventRaised.Should().BeTrue();
         batteryEventRaised.Should().BeTrue();
     }
+
     [Fact]
     public void AsyncBleEventMethod_Works()
     {

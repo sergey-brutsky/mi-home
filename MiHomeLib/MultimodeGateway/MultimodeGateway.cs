@@ -10,16 +10,26 @@ using MiHomeLib.Transport;
 using System.Threading.Tasks;
 using MiHomeLib.MultimodeGateway.ActionProcessors;
 using MiHomeLib.MultimodeGateway.Devices;
+using System.Text.Json;
 
 namespace MiHomeLib.MultimodeGateway;
 
-public class MultimodeGateway : MiioDevice, IDisposable
+public class MultimodeGateway : MiotGenericDevice, IDisposable
 {
     public const string MARKET_MODEL = "ZNDMWG03LM";
     public const string MODEL = "lumi.gateway.mgl03";
+
+    public uint UptimeSeconds { get; private set; }
+    public string MiioVersion { get; private set; }
+    public string Mac { get; private set; }
+    public string FirmwareVersion { get; private set; }
+    public string Hardware { get; private set; }
+    public WifiSettings Wifi { get; private set; }
+    public NetifSettings Network { get; private set; }
     protected static ILoggerFactory _loggerFactory = new NullLoggerFactory();
     protected static ILogger<MultimodeGateway> _logger = _loggerFactory.CreateLogger<MultimodeGateway>();
     protected IDevicesDiscoverer _devicesDiscoverer;
+    protected string _did;
     private readonly IMqttTransport _mqttTransport;
     private readonly Dictionary<string, IActionProcessor> _supportedActionProcessors;
     private readonly Dictionary<string, Func<string, MultimodeGatewaySubDevice>> _supportedModels = [];
@@ -32,13 +42,16 @@ public class MultimodeGateway : MiioDevice, IDisposable
     /// <summary>
     /// Xiaomi Multimode Gateway (CN) ZNDMWG03LM
     /// </summary>
-    public MultimodeGateway(string ip, string token, int port = 1883) :
+    public MultimodeGateway(string ip, string token, string did = "", int port = 1883) :
         this(
                 new MiioTransport(ip, token),
                 new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, _loggerFactory),
                 new MultimodeGatewayDevicesDiscoverer(ip, 23)
-            ) { }
-    internal MultimodeGateway(IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(miioTransport)
+            )
+    {
+        _did = did;
+    }
+    internal MultimodeGateway(IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(miioTransport, 0)
     {
         _supportedActionProcessors = new()
         {
@@ -70,6 +83,44 @@ public class MultimodeGateway : MiioDevice, IDisposable
 
             _pdidToModel.Add((int)type.GetField("PDID", bindFlags).GetValue(type), model);
         }
+
+        var response = _miioTransport.SendMessage(BuildParamsArray("miIO.info", string.Empty));
+
+        var values = JsonNode
+            .Parse(response)["result"]
+            .Deserialize<Dictionary<string, object>>()
+            .ToDictionary(x => x.Key, x => x.Value.ToString());
+
+        UptimeSeconds = uint.Parse(values["uptime"]);
+        MiioVersion = values["miio_ver"].ToString();
+        Mac = values["mac"].ToString();
+        FirmwareVersion = values["fw_ver"].ToString();
+        Hardware = values["hw_ver"].ToString();
+
+        var apValues = JsonNode
+            .Parse(values["ap"].ToString())
+            .Deserialize<Dictionary<string, object>>()
+            .ToDictionary(x => x.Key, x => x.Value.ToString());
+
+        Wifi = new WifiSettings()
+        {
+            Ssid = apValues["ssid"].ToString(),
+            Bssid = apValues["bssid"].ToString(),
+            Rssi = int.Parse(apValues["rssi"]),
+            Freq = int.Parse(apValues["freq"]),
+        };
+
+        var netifValues = JsonNode
+            .Parse(values["netif"].ToString())
+            .Deserialize<Dictionary<string, object>>()
+            .ToDictionary(x => x.Key, x => x.Value.ToString());
+
+        Network = new NetifSettings()
+        {
+            Ip = netifValues["localIp"].ToString(),
+            Mask = netifValues["mask"].ToString(),
+            Gateway = netifValues["gw"].ToString(),
+        };
     }
     public void DiscoverDevices()
     {
@@ -232,5 +283,17 @@ public class MultimodeGateway : MiioDevice, IDisposable
         return string.Join(":", chunks);
     }
 
-    //TODO: Implement ToString() function showing gw model info
+    public class WifiSettings
+    {
+        public string Ssid { get; internal set; }
+        public string Bssid { get; internal set; }
+        public int Rssi { get; internal set; }
+        public int Freq { get; internal set; }
+    }
+    public class NetifSettings
+    {
+        public string Ip { get; internal set; }
+        public string Mask { get; internal set; }
+        public string Gateway { get; internal set; }
+    }
 }
