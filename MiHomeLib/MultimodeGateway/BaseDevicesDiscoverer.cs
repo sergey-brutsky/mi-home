@@ -11,7 +11,12 @@ using MiHomeLib.Transport;
 
 namespace MiHomeLib.MultimodeGateway;
 
-internal class MultimodeGateway2DevicesDiscoverer(string host, int port) :
+//TODO: Refactor me ! Add these things directly to appropriate classes
+internal class MultimodeGateway2ChineDevicesDiscoverer(string host, int port) :
+    BaseDevicesDiscoverer(host, port, "root", "Mijia_Hub_V2-92FE login: ", "/ # ", "/data/local/miio_bt/mible_local.db")
+{ }
+
+internal class MultimodeGateway2GlobalDevicesDiscoverer(string host, int port) :
     BaseDevicesDiscoverer(host, port, "root", "Mijia_Hub_V2-BC63 login: ", "/ # ", "/data/local/miio_bt/mible_local.db")
 { }
 

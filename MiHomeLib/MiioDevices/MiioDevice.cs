@@ -9,21 +9,15 @@ using MiHomeLib.Transport;
 
 namespace MiHomeLib.MiioDevices;
 
-public abstract class MiioDevice
+public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExternal = 0)
 {
-    private int _initialId = 0;
-    private readonly JsonSerializerOptions _serializerSettings;
-    protected readonly IMiioTransport _miioTransport;
-    public MiioDevice(IMiioTransport miioTransport, int initialIdExternal = 0)
+    private int _initialId = initialIdExternal;
+    private readonly JsonSerializerOptions _serializerSettings = new()
     {
-        _miioTransport = miioTransport;
-        _initialId = initialIdExternal;
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+    protected readonly IMiioTransport _miioTransport = miioTransport;
 
-        _serializerSettings = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
-    }
     protected void CheckMessage(string response, string errorMessage)
     {
         if (response != $"{{\"result\":[\"ok\"],\"id\":{_initialId}}}")
@@ -87,7 +81,7 @@ public abstract class MiioDevice
                 {
                     error = json["error"].ToString();
                     Interlocked.Increment(ref _initialId);
-                    var newMsg = JsonObject.Parse(msg)["id"];
+                    var newMsg = JsonNode.Parse(msg)["id"];
                     newMsg["id"] = _initialId;
                     msg = newMsg.ToString();
                     continue;
@@ -109,10 +103,19 @@ public abstract class MiioDevice
     {
         return ResultProps(await _miioTransport.SendMessageAsync(BuildParamsArray("get_prop", props)));
     }
-    private static string[] ResultProps(string response) => JsonNode
+    private static string[] ResultProps(string response) => [.. JsonNode
                         .Parse(response)["result"]
                         .AsArray()
-                        .Select(x => x.ToString())
-                        .ToArray();
+                        .Select(x => x.ToString())];
+    public static string GetDeviceIdByIp(string ip)
+    {
+        var device = MiioTransport
+            .SendDiscoverMessage()
+            .SingleOrDefault(x => x.ip == ip);
+
+        if (device.ip is null) throw new Exception($"Cannot get device id for {ip}. Make sure that your app is in the same LAN.");
+
+        return Convert.ToInt32(device.type + device.serial, 16).ToString();
+    }
     public void Dispose() => _miioTransport?.Dispose();
 }

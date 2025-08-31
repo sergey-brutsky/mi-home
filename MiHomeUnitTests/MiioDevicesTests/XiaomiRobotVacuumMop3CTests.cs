@@ -2,7 +2,6 @@ using Xunit;
 using MiHomeLib.MiioDevices;
 using Moq;
 using FluentAssertions;
-using System.Collections.Generic;
 using AutoFixture;
 using System;
 

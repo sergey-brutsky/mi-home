@@ -8,13 +8,13 @@
 
 This library provides simple and flexible C# API for Xiaomi smart devices.  
 
-Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Multimode Gateway](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway) (ZNDMWG03LM), [Multimode Gateway 2](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2) (ZNDMWG04LM)**, [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1),
+Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Multimode Gateway](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway) (ZNDMWG03LM), [Multimode Gateway 2 Global](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-Global) (ZNDMWG04LM),[Multimode Gateway 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-China) (DMWG03LM)**, [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1),
 [Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) (ijai.vacuum.v18) and several sensors. See table below.
 
 ![xiaomi-gateway-2](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
 
 ## Supported gateway devices/sensors
-| Device support | Gateway 2 | Multimode Gateway | Multimode Gateway 2 |
+| Device support | Gateway 2 | Multimode Gateway | Multimode Gateway 2 Global/China|
 |:---: |:---: |:---: |:---: |
 | [Aqara Vibration Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Vibration-sensor-(DJT11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/DJT11LM.png" width="150"><br>DJT11LM | yes | yes | yes |
 | [Xiaomi Door/Window Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Door-Window-sensor-(MCCGQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MCCGQ01LM.png" width="150"><br>MCCGQ01LM | yes | yes | yes |
@@ -125,12 +125,29 @@ public static void Main(string[] args)
     }
 }
 ```
-Get all devices in the network from the **Xiaomi Multimode Gateway 2**
+Get all devices in the network from the **Xiaomi Multimode Gateway 2 Global**
 
 ```csharp
 public static void Main(string[] args)
 {
-    using var multimodeGw2 = new MultimodeGateway2Global("<gateway ip>", "<gateway token>");
+    using var multimodeGw2 = new MultimodeGateway2Global("<gateway ip>", "<gateway token>", "<did>");
+    {
+        multimodeGw2.OnDeviceDiscoveredAsync += d =>
+        {
+            Console.WriteLine(d.ToString());
+            return Task.CompletedTask;
+        };
+
+        multimodeGw2.DiscoverDevices();
+    }
+}
+```
+Get all devices in the network from the **Xiaomi Multimode Gateway 2 China**
+
+```csharp
+public static void Main(string[] args)
+{
+    using var multimodeGw2 = new MultimodeGateway2China("<gateway ip>", "<gateway token>", "<did>");
     {
         multimodeGw2.OnDeviceDiscoveredAsync += d =>
         {

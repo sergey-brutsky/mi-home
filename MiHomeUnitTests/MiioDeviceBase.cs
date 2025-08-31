@@ -50,21 +50,40 @@ public class MiioDeviceBase
     {
         SendResultMethod("get_properties", [.. args.Select(x => new { did = $"{x.siid}-{x.piid}", x.value, code = 0 })]);
     }
+
+    protected void SetupGetProperties(params (int siid, int piid, string did, object value)[] args)
+    {
+        SendResultMethod("get_properties", [.. args.Select(x => new { x.did, x.value, code = 0 })]);
+    }
     protected void SetupSetProperties()
     {
         SendResultMethod("set_properties", new { code = 0 });
+    }
+
+    protected void VerifyGetProperties(int siid, int piid, string did, int initialId = 2)
+    {
+        VerifyGetProperties(initialId, (siid, piid, did));
     }
     protected void VerifyGetProperties(int siid, int piid, int initialId = 2)
     {
         VerifyGetProperties(initialId, (siid, piid));
     }
+    protected void VerifyGetProperties(int initialId, params (int siid, int piid, string did)[] args)
+    {
+        VerifyMethod("get_properties", initialId, [.. args.Select(x => new { x.did, x.siid, x.piid })]);
+    }
     protected void VerifyGetProperties(int initialId, params (int siid, int piid)[] args)
     {
         VerifyMethod("get_properties", initialId, [.. args.Select(x => new { did = $"{x.siid}-{x.piid}", x.siid, x.piid })]);
     }
+    protected void VerifySetProperties(int siid, int piid, string did, object value, int initialId = 2)
+    {
+        VerifyMethod("set_properties", initialId, new { did, siid, piid, value });
+    }
+
     protected void VerifySetProperties(int siid, int piid, object value, int initialId = 2)
     {
-        VerifyMethod("set_properties", initialId, new { did = $"set-{siid}-{piid}", siid, piid, value });
+        VerifySetProperties(siid, piid, $"set-{siid}-{piid}", value, initialId);
     }
     protected void SetupCallAction()
     {

@@ -13,8 +13,9 @@ using static MiHomeLib.MultimodeGateway.JsonResponses.BleAsyncEventResponse.BleA
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class MultimodeGatewayDeviceTests
+public class MultimodeGatewayDeviceTests: MiioDeviceBase
 {
+    protected Mock<IDevicesDiscoverer> _devicesDiscoverer;
     protected readonly Mock<IMqttTransport> _mqttTransport;
     protected readonly NullLoggerFactory _loggerFactory;
     protected readonly Fixture _fixture = new();
@@ -24,6 +25,8 @@ public class MultimodeGatewayDeviceTests
     {
         _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => new NullLoggerFactory()));
         _mqttTransport = new Mock<IMqttTransport>();
+        _miioTransport = new Mock<IMiioTransport>();
+        _devicesDiscoverer = new Mock<IDevicesDiscoverer>();
         _loggerFactory = new NullLoggerFactory();
     }
 
@@ -32,7 +35,6 @@ public class MultimodeGatewayDeviceTests
         return JsonSerializer.Deserialize<List<ZigbeeReportResponse.ZigbeeReportResource>>(data, _opts);
     }
     protected static T GetMiSpecValue<T>(string data) => (JsonNode.Parse(data) as JsonArray)[0]["value"].GetValue<T>();
-
     protected BleAsyncEventParams SetupBleAsyncEventParams(int eid, string edata, double time = -1)
     {
         return _fixture
