@@ -31,11 +31,18 @@ jobs:
         name: xUnit Tests
         path: MiHomeUnitTests/TestResults/test-results.trx
         reporter: dotnet-trx
-    - name: Get test report results
-      run: echo "PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep passed | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV && echo "FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep failed | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")" >> $GITHUB_ENV
+    - name: Get test report results with precise percentage
+      run: |
+        PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")
+        FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")
+        TOTAL=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g")
+        PERCENTAGE=$(echo "scale=2; ($PASSED * 100) / $TOTAL" | bc)
+        echo "PASSED=$PASSED" >> $GITHUB_ENV
+        echo "TOTAL=$TOTAL" >> $GITHUB_ENV
+        echo "PERCENTAGE=$PERCENTAGE" >> $GITHUB_ENV
     - name: Print test results
-      run: echo ${{ env.PASSED }} passed ${{ env.FAILED }} failed
-    - name: Create the Badge
+      run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed (${{ env.PERCENTAGE }}%)"
+    - name: Create the tests badge
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
@@ -44,4 +51,15 @@ jobs:
         label: tests
         message: ${{ env.PASSED }} passed ${{ env.FAILED }} failed
         color: green
+    - name: Create code cov badge
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: 9c02042754ddfd8712f95e239400ec60
+        filename: code_cov.json
+        label: coverage
+        message: ${{ env.PERCENTAGE }}%
+        color: red
+        namedLogo: umbrel
+        logoColor: red
 
