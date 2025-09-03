@@ -20,10 +20,10 @@ clean:
 release:
 	dotnet build MiHomeLib -c Release
 
-publish-nuget: check-version check-secrets
+publish-nuget: check-version check-secrets release
 	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(NUGET_SECRET) --source https://api.nuget.org/v3/index.json
 
-publish-github: check-version check-secrets
+publish-github: check-version check-secrets release
 	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(GITHUB_SECRET) --source https://nuget.pkg.github.com/sergey-brutsky/index.json
 
 check-version:

@@ -9,8 +9,8 @@ namespace MiHomeLib.MultimodeGateway;
 /// </summary>
 public class MultimodeGateway2China : MultimodeGateway2
 {
-    public new const string MARKET_MODEL = "DMWG03LM";
-    public new const string MODEL = "lumi.gateway.mcn001";
+    public const string MARKET_MODEL = "DMWG03LM";
+    public const string MODEL = "lumi.gateway.mcn001";
 
     public MultimodeGateway2China(string ip, string token, string did, int port = 1883) : base(ip, token, did, port)
     {

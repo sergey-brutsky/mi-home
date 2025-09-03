@@ -9,8 +9,8 @@ namespace MiHomeLib.MultimodeGateway;
 /// </summary>
 public class MultimodeGateway2Global : MultimodeGateway2
 {
-    public new const string MARKET_MODEL = "ZNDMWG04LM";
-    public new const string MODEL = "lumi.gateway.mgl001";
+    public const string MARKET_MODEL = "ZNDMWG04LM";
+    public const string MODEL = "lumi.gateway.mgl001";
 
     public MultimodeGateway2Global(string ip, string token, string did, int port = 1883) : base(ip, token, did, port)
     {

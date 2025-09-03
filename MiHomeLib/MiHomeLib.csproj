@@ -8,8 +8,8 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Xiaomi Multimode Gateway 2 (China) DMWG03LM
-Please refer to github wiki on how to work with this hub
+Added miot features to  Xiaomi Multimode Gateway ZNDMWG03LM
+Please refer to github wiki on how to work with them
     </PackageReleaseNotes>
     <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi xiaomi-smart-home xiaomi-gateway2 multimode-gateway multimode-gateway2 smarthome csharp netstandard2 netcore2 mihome</PackageTags>
@@ -18,7 +18,7 @@ Please refer to github wiki on how to work with this hub
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.0</Version>  
+    <Version>2.3.1</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
