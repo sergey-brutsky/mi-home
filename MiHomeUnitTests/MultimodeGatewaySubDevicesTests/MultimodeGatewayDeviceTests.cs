@@ -28,6 +28,34 @@ public class MultimodeGatewayDeviceTests: MiioDeviceBase
         _miioTransport = new Mock<IMiioTransport>();
         _devicesDiscoverer = new Mock<IDevicesDiscoverer>();
         _loggerFactory = new NullLoggerFactory();
+
+        _miioTransport
+            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
+            .Returns(ToJson(new
+            {
+                id = 1,
+                result = new
+                {
+                    uptime = 502175,
+                    miio_ver = "0.0.9",
+                    mac = "34:EF:44:49:BC:63",
+                    fw_ver = "1.0.5_0008",
+                    hw_ver = "Linux",
+                    ap = new
+                    {
+                        ssid = "ssid1",
+                        bssid = "bssid1",
+                        rssi = -35,
+                        freq = 2437,
+                    },
+                    netif = new
+                    {
+                        localIp = "192.168.1.100",
+                        mask = "255.255.255.0",
+                        gw = "192.168.1.1",
+                    }
+                }
+            }));
     }
 
     protected List<ZigbeeReportResponse.ZigbeeReportResource> DataToZigbeeResource(string data)

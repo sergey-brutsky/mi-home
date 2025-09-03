@@ -3,12 +3,12 @@ using MiHomeLib.Transport;
 
 namespace MiHomeLib.MultimodeGateway;
 
-public abstract class MultimodeGateway2 : MultimodeGateway
+public abstract class MultimodeGateway2 : MultimodeGatewayBase
 {
-    public MultimodeGateway2(string ip, string token, string did, int port) : base(ip, token, did, port) {}
+    public MultimodeGateway2(string ip, string token, string did, int port) : base(ip, token, did, port) { }
 
     // For unit tests only
-    internal MultimodeGateway2(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(miioTransport, mqttTransport, devicesDiscoverer)
+    internal MultimodeGateway2(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(did, miioTransport, mqttTransport, devicesDiscoverer)
     {
         _did = did;
     }
@@ -25,7 +25,8 @@ public abstract class MultimodeGateway2 : MultimodeGateway
     /// </summary>
     public AccessModeValue AccessMode
     {
-        get => (AccessModeValue)ushort.Parse(GetMiotProperty(2, 1, _did)); set => SetMiotProperty(2, 1, _did, value);
+        get => (AccessModeValue)ushort.Parse(GetMiotProperty(2, 1, _did));
+        set => SetMiotProperty(2, 1, _did, value);
     }
 
     /// <summary>
@@ -78,14 +79,4 @@ public abstract class MultimodeGateway2 : MultimodeGateway
             SetMiotProperty(6, 3, _did, value);
         }
     }
-
-    /// <summary>
-    /// Enable lock to prevent accidental gateway deletion from you smart home system
-    /// </summary>
-    public bool AccidentalDeletionEnabled
-    {
-        get => short.Parse(GetMiotProperty(7, 1, _did)) == 1;
-
-        set => SetMiotProperty(7, 1, _did, value ? 1 : 0);
-    } 
 }
