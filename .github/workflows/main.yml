@@ -23,7 +23,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --verbosity normal --logger "trx;LogFileName=test-results.trx" MiHomeUnitTests
+      run: dotnet test --verbosity normal --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true  /p:CoverletOutput=./TestResults/ /p:CoverletOutputFormat=cobertura MiHomeUnitTests
     - name: Test Report
       uses: dorny/test-reporter@v1
       if: success()
@@ -36,12 +36,12 @@ jobs:
         PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")
         FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")
         TOTAL=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g")
-        PERCENTAGE=$(echo "scale=2; ($PASSED * 100) / $TOTAL" | bc)
+        COVERAGE_PERCENTAGE=$(cat MiHomeUnitTests/TestResults/coverage.cobertura.xml | grep 'coverage line-rate' | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g" | cut -c 3-6 | sed "s/./.&/3")
         echo "PASSED=$PASSED" >> $GITHUB_ENV
         echo "TOTAL=$TOTAL" >> $GITHUB_ENV
-        echo "PERCENTAGE=$PERCENTAGE" >> $GITHUB_ENV
+        echo "COVERAGE_PERCENTAGE=$COVERAGE_PERCENTAGE" >> $GITHUB_ENV
     - name: Print test results
-      run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed (${{ env.PERCENTAGE }}%)"
+      run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed (${{ env.COVERAGE_PERCENTAGE }}%)"
     - name: Create the tests badge
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
@@ -58,7 +58,7 @@ jobs:
         gistID: 9c02042754ddfd8712f95e239400ec60
         filename: code_cov.json
         label: coverage
-        message: ${{ env.PERCENTAGE }}%
+        message: ${{ env.COVERAGE_PERCENTAGE }}%
         color: red
         namedLogo: umbrel
         logoColor: red
