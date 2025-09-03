@@ -38,10 +38,11 @@ jobs:
         TOTAL=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g")
         COVERAGE_PERCENTAGE=$(cat MiHomeUnitTests/TestResults/coverage.cobertura.xml | grep 'coverage line-rate' | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g" | cut -c 3-6 | sed "s/./.&/3")
         echo "PASSED=$PASSED" >> $GITHUB_ENV
+        echo "FAILED=$FAILED" >> $GITHUB_ENV
         echo "TOTAL=$TOTAL" >> $GITHUB_ENV
         echo "COVERAGE_PERCENTAGE=$COVERAGE_PERCENTAGE" >> $GITHUB_ENV
     - name: Print test results
-      run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed (${{ env.COVERAGE_PERCENTAGE }}%)"
+      run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed"
     - name: Create the tests badge
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
