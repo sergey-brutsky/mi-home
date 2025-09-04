@@ -3,6 +3,7 @@
 [![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
 [![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/test_results.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
 [![Code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/code_cov.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
+[![CodeQL](https://github.com/sergey-brutsky/mi-home/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/github-code-scanning/codeql)
 [![Nuget](https://img.shields.io/nuget/v/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![Nuget](https://img.shields.io/nuget/dt/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sergey-brutsky/mi-home/blob/master/LICENSE.md)
