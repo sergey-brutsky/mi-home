@@ -1,8 +1,8 @@
 # C# Library for using xiaomi smart gateway in your automation scenarious
 
 [![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/9c02042754ddfd8712f95e239400ec60/raw)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/test_results.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
+[![Code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/code_cov.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
 [![Nuget](https://img.shields.io/nuget/v/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![Nuget](https://img.shields.io/nuget/dt/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sergey-brutsky/mi-home/blob/master/LICENSE.md)
