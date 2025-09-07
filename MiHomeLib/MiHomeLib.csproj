@@ -35,6 +35,6 @@ Removed required gw password parameter for xiaomi-gateway2 manageable devices
   </ItemGroup>
   <ItemGroup>
     <None Include="gateway.jpeg" Pack="true" PackagePath="\" />
-     <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>
