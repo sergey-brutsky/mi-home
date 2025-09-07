@@ -14,7 +14,6 @@ public class MultimodeGateway2China : MultimodeGateway2
 
     public MultimodeGateway2China(string ip, string token, string did, int port = 1883) : base(ip, token, did, port)
     {
-        _devicesDiscoverer = new MultimodeGateway2ChineDevicesDiscoverer(ip, 23);
         _logger = _loggerFactory.CreateLogger<MultimodeGateway2China>();
     }
     public override string ToString() => $"Model: {MARKET_MODEL} {MODEL}";

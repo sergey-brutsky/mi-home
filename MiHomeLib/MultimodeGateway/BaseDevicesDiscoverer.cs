@@ -11,37 +11,19 @@ using MiHomeLib.Transport;
 
 namespace MiHomeLib.MultimodeGateway;
 
-//TODO: Refactor me ! Add these things directly to appropriate classes
-internal class MultimodeGateway2ChineDevicesDiscoverer(string host, int port) :
-    BaseDevicesDiscoverer(host, port, "root", "Mijia_Hub_V2-92FE login: ", "/ # ", "/data/local/miio_bt/mible_local.db")
-{ }
-
-internal class MultimodeGateway2GlobalDevicesDiscoverer(string host, int port) :
-    BaseDevicesDiscoverer(host, port, "root", "Mijia_Hub_V2-BC63 login: ", "/ # ", "/data/local/miio_bt/mible_local.db")
-{ }
-
-internal class MultimodeGatewayDevicesDiscoverer(string host, int port) :
-    BaseDevicesDiscoverer(host, port, "admin", "rlxlinux login: ", "# ", "/data/miio/mible_local.db")
-{ }
-
-internal abstract class BaseDevicesDiscoverer(
+internal class BaseDevicesDiscoverer(
     string host,
-    int port,
-    string username,
-    string prompt,
-    string endMarker,
-    string pathToBleDB
+    int port
 ) : IDevicesDiscoverer
 {
     private const int READ_DELAY_MS = 100;
     private const int MAX_READ_ATTEMPTS = 100;
     private const string END_LINE = "\r\n";
     private const string ZIGBEE_DEVICES_PATH = "/data/zigbee/device.info";
-    private readonly string _username = username;
-    private readonly string _prompt = prompt;
-    private readonly string _endMarker = endMarker;
-    private readonly string _pathToBleDB = pathToBleDB;
-    private string ReadUntil(NetworkStream stream, string endMarker)
+    private const string PROMPT = ": ";
+    private string _endMarker = "# ";
+    private string _pathToBleDB = "/data/miio/mible_local.db";
+    private string ReadUntil(NetworkStream stream, string endMarker, string failString = "Password: ")
     {
         var sb = new StringBuilder();
         var attempt = 0;
@@ -52,7 +34,7 @@ internal abstract class BaseDevicesDiscoverer(
             {
                 var resp = Encoding.ASCII.GetString(ReceiveBytes(stream));
                 sb.Append(resp);
-                if (resp.EndsWith(endMarker))
+                if (resp.EndsWith(endMarker) || resp.EndsWith(failString))
                     return sb
                             .ToString()
                             .TrimEnd(_endMarker.ToCharArray())
@@ -86,12 +68,24 @@ internal abstract class BaseDevicesDiscoverer(
     {
         using var stream = new TcpClient(host, port).GetStream();
 
-        ReadUntil(stream, _prompt);
-        WriteStringToStream(stream, _username);
-        ReadUntil(stream, _endMarker);
-        WriteStringToStream(stream, $"ls {path}");
+        ReadUntil(stream, PROMPT);        
+        WriteStringToStream(stream, "admin");
+        var result = ReadUntil(stream, _endMarker);
 
-        if (ReadUntil(stream, _endMarker).EndsWith("No such file or directory"))
+        // Looks like we are on firmware for XiaomiMultimodeGateway 2, try root instead of admin
+        if (result == "admin\r\nPassword:")
+        {
+            _endMarker = "/ # ";
+            _pathToBleDB = "/data/local/miio_bt/mible_local.db";
+            WriteStringToStream(stream, "\r\n");
+            ReadUntil(stream, "login: ");
+            WriteStringToStream(stream, "root");
+            ReadUntil(stream, _endMarker);
+        }
+
+        WriteStringToStream(stream, $"ls {path}");
+        
+        if(ReadUntil(stream, _endMarker).EndsWith("No such file or directory"))
         {
             throw new Exception($"Looks like file '{path}' is not found on your device");
         }

@@ -1,4 +1,4 @@
-# C# Library for using xiaomi smart gateway in your automation scenarious
+# C# Library for using xiaomi/aqara gateways in your automation scenarious
 
 [![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
 [![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/test_results.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
@@ -8,14 +8,26 @@
 [![Nuget](https://img.shields.io/nuget/dt/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sergey-brutsky/mi-home/blob/master/LICENSE.md)
 
-This library provides simple and flexible C# API for Xiaomi smart devices.  
-
-Currently supports **only [Gateway version 2](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) (DGNWG02LM), [Multimode Gateway](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway) (ZNDMWG03LM), [Multimode Gateway 2 Global](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-Global) (ZNDMWG04LM),[Multimode Gateway 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-China) (DMWG03LM)**, [Air Humidifier](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) (zhimi.humidifier.v1), [Mi Robot vacuum](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) (rockrobo.vacuum.v1),
-[Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) (ijai.vacuum.v18) and several sensors. See table below.
+This library provides simple and flexible C# API for Xiaomi/Aqara gateways and smart devices.
 
 ![xiaomi-gateway-2](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
 
-## Supported gateway devices/sensors
+## Supported gateways
+| Gateway | Market Model | Model |
+|:--- |:---|:---|
+[Xiaomi Gateway 2 (CN)](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Gateway-2) | DGNWG02LM | lumi.gateway.v3 |
+[Multimode Gateway](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway) | ZNDMWG03LM | lumi.gateway.mgl03 |
+[Multimode Gateway 2 Global](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-Global) | ZNDMWG04LM | lumi.gateway.mgl001 |
+[Multimode Gateway 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Multimode-Gateway-2-China) | DMWG03LM | lumi.gateway.mcn001 |
+
+## Supported wifi devices
+| Device | Market Model | Model |
+|:--- |:---|:---|
+<br><img src="https://github.com/user-attachments/assets/ad53bb54-8fff-4ee4-b169-ccf2e4d76ec3" width="150"><br>[Xiaomi Mijia Smart Sterilization](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) | MJJSQ03DY | zhimi.humidifier.v1 |
+<br><img src="https://github.com/user-attachments/assets/03b9b58b-0fc8-4f12-a4bb-e3e2fff12adf" width="150"><br>[Xiaomi Mi Robot Vacuum Cleaner](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) | SDJQR02RR | rockrobo.vacuum.v1 |
+<br><img src="https://github.com/user-attachments/assets/8d619a4a-f3a9-46c8-afe9-825827cb6c4e" width="150"><br>[Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) | B106CN | ijai.vacuum.v18 |
+
+## Supported zigbee/ble devices
 | Device support | Gateway 2 | Multimode Gateway | Multimode Gateway 2 Global/China|
 |:---: |:---: |:---: |:---: |
 | [Aqara Vibration Sensor](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Vibration-sensor-(DJT11LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/DJT11LM.png" width="150"><br>DJT11LM | yes | yes | yes |
@@ -58,7 +70,7 @@ This mode allows to work with the gateway via UDP multicast protocol.
 
 
 **Warning 1**: 
-If you bought a newer revision of Mi Home Gateway (labels in a circle) 
+If you bought a newer revision of Xiaomi Gateway 2 (labels in a circle) 
 <img src="https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png" width="450">
 
 It could be possible that ports on your gateway required for UDP multicast traffic are **closed**.\
@@ -94,9 +106,8 @@ Get all devices in the network from the **Xiaomi Gateway 2**
 ```csharp
 public static void Main(string[] args)
 {
-    // gateway password is optional, needed only to send commands to your devices
-    // gateway sid is optional, use only when you have 2 gateways in your LAN
-    // using var gw2 = new XiaomiGateway2("ip", "token", "gateway password", "gateway sid");
+    // gateway sid is optional, use only when you have 2 or more gateways in your LAN
+    // using var gw2 = new XiaomiGateway2("ip", "token", "gateway sid");
     using var gw2 = new XiaomiGateway2("<gateway ip>", "<gateway token>");
     {
         gw2.OnDeviceDiscoveredAsync += d =>
@@ -115,7 +126,7 @@ Get all devices in the network from the **Xiaomi Multimode Gateway**
 ```csharp
 public static void Main(string[] args)
 {
-    using var multimodeGw = new MultimodeGateway("<gateway ip>", "<gateway token>");
+    using var multimodeGw = new MultimodeGateway("<gateway ip>", "<gateway token>", "<did>");
     {
         multimodeGw.OnDeviceDiscoveredAsync += d =>
         {

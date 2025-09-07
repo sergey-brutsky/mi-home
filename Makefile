@@ -41,11 +41,11 @@ define HELP_MESSAGE
 Usage: $ make [TARGETS]
 
 TARGETS
-	build		Build app
-	release		Build release
-	test		Run unit tests
-	run		Run console application
-	clean		Clean
+	build		Build library
+	release		Create release version of nuget package
+	test			Run unit tests
+	run			Run console application
+	clean		Clean build artifacts
 	publish-nuget	Upload nuget package to nuget.org
-	publish-github	Upload nuget package to github packages repo	
+	publish-github	Upload nuget package to github nuget repo	
 endef

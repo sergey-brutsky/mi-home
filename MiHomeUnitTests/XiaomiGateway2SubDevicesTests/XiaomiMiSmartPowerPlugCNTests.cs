@@ -12,13 +12,14 @@ namespace MiHomeUnitTests.XiaomiGateway2SubDevicesTests;
 public class XiaomiMiSmartPowerPlugCNTests : Gw2DeviceTests
 {
     private readonly string _sid = "158d00015dc332";
+    private readonly string _gwPassword = "123456789";
     private readonly int _shortId = 10624;
     private readonly XiaomiMiSmartPowerPlugCN _socketPlug;
 
     public XiaomiMiSmartPowerPlugCNTests()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        _socketPlug = new XiaomiMiSmartPowerPlugCN(_sid, _shortId, _messageTransport.Object, _loggerFactory);
+        _socketPlug = new XiaomiMiSmartPowerPlugCN(_sid, _shortId, _messageTransport.Object, _gwPassword, _loggerFactory);
     }
 
     [Fact]
@@ -76,7 +77,7 @@ public class XiaomiMiSmartPowerPlugCNTests : Gw2DeviceTests
         
         // Assert
         _messageTransport.Verify(x => x
-            .SendWriteCommand(_sid, XiaomiMiSmartPowerPlugCN.MODEL,
+            .SendWriteCommand(_sid, XiaomiMiSmartPowerPlugCN.MODEL, _gwPassword,
                 It.Is<SocketPlugCommand>(c => c.ToString() == command)), Times.Once());
     }
 
@@ -91,7 +92,7 @@ public class XiaomiMiSmartPowerPlugCNTests : Gw2DeviceTests
 
         // Assert
         _messageTransport.Verify(x => x
-            .SendWriteCommand(_sid, XiaomiMiSmartPowerPlugCN.MODEL,
+            .SendWriteCommand(_sid, XiaomiMiSmartPowerPlugCN.MODEL, _gwPassword,
                 It.Is<SocketPlugCommand>(c => c.ToString() == command)), Times.Once());
     }
 }

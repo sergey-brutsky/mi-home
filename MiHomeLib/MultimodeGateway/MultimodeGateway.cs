@@ -36,7 +36,7 @@ public class MultimodeGateway : MultimodeGatewayBase
         { ArmingModeValue.Away, 17 },
         { ArmingModeValue.Sleep, 20 },
     };
-    
+
     public enum ArmingModeValue
     {
         Basic = 0,
@@ -155,4 +155,6 @@ public class MultimodeGateway : MultimodeGatewayBase
     {
         SetMiotProperty(3, _alarmVolumeMap[armingMode], _did, volumeLevel);
     }
+
+    public override string ToString() => $"Model: {MARKET_MODEL} {MODEL}";
 }

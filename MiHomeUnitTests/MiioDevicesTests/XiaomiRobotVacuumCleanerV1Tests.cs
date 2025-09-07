@@ -5,6 +5,7 @@ using Moq;
 using FluentAssertions;
 using System.Threading;
 using System.Globalization;
+using MiHomeLib;
 
 namespace MiHomeUnitTests.MiioDevicesTests;
 
@@ -85,7 +86,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
 
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(ToJson(new { result = new[] { "ok" }, id = 2 }));    
+            .Returns(new { result = new[] { "ok" }, id = 2 }.ToJson());
         
         // Act
         _miRobot.Home();
@@ -94,7 +95,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
         VerifyMethod("app_pause", string.Empty);
         
         _miioTransport
-            .Verify(x => x.SendMessage(ToJson(new { id = 2, method = "app_charge", @params = new[] {string.Empty} })), Times.Once());
+            .Verify(x => x.SendMessage(new { id = 2, method = "app_charge", @params = new[] {string.Empty} }.ToJson()), Times.Once());
     }
 
     [Fact]
@@ -105,7 +106,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
 
         _miioTransport
             .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(Task.FromResult(ToJson(new { result = new[] { "ok" }, id = 2 })));
+            .Returns(Task.FromResult(new { result = new[] { "ok" }, id = 2 }.ToJson()));
         
         // Act
         await _miRobot.HomeAsync();
@@ -114,7 +115,7 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
         VerifyMethodAsync("app_pause", string.Empty);
 
         _miioTransport
-            .Verify(x => x.SendMessageAsync(ToJson(new { id = 2, method = "app_charge", @params = new[] {string.Empty}})), Times.Once());
+            .Verify(x => x.SendMessageAsync(new { id = 2, method = "app_charge", @params = new[] {string.Empty}}.ToJson()), Times.Once());
     }
 
     [Fact]

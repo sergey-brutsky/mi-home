@@ -14,7 +14,6 @@ public class MultimodeGateway2Global : MultimodeGateway2
 
     public MultimodeGateway2Global(string ip, string token, string did, int port = 1883) : base(ip, token, did, port)
     {
-        _devicesDiscoverer = new MultimodeGateway2GlobalDevicesDiscoverer(ip, 23);
         _logger = _loggerFactory.CreateLogger<MultimodeGateway2Global>();
     }
 

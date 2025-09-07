@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 using Moq;
 
 namespace MiHomeUnitTests.XiaomiGateway2SubDevicesTests;

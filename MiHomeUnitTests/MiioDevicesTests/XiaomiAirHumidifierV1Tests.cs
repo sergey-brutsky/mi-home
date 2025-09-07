@@ -45,9 +45,7 @@ public class XiaomiAirHumidifierV1Tests: MiioDeviceBase
     public void PowerOff_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessage(It.IsAny<string>()))
-            .Returns(ResultOkJson());
+        SendResultMethod(string.Empty, ["ok"]);
         
         // Act
         _airHumidifier.PowerOff();

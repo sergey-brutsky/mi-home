@@ -44,7 +44,7 @@ public abstract class MultimodeGatewayBase : MiotGenericDevice, IDisposable
                 did,
                 new MiioTransport(ip, token),
                 new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, _loggerFactory),
-                new MultimodeGatewayDevicesDiscoverer(ip, 23)
+                new BaseDevicesDiscoverer(ip, 23)
             ) {}
     internal MultimodeGatewayBase(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(miioTransport, 0)
     {

@@ -35,7 +35,7 @@ public class XiaomiMultimodeGatewayBaseTests : MultimodeGatewayDeviceTests
 
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(ToJson(new
+            .Returns(new
             {
                 id = 1,
                 result = new
@@ -59,7 +59,7 @@ public class XiaomiMultimodeGatewayBaseTests : MultimodeGatewayDeviceTests
                         gw = "192.168.1.1",
                     }
                 }
-            }));
+            }.ToJson());
 
         _gw = new Mock<MultimodeGatewayBase>(_gwDid, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
     }
@@ -540,7 +540,7 @@ public class XiaomiMultimodeGatewayBaseTests : MultimodeGatewayDeviceTests
 
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(ToJson(new
+            .Returns(new
             {
                 id = 1,
                 result = new
@@ -564,7 +564,7 @@ public class XiaomiMultimodeGatewayBaseTests : MultimodeGatewayDeviceTests
                         gw = expectedGw,
                     }
                 }
-            }));
+            }.ToJson());
 
 
         // Assert        

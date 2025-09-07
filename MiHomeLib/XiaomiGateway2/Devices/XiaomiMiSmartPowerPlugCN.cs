@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 using MiHomeLib.XiaomiGateway2.Commands;
 
 namespace MiHomeLib.XiaomiGateway2.Devices;
@@ -9,7 +9,7 @@ public class XiaomiMiSmartPowerPlugCN : ManageableXiaomiGateway2SubDevice
 {
     public const string MARKET_MODEL = "ZNCZ02LM";
     public const string MODEL = "plug";
-    public XiaomiMiSmartPowerPlugCN(string sid, int shortId, IMessageTransport transport, ILoggerFactory loggerFactory) : base(sid, shortId, transport, loggerFactory)
+    public XiaomiMiSmartPowerPlugCN(string sid, int shortId, IMessageTransport transport, string gwPassword, ILoggerFactory loggerFactory) : base(sid, shortId, transport, gwPassword, loggerFactory)
     {
         Actions.Add("status", x => 
         {
@@ -41,8 +41,8 @@ public class XiaomiMiSmartPowerPlugCN : ManageableXiaomiGateway2SubDevice
     public int Inuse { get; private set; }
     public int PowerConsumed { get; private set; }
     public float LoadPower { get; private set; }
-    public void TurnOff() => _transport.SendWriteCommand(Sid, MODEL, new SocketPlugCommand("off"));
-    public void TurnOn() => _transport.SendWriteCommand(Sid, MODEL, new SocketPlugCommand("on"));
+    public void TurnOff() => _transport.SendWriteCommand(Sid, MODEL, _gwPassword, new SocketPlugCommand("off"));
+    public void TurnOn() => _transport.SendWriteCommand(Sid, MODEL, _gwPassword, new SocketPlugCommand("on"));
     public override string ToString()
     {
         return base.ToString() + $", Status: {Status}, Inuse: {Inuse}, Load Power: {LoadPower}V, Power Consumed: {PowerConsumed}W, Voltage: {Voltage}V";

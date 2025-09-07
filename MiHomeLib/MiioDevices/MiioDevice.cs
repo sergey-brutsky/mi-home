@@ -20,7 +20,9 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
 
     protected void CheckMessage(string response, string errorMessage)
     {
-        if (response != $"{{\"result\":[\"ok\"],\"id\":{_initialId}}}")
+        var json =  JsonNode.Parse(response).AsObject();
+
+        if (!json.ContainsKey("result") || json["result"][0].ToString() != "ok")
         {
             throw new Exception($"{errorMessage}, miio protocol error --> {response}");
         }

@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 using MiHomeLib.Transport;
 using MiHomeLib.XiaomiGateway2.Commands;
@@ -14,15 +15,19 @@ using MiHomeLib.XiaomiGateway2.Devices;
 
 namespace MiHomeLib.XiaomiGateway2;
 
+/// <summary>
+/// Xiaomi Gateway (CN) DGNWG02LM
+/// </summary>    
 public class XiaomiGateway2 : MiioDevice, IDisposable
 {
+    public const string MARKET_MODEL = "DGNWG02LM";
+    public const string MODEL = "lumi.gateway.v3";
     private readonly string _gatewaySid;
     private static ILoggerFactory _loggerFactory = new NullLoggerFactory();
     private static ILogger<XiaomiGateway2> _logger = _loggerFactory.CreateLogger<XiaomiGateway2>();
     private readonly IMessageTransport _messageTransport;
     private readonly Dictionary<string, XiaomiGateway2SubDevice> _devicesList = [];
     private const int ReadDeviceInterval = 100;
-
     public enum Sound
     {
         PoliceСar1 = 0,
@@ -52,30 +57,25 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         Custom2 = 10002,
         Custom3 = 10003,
     }
-    private readonly List<ResponseCommandType> _supportedCommands = 
+    private readonly List<ResponseCommandType> _supportedCommands =
     [
-        ResponseCommandType.GetIdListAck, 
+        ResponseCommandType.GetIdListAck,
         ResponseCommandType.ReadAck,
-        ResponseCommandType.Report, 
-        ResponseCommandType.Hearbeat 
+        ResponseCommandType.Report,
+        ResponseCommandType.Hearbeat
     ];
 
     public event Func<XiaomiGateway2SubDevice, Task> OnDeviceDiscoveredAsync = (_) => Task.CompletedTask;
     private readonly Dictionary<string, Func<string, int, XiaomiGateway2SubDevice>> _supportedModels = [];
-    /// <summary>
-    /// Xiaomi Gateway (CN) DGNWG02LM
-    /// </summary>
-    public XiaomiGateway2(string ip, string token, string gatewayPassword = null, string gatewaySid = null)
-        : this(
-                new MiioTransport(ip, token), 
-                new UdpTransport(gatewayPassword), 
-                gatewaySid
-                ) {}
+    public XiaomiGateway2(string ip, string token, string gatewaySid = null)
+        : this(new MiioTransport(ip, token), new UdpTransport(), gatewaySid) { }
 
-    internal XiaomiGateway2(IMiioTransport miioTransport, IMessageTransport messageTransport, string gatewaySid): base(miioTransport)
+    internal XiaomiGateway2(IMiioTransport miioTransport, IMessageTransport messageTransport, string gatewaySid, int externalId = 0) : base(miioTransport, externalId)
     {
         _messageTransport = messageTransport;
         _gatewaySid = gatewaySid;
+
+        var gwPassword = GetDeveloperKey();
 
         // Building map of the supported devices via reflection props 
         foreach (Type type in Assembly
@@ -88,7 +88,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
 
             XiaomiGateway2SubDevice addDevice(string sid, int shortId) =>
                 type.IsSubclassOf(typeof(ManageableXiaomiGateway2SubDevice)) ?
-                    Activator.CreateInstance(type, sid, shortId, _messageTransport, _loggerFactory) as ManageableXiaomiGateway2SubDevice :
+                    Activator.CreateInstance(type, sid, shortId, _messageTransport, gwPassword, _loggerFactory) as ManageableXiaomiGateway2SubDevice :
                     Activator.CreateInstance(type, sid, shortId, _loggerFactory) as XiaomiGateway2SubDevice;
 
             _supportedModels.Add(model, (sid, shortId) => addDevice(sid, shortId));
@@ -102,14 +102,13 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         _loggerFactory = loggerFactory;
         _logger = _loggerFactory.CreateLogger<XiaomiGateway2>();
     }
-    
+
     public void DiscoverDevices()
     {
         _messageTransport.OnMessageReceived += async str =>
         {
             try
             {
-                // Console.WriteLine(str);
                 _logger?.LogDebug(str);
 
                 var cmd = ResponseCommand.FromString(str);
@@ -157,7 +156,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
                 }
 
                 _devicesList.TryGetValue(cmd.Sid, out var gw2SubDevice);
-                
+
                 if (gw2SubDevice is XiaomiMultifunctionalGateway2 && cmd.Token is not null)
                 {
                     _messageTransport.Token = cmd.Token;
@@ -190,7 +189,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
 
         CheckMessage(await _miioTransport.SendMessageAsync(msg), "Unable to set developer key");
     }
-    
+
     public string GetDeveloperKey()
     {
         return GetDeveloperKeyAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -200,12 +199,12 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     {
         var response = await _miioTransport.SendMessageAsync(BuildParamsArray("get_lumi_dpf_aes_key"));
         var json = JsonNode.Parse(response).AsObject();
-        
-        if(
-                json.ContainsKey("error") || 
-                !json.ContainsKey("result") || 
+
+        if (
+                json.ContainsKey("error") ||
+                !json.ContainsKey("result") ||
                 json["result"].AsArray().Count == 0 ||
-                json["result"][0].ToString() == string.Empty) 
+                json["result"][0].ToString() == string.Empty)
         {
             throw new Exception("Unable to get developer key, please set development mode for your gateway according to <link to wiki page here>");
         }
@@ -213,39 +212,57 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return json["result"][0].ToString();
     }
 
-    //TODO: Implement "set_night_light_rgb"
+    public void EnableNightLight(byte r, byte g, byte b, int brightness)
+    {
+        EnableNightLightAsync(r, g, b, brightness).ConfigureAwait(false).GetAwaiter().GetResult();
+    }
 
-    public void EnableLight(byte r = 255, byte g = 255, byte b = 255, int brightness = 100)
+    public async Task EnableNightLightAsync(byte r, byte g, byte b, int brightness)
+    {
+        await SetLightAsync("set_night_light_rgb", r, g, b, brightness);
+    }
+
+    public void DisableNightLight()
+    {
+        DisableNightLightAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+    }
+
+    public async Task DisableNightLightAsync()
+    {
+        await SetLightAsync("set_night_light_rgb", 0, 0, 0, 0);
+    }
+
+    public void EnableLight(byte r, byte g, byte b, int brightness)
     {
         EnableLightAsync(r, g, b, brightness).ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
-    public async Task EnableLightAsync(byte r = 255, byte g = 255, byte b = 255, int brightness = 100)
+    public async Task EnableLightAsync(byte r, byte g, byte b, int brightness)
     {
-#pragma warning disable CS0675 // Bitwise-or operator used on a sign-extended operand
-        var rgb = (uint)brightness << 24 | r << 16 | g << 8 | b;
-#pragma warning restore CS0675 // Bitwise-or operator used on a sign-extended operand
-
-        if (brightness < 1 || brightness > 100) throw new ArgumentException("Brightness must be in range 1 - 100");
-        // _transport.SendWriteCommand(Sid, MODEL, new GatewayLightCommand(rgb));
-
-        var msg = BuildParamsArray("set_rgb", rgb, brightness);
-
-        CheckMessage(await _miioTransport.SendMessageAsync(msg), "Unable to set rgb");
+        await SetLightAsync("set_rgb", r, g, b, brightness);
     }
 
-    public void DisableLight() 
+    public void DisableLight()
     {
         DisableLightAsync().ConfigureAwait(false).GetAwaiter().GetResult();
     }
 
     public async Task DisableLightAsync()
     {
-        var msg = BuildParamsArray("set_rgb", 0, 0);
-
-        CheckMessage(await _miioTransport.SendMessageAsync(msg), "Unable to set rgb");
+        await SetLightAsync("set_rgb", 0, 0, 0, 0);
     }
-    
+
+    private async Task SetLightAsync(string dayOrNight, byte r, byte g, byte b, int brightness)
+    {
+        if (brightness < 0 || brightness > 100) throw new ArgumentOutOfRangeException("Brightness must be in range 1 - 100");
+
+        var rgb = (uint)brightness << 24 | (uint)r << 16 | (uint)g << 8 | b;
+
+        var msg = BuildParamsArray(dayOrNight, rgb, brightness);
+
+        CheckMessage(await _miioTransport.SendMessageAsync(msg), $"Unable to send command '{dayOrNight}' with {rgb} and {brightness}");
+    }
+
     public void PlaySound(Sound sound, int volume)
     {
         PlaySoundAsync(sound, volume).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -262,7 +279,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     {
         SoundsOffAsync().ConfigureAwait(false).GetAwaiter().GetResult();
     }
-    
+
     public async Task SoundsOffAsync()
     {
         await PlaySoundAsync(0, 0);
@@ -304,7 +321,8 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         if (!_armingStates.Contains(result))
         {
             throw new Exception($"Arming state is unknown, looks like miio protocol error --> '{msg}'");
-        };
+        }
+        ;
 
         return result == "on";
     }
@@ -504,7 +522,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     {
         var response = _miioTransport.SendMessage(BuildParamsObject("get_channels", new { start = 0 }));
         var channelsJson = JsonNode.Parse(response)["result"]["chs"].ToString();
-        var radioChannels = JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
+        var radioChannels = JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
         return [.. radioChannels];
     }
 
@@ -516,7 +534,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     {
         var response = await _miioTransport.SendMessageAsync(BuildParamsObject("get_channels", new { start = 0 }));
         var channelsJson = JsonNode.Parse(response)["result"]["chs"].ToString();
-        return JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true});
+        return JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
     }
 
     /// <summary>
@@ -690,4 +708,6 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         _messageTransport?.Dispose();
         base.Dispose();
     }
+
+    public override string ToString() => $"Model: {MARKET_MODEL} {MODEL}";
 }

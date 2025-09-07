@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace MiHomeLib;
 public static class Helpers
@@ -15,6 +16,11 @@ public static class Helpers
             .Where(x => x % 2 == 0)
             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
             .ToArray();
+    }
+
+    public static string ToJson(this object data)
+    {
+        return JsonSerializer.Serialize(data);
     }
 
     public static string ToHex(this byte[] byteArray)

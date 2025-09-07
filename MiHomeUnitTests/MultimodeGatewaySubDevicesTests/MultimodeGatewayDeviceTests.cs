@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using AutoFixture;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MiHomeLib;
 using MiHomeLib.MultimodeGateway.JsonResponses;
 using MiHomeLib.Transport;
 using Moq;
@@ -31,7 +32,7 @@ public class MultimodeGatewayDeviceTests: MiioDeviceBase
 
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(ToJson(new
+            .Returns(new
             {
                 id = 1,
                 result = new
@@ -55,7 +56,7 @@ public class MultimodeGatewayDeviceTests: MiioDeviceBase
                         gw = "192.168.1.1",
                     }
                 }
-            }));
+            }.ToJson());
     }
 
     protected List<ZigbeeReportResponse.ZigbeeReportResource> DataToZigbeeResource(string data)

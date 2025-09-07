@@ -8,17 +8,24 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added miot features to  Xiaomi Multimode Gateway ZNDMWG03LM
-Please refer to github wiki on how to work with them
+This is mainly bugfix/refactoring release
+Reimplemented devices discoverer for xiaomi multimode gateways
+Refined unit tests for miio devices
+Added code coverage badges to github repo
+Added ability to set night light for xiaomi-gateway2
+Reorganized supported devices list on README page
+Removed required gw password parameter for xiaomi-gateway2 manageable devices
     </PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
-    <PackageTags>xiaomi xiaomi-smart-home xiaomi-gateway2 multimode-gateway multimode-gateway2 smarthome csharp netstandard2 netcore2 mihome</PackageTags>
+    <PackageTags>xiaomi aqara xiaomi-smart-home xiaomi-gateway2 multimode-gateway multimode-gateway2 smarthome 
+    csharp netstandard2 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/sergey-brutsky/mi-home</RepositoryUrl>
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.1</Version>  
+    <Version>2.3.2</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -28,5 +35,6 @@ Please refer to github wiki on how to work with them
   </ItemGroup>
   <ItemGroup>
     <None Include="gateway.jpeg" Pack="true" PackagePath="\" />
+     <None Include="README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>

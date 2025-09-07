@@ -4,6 +4,7 @@ using Moq;
 using FluentAssertions;
 using AutoFixture;
 using System;
+using MiHomeLib;
 
 namespace MiHomeUnitTests.MiioDevicesTests;
 
@@ -18,7 +19,7 @@ public class XiaomiRobotVacuumMop3CTests : MiioDeviceBase
 
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(ToJson(new {
+            .Returns(new {
                 id = 1,
                 result = new
                 {
@@ -41,7 +42,7 @@ public class XiaomiRobotVacuumMop3CTests : MiioDeviceBase
                         gw = "192.168.1.1",
                     }
                 }
-            }));
+            }.ToJson());
 
         _miRobot = new XiaomiRobotVacuumMop3C(_miioTransport.Object);
     }

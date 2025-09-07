@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using MiHomeLib.Transport;
 
@@ -79,9 +80,9 @@ internal class MiioTransport : IMiioTransport
             SendHelloPacketIfNeeded();
 
             var bytes = initialPacket.BuildMessage(msg, _token).ToByteArray();
-            
+
             _udpClient.Send(bytes, bytes.Length, _endpoint);
-            
+
             return new MiioPacket(_udpClient.Receive(ref _endpoint).ToHex()).GetResponseData(_token);
         }
         catch (TimeoutException)
