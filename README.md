@@ -26,6 +26,7 @@ This library provides simple and flexible C# API for Xiaomi/Aqara gateways and s
 <br><img src="https://github.com/user-attachments/assets/ad53bb54-8fff-4ee4-b169-ccf2e4d76ec3" width="150"><br>[Xiaomi Mijia Smart Sterilization](https://github.com/sergey-brutsky/mi-home/wiki/Air-Humidifier-(MJJSQ03DY)) | MJJSQ03DY | zhimi.humidifier.v1 |
 <br><img src="https://github.com/user-attachments/assets/03b9b58b-0fc8-4f12-a4bb-e3e2fff12adf" width="150"><br>[Xiaomi Mi Robot Vacuum Cleaner](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Vacuum-(SDJQR02RR)) | SDJQR02RR | rockrobo.vacuum.v1 |
 <br><img src="https://github.com/user-attachments/assets/8d619a4a-f3a9-46c8-afe9-825827cb6c4e" width="150"><br>[Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) | B106CN | ijai.vacuum.v18 |
+<br><img src="https://github.com/user-attachments/assets/ec77bd4c-fd61-4522-8135-d0197cb32849" width="150"><br>[Xiaomi Smart Plug 2 Euro](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Smart-Plug-2-Euro-(ZNCZ302KK)) | ZNCZ302KK | cuco.plug.v2eur |
 
 ## Supported zigbee/ble devices
 | Device support | Gateway 2 | Multimode Gateway | Multimode Gateway 2 Global/China|
