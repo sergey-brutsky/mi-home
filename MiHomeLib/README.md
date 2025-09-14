@@ -1,5 +1,1 @@
-This is mainly bugfix/refactoring release\
-Reorganized supported devices list on README page\
-Removed required gw password parameter for xiaomi-gateway2
-
-Please refer to [github wiki](https://github.com/sergey-brutsky/mi-home/wiki) for the details
+Added support for [Mijia Smart Socket 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Mijia-Smart-Socket-2-China-(ZNCZ07CM)) (chuangmi.plug.212a01)
