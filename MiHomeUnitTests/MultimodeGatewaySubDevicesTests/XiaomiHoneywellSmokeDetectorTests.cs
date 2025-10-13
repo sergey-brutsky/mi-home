@@ -3,11 +3,11 @@ using Xunit;
 using FluentAssertions;
 using Moq;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class XiaomiHoneywellSmokeDetectorTests: MultimodeGatewayDeviceTests
+public class XiaomiHoneywellSmokeDetectorTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"0.1.85\",\"value\":15}]")]
     public void Check_OnSmokeDensityChanged_Event(string data)

@@ -1,13 +1,13 @@
 ﻿using AutoFixture;
 using Xunit;
 using FluentAssertions;
-using static MiHomeLib.MultimodeGateway.Devices.XiaomiSmartWirelessSwitch;
+using static MiHomeLib.MqttGateway.Devices.XiaomiSmartWirelessSwitch;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class XiaomiSmartWirelessSwitchTests: MultimodeGatewayDeviceTests
+public class XiaomiSmartWirelessSwitchTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData("[{\"res_name\":\"13.1.85\",\"value\":1}]", ClickArg.SingleClick)]

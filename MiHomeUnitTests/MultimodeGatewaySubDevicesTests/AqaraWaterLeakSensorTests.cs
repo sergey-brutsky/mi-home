@@ -2,11 +2,11 @@ using AutoFixture;
 using Xunit;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class AqaraWaterLeakSensorTests: MultimodeGatewayDeviceTests
+public class AqaraWaterLeakSensorTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData("[{\"res_name\":\"3.1.85\",\"value\":1}]")]

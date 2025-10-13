@@ -2,11 +2,11 @@ using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class XiaomiSmokeSensorGuardTests: MultimodeGatewayDeviceTests
+public class XiaomiSmokeSensorGuardTests: MqttGatewayDeviceTests
 {
     private readonly XiaomiSmokeSensorGuard _smokeAlarm;
 

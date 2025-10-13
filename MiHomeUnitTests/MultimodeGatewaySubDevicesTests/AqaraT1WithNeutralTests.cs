@@ -4,10 +4,10 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
-public class AqaraT1WithNeutralTests: MultimodeGatewayDeviceTests
+public class AqaraT1WithNeutralTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"siid\":2,\"piid\":1,\"value\":true}]")]
     public void Check_OnChannelStateChange_Event(string data)

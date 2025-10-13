@@ -4,10 +4,10 @@ using FluentAssertions;
 using System.Collections.Generic;
 using Moq;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
-public class AqaraVirationSensorTests: MultimodeGatewayDeviceTests
+public class AqaraVirationSensorTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"0.2.85\",\"value\":61}]")]
     public void Check_OnFinalTiltChange_Event(string data)

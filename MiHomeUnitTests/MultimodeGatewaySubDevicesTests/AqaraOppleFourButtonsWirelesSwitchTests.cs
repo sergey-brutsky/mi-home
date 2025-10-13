@@ -1,13 +1,13 @@
 using AutoFixture;
 using Xunit;
 using FluentAssertions;
-using static MiHomeLib.MultimodeGateway.Devices.AqaraOppleWirelesSwitch;
+using static MiHomeLib.MqttGateway.Devices.AqaraOppleWirelesSwitch;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class AqaraOppleFourButtonsWirelesSwitchTests: MultimodeGatewayDeviceTests
+public class AqaraOppleFourButtonsWirelesSwitchTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData("[{\"res_name\":\"13.3.85\",\"value\":1}]", ClickArg.SingleClick)]

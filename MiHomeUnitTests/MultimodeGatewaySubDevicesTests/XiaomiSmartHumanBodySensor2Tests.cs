@@ -2,10 +2,10 @@ using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
-public class XiaomiSmartHumanBodySensor2Tests: MultimodeGatewayDeviceTests
+public class XiaomiSmartHumanBodySensor2Tests: MqttGatewayDeviceTests
 {
     private readonly XiaomiSmartHumanBodySensor2 _motionSensor2;
 

@@ -1,1 +1,1 @@
-Added support for [Mijia Smart Socket 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Mijia-Smart-Socket-2-China-(ZNCZ07CM)) (chuangmi.plug.212a01)
+Added support for [Aqara Hub E1 China](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Hub-E1-China) (lumi.gateway.aqcn02)

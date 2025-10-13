@@ -1,20 +1,20 @@
 using Xunit;
 using Moq;
 using FluentAssertions;
-using MiHomeLib.MultimodeGateway;
+using MiHomeLib.MqttGateway;
 using MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 using System;
 
 namespace MiHomeUnitTests;
 
-public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
+public class XiaomiMultimodeGatewayTests : MqttGatewayDeviceTests
 {
     private const string GW_DID = "216264671";
-    private readonly Mock<MultimodeGateway> _gw;
+    private readonly MultimodeGateway _gw;
 
     public XiaomiMultimodeGatewayTests()
     {
-        _gw = new Mock<MultimodeGateway>(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
+        _gw = new MultimodeGateway(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((6, 6, GW_DID, 1));
 
         // Act
-        var ledEnabled = _gw.Object.LedEnabled;
+        var ledEnabled = _gw.LedEnabled;
 
         // Assert
         VerifyGetProperties(6, 6, GW_DID);
@@ -39,7 +39,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.LedEnabled = false;
+        _gw.LedEnabled = false;
 
         // Assert
         VerifySetProperties(6, 6, GW_DID, expected, 2);
@@ -54,7 +54,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((3, 1, GW_DID, expected));
 
         // Act
-        var armingMode = _gw.Object.ArmingMode;
+        var armingMode = _gw.ArmingMode;
 
         // Assert
         VerifyGetProperties(3, 1, GW_DID);
@@ -69,7 +69,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.ArmingMode = expected;
+        _gw.ArmingMode = expected;
 
         // Assert
         VerifySetProperties(3, 1, GW_DID, (int)expected, 2);
@@ -84,7 +84,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((3, 22, GW_DID, expected));
 
         // Act
-        var alarmState = _gw.Object.AlarmState;
+        var alarmState = _gw.AlarmState;
 
         // Assert
         VerifyGetProperties(3, 22, GW_DID);
@@ -99,7 +99,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.AlarmState = expected;
+        _gw.AlarmState = expected;
 
         // Assert
         VerifySetProperties(3, 22, GW_DID, (int)expected, 2);
@@ -114,7 +114,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((3, 18, GW_DID, expectedDelay));
 
         // Act
-        var delay = _gw.Object.GetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
+        var delay = _gw.GetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
 
         // Assert
         VerifyGetProperties(3, 18, GW_DID);
@@ -129,7 +129,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.SetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
+        _gw.SetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
 
         // Assert
         VerifySetProperties(3, 18, GW_DID, expected, 2);
@@ -143,7 +143,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        var result = _gw.Invoking(x => x.Object.SetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected));
+        var result = _gw.Invoking(x => x.SetDelayTimeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected));
 
         // Assert
         result.Should().Throw<ArgumentOutOfRangeException>();
@@ -158,7 +158,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((3, 19, GW_DID, expected));
 
         // Act
-        var duration = _gw.Object.GetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
+        var duration = _gw.GetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
 
         // Assert
         VerifyGetProperties(3, 19, GW_DID);
@@ -173,7 +173,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.SetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
+        _gw.SetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
 
         // Assert
         VerifySetProperties(3, 19, GW_DID, expected, 2);
@@ -187,7 +187,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        var result = _gw.Invoking(x => x.Object.SetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected));
+        var result = _gw.Invoking(x => x.SetAlarmDurationForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected));
 
         // Assert
         result
@@ -203,7 +203,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupGetProperties((3, 20, GW_DID, expected));
 
         // Act
-        var volumeLevel = _gw.Object.GetAlarmVolumeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
+        var volumeLevel = _gw.GetAlarmVolumeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep);
 
         // Assert
         VerifyGetProperties(3, 20, GW_DID);
@@ -218,7 +218,7 @@ public class XiaomiMultimodeGatewayTests : MultimodeGatewayDeviceTests
         SetupSetProperties();
 
         // Act
-        _gw.Object.SetAlarmVolumeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
+        _gw.SetAlarmVolumeForArmingMode(MultimodeGateway.ArmingModeValue.Sleep, expected);
 
         // Assert
         VerifySetProperties(3, 20, GW_DID, expected, 2);

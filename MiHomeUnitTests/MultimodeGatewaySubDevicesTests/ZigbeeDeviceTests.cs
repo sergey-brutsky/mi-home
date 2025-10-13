@@ -2,11 +2,11 @@ using AutoFixture;
 using Xunit;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class ZigbeeDeviceTests: MultimodeGatewayDeviceTests
+public class ZigbeeDeviceTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"8.0.2008\",\"value\":3025}]")]
     public void Check_OnVoltageChange_Event(string data)

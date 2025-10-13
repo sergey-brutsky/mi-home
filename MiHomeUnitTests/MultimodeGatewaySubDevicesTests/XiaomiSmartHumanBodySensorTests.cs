@@ -5,11 +5,11 @@ using Moq;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.Contracts;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class XiaomiSmartHumanBodySensorTests: MultimodeGatewayDeviceTests
+public class XiaomiSmartHumanBodySensorTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData("[{\"res_name\":\"3.1.85\",\"value\":1}]")]

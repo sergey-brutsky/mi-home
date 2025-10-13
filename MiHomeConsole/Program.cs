@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway;
+using MiHomeLib.MqttGateway;
 
 namespace MiHomeConsole;
 public class Program

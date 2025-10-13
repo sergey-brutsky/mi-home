@@ -2,10 +2,10 @@ using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
-public class XiaomiBluetoothHygrothermograph2Tests: MultimodeGatewayDeviceTests
+public class XiaomiBluetoothHygrothermograph2Tests: MqttGatewayDeviceTests
 {
     private readonly XiaomiBluetoothHygrothermograph2 _th;
 

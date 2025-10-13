@@ -8,7 +8,7 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Mijia Smart Socket 2 China ZNCZ07CM (chuangmi.plug.212a01)
+Added support for Aqara Hub E1 China ZHWG16LM (lumi.gateway.aqcn02)
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
@@ -19,7 +19,7 @@ Added support for Mijia Smart Socket 2 China ZNCZ07CM (chuangmi.plug.212a01)
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.4</Version>  
+    <Version>2.3.5</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
