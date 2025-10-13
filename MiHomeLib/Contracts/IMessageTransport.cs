@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using MiHomeLib.XiaomiGateway2.Commands;
-
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] // for Moq unit tests
 
 namespace MiHomeLib.Contracts;
 
@@ -14,5 +11,5 @@ public interface IMessageTransport: IDisposable
 
     event Action<string> OnMessageReceived;
 
-    string Token { get; internal set; }
+    string Token { get; set; }
 }

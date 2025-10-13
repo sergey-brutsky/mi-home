@@ -31,6 +31,7 @@ public class MijiaSmartSocket2ChinaTests : MiioDeviceBase
                         bssid = "bssid1",
                         rssi = -35,
                         primary = 2,
+                        freq = 2410,
                     },
                     netif = new
                     {

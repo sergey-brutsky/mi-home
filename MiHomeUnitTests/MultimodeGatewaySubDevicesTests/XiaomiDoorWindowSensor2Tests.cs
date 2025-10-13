@@ -2,11 +2,11 @@ using Xunit;
 using AutoFixture;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class XiaomiDoorWindowSensor2Tests: MultimodeGatewayDeviceTests
+public class XiaomiDoorWindowSensor2Tests: MqttGatewayDeviceTests
 {
     private readonly XiaomiDoorWindowSensor2 _dwSensor2;
 

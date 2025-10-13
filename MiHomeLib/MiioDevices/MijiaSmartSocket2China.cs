@@ -1,10 +1,6 @@
 ﻿// Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/chuangmi.plug.212a01
 // Your contributions are appreciated
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using MiHomeLib.Transport;
 
 namespace MiHomeLib.MiioDevices;
@@ -13,56 +9,11 @@ public class MijiaSmartSocket2China : MiotGenericDevice
 {
     public const string MARKET_MODEL = "ZNCZ07CM";
     public const string MODEL = "chuangmi.plug.212a01";
-    
-    private readonly int _uptimeSeconds;
-    private readonly string _miioVersion;
-    private readonly string _mac;
-    private readonly string _firmwareVersion;
-    private readonly string _hardware;
-    private readonly WifiSettings _wifiSettings = new();
-    private readonly NetifSettings _netifSettings = new();
 
     public MijiaSmartSocket2China(string ip, string token) : this(new MiioTransport(ip, token), new Random().Next(0, 1000)) { }
 
-    internal MijiaSmartSocket2China(IMiioTransport transport, int initialIdExternal = 0) : base(transport, initialIdExternal)
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("miIO.info", string.Empty));
-        var values = JsonNode
-            .Parse(response)["result"]
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _uptimeSeconds = int.Parse(values["life"]);
-        _miioVersion = values["miio_ver"].ToString();
-        _mac = values["mac"].ToString();
-        _firmwareVersion = values["fw_ver"].ToString();
-        _hardware = values["hw_ver"].ToString();
-
-        var apValues = JsonNode
-            .Parse(values["ap"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _wifiSettings = new WifiSettings()
-        {
-            Ssid = apValues["ssid"].ToString(),
-            Bssid = apValues["bssid"].ToString(),
-            Rssi = int.Parse(apValues["rssi"]),
-            Primary = int.Parse(apValues["primary"]),
-        };
-
-        var netifValues = JsonNode
-            .Parse(values["netif"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _netifSettings = new NetifSettings()
-        {
-            Ip = netifValues["localIp"].ToString(),
-            Mask = netifValues["mask"].ToString(),
-            Gateway = netifValues["gw"].ToString(),
-        };
-    }
+    internal MijiaSmartSocket2China(IMiioTransport transport, int initialIdExternal = 0) : base("", transport, initialIdExternal)
+    {}
 
     /// <summary>
     /// Get power state on/off
@@ -142,31 +93,17 @@ public class MijiaSmartSocket2China : MiotGenericDevice
     public override string ToString()
     {
         return $"Model: {MARKET_MODEL} {MODEL}," +
-                $" Uptime: {_uptimeSeconds} seconds," +
-                $" Miio Version: {_miioVersion}," +
-                $" Mac: {_mac}," +
-                $" Firmware Version: {_firmwareVersion}," +
-                $" Hardware: {_hardware}," +
-                $" SSID: {_wifiSettings.Ssid}," +
-                $" BSSID: {_wifiSettings.Bssid}," +
-                $" RSSI: {_wifiSettings.Rssi}," +
-                $" Primary: {_wifiSettings.Primary}," +
-                $" Ip: {_netifSettings.Ip}," +
-                $" Mask: {_netifSettings.Mask}," +
-                $" Gateway: {_netifSettings.Gateway}";
-    }
-    private class WifiSettings
-    {
-        public string Ssid { get; internal set; }
-        public string Bssid { get; internal set; }
-        public int Rssi { get; internal set; }
-        public int Primary { get; internal set; }
-    }
-    private class NetifSettings
-    {
-        public string Ip { get; internal set; }
-        public string Mask { get; internal set; }
-        public string Gateway { get; internal set; }
-    }    
+                $" Uptime: {UptimeSeconds} seconds," +
+                $" Miio Version: {MiioVersion}," +
+                $" Mac: {Mac}," +
+                $" Firmware Version: {FirmwareVersion}," +
+                $" Hardware: {Hardware}," +
+                $" SSID: {Wifi.Ssid}," +
+                $" BSSID: {Wifi.Bssid}," +
+                $" RSSI: {Wifi.Rssi}," +
+                $" Ip: {Network.Ip}," +
+                $" Mask: {Network.Mask}," +
+                $" Gateway: {Network.Gateway}";
+    } 
 }
 

@@ -1,10 +1,7 @@
 ﻿// Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/ijai.vacuum.v18
 // Your contributions are appreciated
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using MiHomeLib.Transport;
 
 namespace MiHomeLib.MiioDevices;
@@ -51,56 +48,11 @@ public class XiaomiRobotVacuumMop3C : MiotGenericDevice
         SweepAndMop = 5,
         OnlyMop = 6
     }
-    private readonly int _uptimeSeconds;
-    private readonly string _miioVersion;
-    private readonly string _mac;
-    private readonly string _firmwareVersion;
-    private readonly string _hardware;
-    private readonly WifiSettings _wifiSettings = new();
-    private readonly NetifSettings _netifSettings = new();
-
+    
     // Initialize requests from Random value in order to avoid overlapping requests with the same id    
     public XiaomiRobotVacuumMop3C(string ip, string token) : this(new MiioTransport(ip, token), new Random().Next(0, 1000)) { }
 
-    internal XiaomiRobotVacuumMop3C(IMiioTransport transport, int initialIdExternal = 0) : base(transport, initialIdExternal)
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("miIO.info", string.Empty));
-        var values = JsonNode
-            .Parse(response)["result"]
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _uptimeSeconds = int.Parse(values["uptime"]);
-        _miioVersion = values["miio_ver"].ToString();
-        _mac = values["mac"].ToString();
-        _firmwareVersion = values["fw_ver"].ToString();
-        _hardware = values["hw_ver"].ToString();
-
-        var apValues = JsonNode
-            .Parse(values["ap"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _wifiSettings = new WifiSettings()
-        {
-            Ssid = apValues["ssid"].ToString(),
-            Bssid = apValues["bssid"].ToString(),
-            Rssi = int.Parse(apValues["rssi"]),
-            Freq = int.Parse(apValues["freq"]),
-        };
-
-        var netifValues = JsonNode
-            .Parse(values["netif"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        _netifSettings = new NetifSettings()
-        {
-            Ip = netifValues["localIp"].ToString(),
-            Mask = netifValues["mask"].ToString(),
-            Gateway = netifValues["gw"].ToString(),
-        };
-    }
+    internal XiaomiRobotVacuumMop3C(IMiioTransport transport, int initialIdExternal = 0) : base("", transport, initialIdExternal) {}
 
     /// <summary>
     /// Returns vacuum battery percentage
@@ -216,32 +168,20 @@ public class XiaomiRobotVacuumMop3C : MiotGenericDevice
     public override string ToString()
     {
         return $"Model: {MARKET_MODEL} {MODEL}," +
-                $" Uptime: {_uptimeSeconds} seconds," +
-                $" Miio Version: {_miioVersion}," +
-                $" Mac: {_mac}," +
-                $" Firmware Version: {_firmwareVersion}," +
-                $" Hardware: {_hardware}," +
-                $" SSID: {_wifiSettings.Ssid}," +
-                $" BSSID: {_wifiSettings.Bssid}," +
-                $" RSSI: {_wifiSettings.Rssi}," +
-                $" Freq: {_wifiSettings.Freq}," +
-                $" Ip: {_netifSettings.Ip}," +
-                $" Mask: {_netifSettings.Mask}," +
-                $" Gateway: {_netifSettings.Gateway}";
+                $" Uptime: {UptimeSeconds} seconds," +
+                $" Miio Version: {MiioVersion}," +
+                $" Mac: {Mac}," +
+                $" Firmware Version: {FirmwareVersion}," +
+                $" Hardware: {Hardware}," +
+                $" SSID: {Wifi.Ssid}," +
+                $" BSSID: {Wifi.Bssid}," +
+                $" RSSI: {Wifi.Rssi}," +
+                $" Freq: {Wifi.Freq}," +
+                $" Ip: {Network.Ip}," +
+                $" Mask: {Network.Mask}," +
+                $" Gateway: {Network.Gateway}";
     }
-    private class WifiSettings
-    {
-        public string Ssid { get; internal set; }
-        public string Bssid { get; internal set; }
-        public int Rssi { get; internal set; }
-        public int Freq { get; internal set; }
-    }
-    private class NetifSettings
-    {
-        public string Ip { get; internal set; }
-        public string Mask { get; internal set; }
-        public string Gateway { get; internal set; }
-    }
+    
     public class NoDisturbingSettings
     {
         public bool IsNoDisturbingEnabled { get; internal set; }

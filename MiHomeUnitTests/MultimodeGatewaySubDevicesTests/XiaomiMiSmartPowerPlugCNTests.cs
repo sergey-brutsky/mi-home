@@ -3,10 +3,10 @@ using Xunit;
 using FluentAssertions;
 using Moq;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
-public class XiaomiMiSmartPowerPlugCNTests: MultimodeGatewayDeviceTests
+public class XiaomiMiSmartPowerPlugCNTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"4.1.85\",\"value\":1}]")]
     public void Check_OnStateChange_Event(string data)

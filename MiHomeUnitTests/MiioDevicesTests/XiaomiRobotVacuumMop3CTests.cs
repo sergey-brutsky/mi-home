@@ -24,6 +24,7 @@ public class XiaomiRobotVacuumMop3CTests : MiioDeviceBase
                 result = new
                 {
                     uptime = 9683307,
+                    life = 9683307,
                     miio_ver = "0.0.9",
                     mac = "dc:dc:13:25:17:34",
                     fw_ver = "4.3.3_0027",

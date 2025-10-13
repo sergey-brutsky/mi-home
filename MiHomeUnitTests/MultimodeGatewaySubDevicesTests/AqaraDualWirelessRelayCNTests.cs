@@ -3,11 +3,11 @@ using Xunit;
 using FluentAssertions;
 using Moq;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class AqaraDualWirelessRelayCNTests: MultimodeGatewayDeviceTests
+public class AqaraDualWirelessRelayCNTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"4.1.85\",\"value\":1}]")]
     public void Check_OnChannel1StateChange_Event(string data)

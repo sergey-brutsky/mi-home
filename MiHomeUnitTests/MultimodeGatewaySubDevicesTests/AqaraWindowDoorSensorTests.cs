@@ -1,13 +1,13 @@
 using AutoFixture;
 using Xunit;
 using FluentAssertions;
-using static MiHomeLib.MultimodeGateway.Devices.XiaomiWindowDoorSensor;
+using static MiHomeLib.MqttGateway.Devices.XiaomiWindowDoorSensor;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class AqaraWindowDoorSensorTests: MultimodeGatewayDeviceTests
+public class AqaraWindowDoorSensorTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData("[{\"res_name\":\"3.1.85\",\"value\":1}]")]

@@ -2,11 +2,11 @@ using AutoFixture;
 using Xunit;
 using FluentAssertions;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class AqaraTemperatureHumiditySensorTests: MultimodeGatewayDeviceTests
+public class AqaraTemperatureHumiditySensorTests: MqttGatewayDeviceTests
 {
     [Theory, InlineData("[{\"res_name\":\"0.1.85\",\"value\":2515}]")]
     public void Check_OnTemperatureChange_Event(string data)

@@ -20,6 +20,7 @@ public class Gw2DeviceTests: MiioDeviceBase
     {
         _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => new NullLoggerFactory()));
         _messageTransport = new Mock<IMessageTransport>();
+        _messageTransport.SetupProperty(m => m.Token);        
         _loggerFactory = new NullLoggerFactory();
     }
 

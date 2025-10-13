@@ -4,11 +4,11 @@ using FluentAssertions;
 using System;
 using MiHomeLib;
 using System.Threading.Tasks;
-using MiHomeLib.MultimodeGateway.Devices;
+using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class BleBatteryDeviceTests: MultimodeGatewayDeviceTests
+public class BleBatteryDeviceTests: MqttGatewayDeviceTests
 {
     [Theory]
     [InlineData(4106, "63", 95)]

@@ -27,7 +27,7 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
 
         return JsonSerializer.Serialize(new { result = new { chs = list }});
     }
-    
+
     public XiaomiGateway2Tests()
     {
         _gatewaySid = _fixture.Create<string>()[..12];
@@ -35,7 +35,7 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
         _miioTransport = new Mock<IMiioTransport>();
         SendResultMethodAsync(string.Empty, ["f40e1b285fes68cd"]);
 
-        _gateway = new XiaomiGateway2(_miioTransport.Object, _messageTransport.Object, _gatewaySid, -1);
+        _gateway = new XiaomiGateway2(_miioTransport.Object, _messageTransport.Object, _gatewaySid, -1);        
     }
 
     [Fact]
