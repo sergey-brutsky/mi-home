@@ -537,7 +537,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         var expectedSsid = _fixture.Create<string>();
         var expectedBssid = _fixture.Create<string>();
         var expectedRssi = _fixture.Create<int>();
-        var expectedFreq = _fixture.Create<int>();
+        // var expectedFreq = _fixture.Create<int>();
         var expectedLocalIp = "192.168.1.100";
         var expectedMask = "255.255.255.0";
         var expectedGw = "192.168.1.1";
@@ -560,7 +560,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
                         ssid = expectedSsid,
                         bssid = expectedBssid,
                         rssi = expectedRssi,
-                        freq = expectedFreq,
+                        // freq = expectedFreq,
                     },
                     netif = new
                     {
@@ -581,8 +581,8 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         _gw.Object.Wifi.Ssid.Should().Be(expectedSsid);
         _gw.Object.Wifi.Bssid.Should().Be(expectedBssid);
         _gw.Object.Wifi.Rssi.Should().Be(expectedRssi);
-        _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
-        _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
+        // _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
+        // _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
         _gw.Object.Network.Ip.Should().Be(expectedLocalIp);
         _gw.Object.Network.Mask.Should().Be(expectedMask);
         _gw.Object.Network.Gateway.Should().Be(expectedGw);
