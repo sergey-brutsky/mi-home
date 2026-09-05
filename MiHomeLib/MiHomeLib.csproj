@@ -8,10 +8,10 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Aqara Hub E1 China ZHWG16LM (lumi.gateway.aqcn02)
+Added support for Xiaomi Smart Air Purifier 4 Lite AC-M17-SC (zhimi.airp.rma3)
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Copyright>Copyright 2017-2025 (c) Sergey Brutsky. All rights reserved.</Copyright>
+    <Copyright>Copyright 2017-2026 (c) Sergey Brutsky. All rights reserved.</Copyright>
     <PackageTags>xiaomi aqara xiaomi-smart-home xiaomi-gateway2 multimode-gateway multimode-gateway2 smarthome 
     csharp netstandard2 netcore2 mihome</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -19,7 +19,7 @@ Added support for Aqara Hub E1 China ZHWG16LM (lumi.gateway.aqcn02)
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.5</Version>  
+    <Version>2.3.6</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>

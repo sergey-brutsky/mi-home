@@ -45,7 +45,7 @@ public class MiotGenericDevice: MiioDevice
             Ssid = apValues["ssid"].ToString(),
             Bssid = apValues["bssid"].ToString(),
             Rssi = int.Parse(apValues["rssi"]),
-            Freq = int.Parse(apValues["freq"]),
+            // Freq = int.Parse(apValues["freq"]),
         };
 
         var netifValues = JsonNode

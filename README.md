@@ -31,6 +31,7 @@ This library provides simple and flexible C# API for Xiaomi/Aqara gateways and s
 <br><img src="https://github.com/user-attachments/assets/8d619a4a-f3a9-46c8-afe9-825827cb6c4e" width="150"><br>[Mi Robot Mop 3C](https://github.com/sergey-brutsky/mi-home/wiki/Mi-Robot-Mop3C-(B106CN)) | B106CN | ijai.vacuum.v18 |
 <br><img src="https://github.com/user-attachments/assets/ec77bd4c-fd61-4522-8135-d0197cb32849" width="150"><br>[Xiaomi Smart Plug 2 Euro](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Smart-Plug-2-Euro-(ZNCZ302KK)) | ZNCZ302KK | cuco.plug.v2eur |
 <br><img src="https://github.com/user-attachments/assets/70bfda35-7ab4-484e-9441-98b4bd5a7c40" width="150"><br>[Mijia Smart Socket 2 China](https://github.com/sergey-brutsky/mi-home/wiki/Mijia-Smart-Socket-2-China-(ZNCZ07CM)) | ZNCZ07CM | chuangmi.plug.212a01 |
+<br><img src="https://github.com/user-attachments/assets/f3f3f029-80cb-4d13-8733-cea91d666412" width="150"><br>[Xiaomi Smart Air Purifier 4 Lite](https://home.miot-spec.com/spec/zhimi.airp.rma3) | AC-M17-SC | zhimi.airp.rma3 |
 
 ## Supported zigbee/ble devices
 
