@@ -189,7 +189,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
                )
                .Create();
 
-        _mqttTransport.Raise(x => x.OnMessageReceived += null, "miio/report", asyncEventResponse.ToString());
+        _mqttTransport.Raise(x => x.OnMessageReceived += null, "central/report", asyncEventResponse.ToString());
     }
 
     [Fact]
