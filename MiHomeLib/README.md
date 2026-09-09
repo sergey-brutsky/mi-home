@@ -1,1 +1,1 @@
-Added support for [Xiaomi Smart Air Purifier 4 Lite](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Smart-Air-Purifier-4-Lite) (zhimi.airp.rma3)
+Added support for [PTX-YK1-QMIMB](https://github.com/sergey-brutsky/mi-home/wiki/PTX-YK1-QMIMB) (090615.remote.btsw1)
