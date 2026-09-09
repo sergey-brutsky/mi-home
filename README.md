@@ -57,6 +57,7 @@ This library provides simple and flexible C# API for Xiaomi/Aqara gateways and s
 | [Xiaomi Plug CN](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Plug-CN-(ZNCZ02LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/ZNCZ02LM.png" width="150"><br>ZNCZ02LM | yes | yes | yes | yes
 | [Aqara Double Wall Switch (no N)](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Double-Wall-Switch-(no-N)-(QBKG03LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/QBKG03LM.png" width="150"><br>QBKG03LM | yes | no | no | no
 | [Aqara Double Wall Button CN](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Double-Wall-Button-CN-(WXKG02LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/WXKG02LM_rev2.png" width="150"><br>WXKG02LM | yes | no | no | no
+| [PTX Wireless Switch (BLE)](https://github.com/sergey-brutsky/mi-home/wiki/PTX-YK1-QMIMB)<br><img src="https://github.com/user-attachments/assets/b72828f1-1202-4689-85a9-4391096062b4" width="150"><br>PTX-YK1-QMIMB | no | yes | yes | no
 | [Aqara Cube EU](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Cube-EU-(MFKZQ01LM))<br><img src="https://www.zigbee2mqtt.io/images/devices/MFKZQ01LM.png" width="150"><br>MFKZQ01LM | yes | no | no | no
 
 ## <a name="installation">Installation</a>

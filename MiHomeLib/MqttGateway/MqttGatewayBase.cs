@@ -28,14 +28,15 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     public event Func<MqttGatewaySubDevice, Task> OnDeviceDiscoveredAsync = (_) => Task.CompletedTask;
     protected static readonly string _zigbeeCommandsTopic = "zigbee/recv";
     protected static readonly string[] _zigbeeTopics = ["zigbee/send"];
-    protected static readonly string[] _bleTopics = ["miio/report", "central/report"];
+    protected static readonly string[] _bleTopics = ["central/report"];
     protected MqttGatewayBase(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(did, miioTransport, 0)
     {
         _supportedActionProcessors = new()
         {
             { ZigbeeReportCommandProcessor.ACTION, new ZigbeeReportCommandProcessor(_devices, _loggerFactory) },
             { ZigbeeHeartBeatCommandProcessor.ACTION, new ZigbeeHeartBeatCommandProcessor(_devices, _loggerFactory) },
-            { AsyncBleEventMethodProcessor.ACTION, new AsyncBleEventMethodProcessor(_devices, _loggerFactory) }
+            { AsyncBleEventMethodProcessor.ACTION, new AsyncBleEventMethodProcessor(_devices, _loggerFactory) },
+            { EventOccuredMethodProcessor.ACTION, new EventOccuredMethodProcessor(_devices, _loggerFactory) },
         };
 
         _mqttTransport = mqttTransport;
@@ -69,7 +70,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         _mqttTransport.OnMessageReceived += (topic, msg) =>
         {
             _logger.LogInformation($"{topic} --> {msg}");
-
+            
             var json = JsonNode.Parse(msg);
 
             switch (topic)
@@ -84,6 +85,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                     _logger.LogWarning($"Topic '{topic}' is not supported. Please contribute to support.");
                     break;
             }
+            
 
             if (!_supportedActionProcessors.ContainsKey(action))
             {

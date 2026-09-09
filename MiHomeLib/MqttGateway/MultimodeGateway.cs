@@ -66,7 +66,7 @@ public class MultimodeGateway : MqttGatewayBase
         this(
                 did,
                 new MiioTransport(ip, token),
-                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics], _zigbeeCommandsTopic, _loggerFactory),
+                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, _loggerFactory),
                 new CommonDevicesDiscoverer(ip, 23, "admin", "# ", "/data/zigbee/device.info", "/data/miio/mible_local.db")
         )
     { }
