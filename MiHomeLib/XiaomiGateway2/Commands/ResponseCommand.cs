@@ -30,16 +30,16 @@ public class ResponseCommand
 
             var cmd = json["cmd"].ToString();
 
-            if (commandTypeMap.ContainsKey(cmd))
+            if (commandTypeMap.TryGetValue(cmd, out var commandType))
             {
                 return new ResponseCommand
                 {
                     RawCommand = cmd,
-                    Command = commandTypeMap[cmd],
-                    Model = json.ContainsKey("model") ? json["model"].ToString() : null,
+                    Command = commandType,
+                    Model = json.TryGetValue("model", out var model) ? model.ToString() : null,
                     Sid = json["sid"].ToString(),
-                    ShortId = json.ContainsKey("short_id") ? int.Parse(json["short_id"].ToString()) : 0,
-                    Token = json.ContainsKey("token") ? json["token"].ToString() : null,
+                    ShortId = json.TryGetValue("short_id", out var shortId) ? int.Parse(shortId.ToString()) : 0,
+                    Token = json.TryGetValue("token", out var token) ? token.ToString() : null,
                     Data = json["data"].ToString(),
                 };
             }

@@ -42,9 +42,9 @@ public class PtxWirelessSwitchBle : BleDevice
 
         if (
             (siid == CLICK_SIID || siid == LOW_BATTERY_SIID)
-            && EidToActions.ContainsKey(siid) && Enum.IsDefined(typeof(ClickArg), eiid))
+            && EidToActions.TryGetValue(siid, out var action) && Enum.IsDefined(typeof(ClickArg), eiid))
         {
-            EidToActions[siid](eiid.ToString());
+            action(eiid.ToString());
         }
     }
     /// <summary>

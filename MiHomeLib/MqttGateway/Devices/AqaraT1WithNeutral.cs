@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
@@ -85,8 +85,8 @@ public class AqaraT1WithNeutral : ZigBeeManageableDevice
         {
             var key = (prop["siid"].GetValue<int>(), prop["piid"].GetValue<int>());
             
-            if(_actions.ContainsKey(key))
-                 _actions[key](prop["value"]);
+            if(_actions.TryGetValue(key, out var action))
+                 action(prop["value"]);
         }
     }
     public void PowerOn() => SendWriteCommand(STATE_RES, 1);

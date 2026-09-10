@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Logging;
 using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
-using MiHomeLib.Transport;
+
 
 namespace MiHomeLib.MqttGateway;
 

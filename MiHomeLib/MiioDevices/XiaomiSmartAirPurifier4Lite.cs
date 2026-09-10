@@ -2,7 +2,7 @@
 // Your contributions are appreciated
 using System;
 using System.Globalization;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 

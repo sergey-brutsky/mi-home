@@ -4,9 +4,9 @@ using System.Text.Json.Nodes;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Linq;
-using System.Reflection;
+
 using MiHomeLib.MiioDevices;
-using MiHomeLib.Transport;
+
 using System.Threading.Tasks;
 using MiHomeLib.Contracts;
 using MiHomeLib.MqttGateway.ActionProcessors;
@@ -42,15 +42,9 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         _mqttTransport = mqttTransport;
         _devicesDiscoverer = devicesDiscoverer;
 
-        // Building map of the supported devices via reflection props 
-        foreach (Type type in Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
-            .Where(x => x.IsClass && !x.IsAbstract && (x.IsSubclassOf(typeof(ZigBeeDevice)) || x.IsSubclassOf(typeof(BleDevice)))))
+        // Building map of the supported devices via reflection
+        foreach (var (type, model) in DeviceTypeScanner.FindDeviceTypes(typeof(ZigBeeDevice), typeof(BleDevice)))
         {
-            var bindFlags = BindingFlags.Public | BindingFlags.Static;
-            var model = type.GetField("MODEL", bindFlags).GetValue(type).ToString();
-
             MqttGatewaySubDevice addDevice(string did) =>
                 type.IsSubclassOf(typeof(ZigBeeManageableDevice)) || type.IsSubclassOf(typeof(ZigBeeManageableBatteryDevice)) ?
                     Activator.CreateInstance(type, did, _mqttTransport, _loggerFactory) as MqttGatewaySubDevice :
@@ -60,7 +54,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
             if (!type.IsSubclassOf(typeof(BleDevice))) continue;
 
-            _pdidToModel.Add((int)type.GetField("PDID", bindFlags).GetValue(type), model);
+            _pdidToModel.Add(DeviceTypeScanner.GetStaticField<int>(type, "PDID"), model);
         }
     }
     public void DiscoverDevices()
@@ -87,13 +81,13 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             }
             
 
-            if (!_supportedActionProcessors.ContainsKey(action))
+            if (!_supportedActionProcessors.TryGetValue(action, out var processor))
             {
                 _logger.LogWarning($"Command/Method '{action}' is unknown. Please contribute to support.");
                 return;
             }
 
-            _supportedActionProcessors[action].ProcessMessage(json);
+            processor.ProcessMessage(json);
         };
 
         DiscoverZigbeeDevices().Wait();
@@ -112,16 +106,16 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
         foreach (var device in zigbeeDeviceList)
         {
-            var model = device.model;
+            var model = device.Model;
 
-            if (!_supportedModels.ContainsKey(model))
+            if (!_supportedModels.TryGetValue(model, out var factory))
             {
                 _logger.LogWarning($"Device '{model}' is not supported yet. Please contribute to support");
                 continue;
             }
 
-            var did = device.did;
-            var mihomeDevice = _supportedModels[model](did) as ZigBeeDevice;
+            var did = device.Did;
+            var mihomeDevice = factory(did) as ZigBeeDevice;
 
             _logger.LogInformation($"Device '{model}' with did '{did}' has been discovered");
 
@@ -175,18 +169,17 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     }
     protected virtual async Task DiscoverBleDevices()
     {
-        foreach (var (did, pdid, mac) in _devicesDiscoverer.DiscoverBleDevices())
+        foreach (var device in _devicesDiscoverer.DiscoverBleDevices())
         {
-            if (!_pdidToModel.ContainsKey(pdid))
+            if (!_pdidToModel.TryGetValue(device.Pdid, out var model))
             {
-                _logger.LogWarning($"Device with pdid '{pdid}' is not supported yet. Please contribute to support.");
+                _logger.LogWarning($"Device with pdid '{device.Pdid}' is not supported yet. Please contribute to support.");
                 continue;
             }
 
-            var model = _pdidToModel[pdid];
-            var mihomeDevice = _supportedModels[model](did) as BleDevice;
+            var mihomeDevice = _supportedModels[model](device.Did) as BleDevice;
 
-            mihomeDevice.Mac = DecodeMacAddress(mac);
+            mihomeDevice.Mac = DecodeMacAddress(device.Mac);
 
             _devices.Add(mihomeDevice.Did, mihomeDevice);
             _logger.LogInformation($"Device '{model}' with did '{mihomeDevice.Did}' has been successfully discovered");
@@ -223,15 +216,13 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     public List<MqttGatewaySubDevice> GetDevices() => [.. _devices.Values];
     public T GetDeviceByDid<T>(string did) where T : MqttGatewaySubDevice
     {
-        if (!_devices.ContainsKey(did)) return null;
+        if (!_devices.TryGetValue(did, out var device)) return null;
 
-        var device = _devices[did];
+        if (device is not T typed) return null;
 
-        if (device is not T) return null;
-
-        return device as T;
+        return typed;
     }
-    public new void Dispose()
+    public override void Dispose()
     {
         _mqttTransport?.Dispose();
         base.Dispose();

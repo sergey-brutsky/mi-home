@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
-using MiHomeLib.Transport;
+
 
 namespace MiHomeLib.MqttGateway;
 

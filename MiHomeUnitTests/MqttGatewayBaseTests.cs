@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MiHomeLib;
+using MiHomeLib.Contracts;
 using MiHomeLib.MqttGateway;
 using MiHomeLib.MqttGateway.JsonResponses;
 using MiHomeLib.MqttGateway.Devices;
@@ -85,7 +86,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         _devicesDiscoverer
             .Setup(x => x.DiscoverZigBeeDevices())
-            .Returns(devices.Select(x => (x.did, x.model)).ToList());
+            .Returns(devices.Select(x => new ZigBeeDeviceInfo(x.did, x.model)).ToList());
     }
     private void SetupZigBeeMiSpecDevices(List<(string did, string model)> devices)
     {
@@ -105,13 +106,13 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         _devicesDiscoverer
             .Setup(x => x.DiscoverZigBeeDevices())
-            .Returns(devices.Select(x => (x.did, x.model)).ToList());
+            .Returns(devices.Select(x => new ZigBeeDeviceInfo(x.did, x.model)).ToList());
     }
     private void SetupBleDevices(List<(string did, int pdid, string mac)> devices)
     {
         _devicesDiscoverer
             .Setup(x => x.DiscoverBleDevices())
-            .Returns(devices);
+            .Returns(devices.Select(x => new BleDeviceInfo(x.did, x.pdid, x.mac)).ToList());
     }
     private void RaiseZigbeeReportEvent(string did, double time, List<(string res, int value)> props)
     {

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 

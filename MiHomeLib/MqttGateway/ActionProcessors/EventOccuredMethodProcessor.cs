@@ -30,13 +30,13 @@ public class EventOccuredMethodProcessor(Dictionary<string, MqttGatewaySubDevice
 
         var did = parms["did"].ToString();
         
-        if (!_devices.ContainsKey(did))
+        if (!_devices.TryGetValue(did, out var device))
         {
             _logger.LogWarning($"Device with did '{did}' is unknown. Processing is skipped");
             return;
         }
         
-        _devices[did].LastTimeMessageReceived = DateTime.Now;
-        _devices[did].ParseData(parms.ToString());
+        device.LastTimeMessageReceived = DateTime.Now;
+        device.ParseData(parms.ToString());
     }
 }

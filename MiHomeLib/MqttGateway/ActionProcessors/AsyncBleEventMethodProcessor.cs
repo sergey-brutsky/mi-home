@@ -30,13 +30,13 @@ public class AsyncBleEventMethodProcessor(Dictionary<string, MqttGatewaySubDevic
 
         var did = dev["did"].ToString();
 
-        if (!_devices.ContainsKey(did))
+        if (!_devices.TryGetValue(did, out var device))
         {
             _logger.LogWarning($"Device with did '{did}' is unknown. Processing is skipped");
             return;
         }
 
-        _devices[did].LastTimeMessageReceived = parms["gwts"].GetValue<double>().UnixSecondsToDateTime();
-        _devices[did].ParseData(parms.ToString());
+        device.LastTimeMessageReceived = parms["gwts"].GetValue<double>().UnixSecondsToDateTime();
+        device.ParseData(parms.ToString());
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/cuco.plug.v2eur
 // Your contributions are appreciated
 using System;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 

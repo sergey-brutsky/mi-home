@@ -6,7 +6,7 @@ using MiHomeLib.XiaomiGateway2;
 using MiHomeLib.XiaomiGateway2.Devices;
 using MiHomeLib.XiaomiGateway2.Commands;
 using System.Threading.Tasks;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 using System;
 using System.Text.Json;
 using System.Linq;
@@ -309,13 +309,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void IsArmingOn_Returns_Arming_State()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["on"]);
+        SendResultMethodAsync(string.Empty, ["on"]);
         
         // Act
         var arming = _gateway.IsArmingOn();
 
         // Assert
-        VerifyMethod("get_arming", []);        
+        VerifyMethodAsync("get_arming", Array.Empty<string>());
         arming.Should().BeTrue();
     }
 
@@ -337,13 +337,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingOn_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
 
         // Act
         _gateway.SetArmingOn();
 
         // Assert
-        VerifyMethod("set_arming", ["on"]);
+        VerifyMethodAsync("set_arming", ["on"]);
     }
 
     [Fact]
@@ -363,13 +363,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingOff_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
         
         // Act
         _gateway.SetArmingOff();
 
         // Assert
-        VerifyMethod("set_arming", ["off"]);
+        VerifyMethodAsync("set_arming", ["off"]);
     }
 
     [Fact]
@@ -389,13 +389,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void GetArmingWaitTime_Returns_Integer()
     {
         // Arrange
-        SendResultMethod(string.Empty, [15]);
+        SendResultMethodAsync(string.Empty, [15]);
         
         // Act
         var armingWaitTime = _gateway.GetArmingWaitTime();
 
         // Assert
-        VerifyMethod("get_arm_wait_time",[]);
+        VerifyMethodAsync("get_arm_wait_time", []);
 
         armingWaitTime.Should().Be(15);
     }
@@ -418,13 +418,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingWaitTime_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
         
         // Act
         _gateway.SetArmingWaitTime(20);
 
         // Assert
-        VerifyMethod("set_arm_wait_time", [20]);
+        VerifyMethodAsync("set_arm_wait_time", [20]);
     }
 
     [Fact]
@@ -444,13 +444,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void GetArmingOffTime_Returns_Integer()
     {
         // Arrange
-        SendResultMethod(string.Empty, [15]);
+        SendResultMethodAsync(string.Empty, [15]);
         
         // Act
         var armingOffTime = _gateway.GetArmingOffTime();
 
         // Assert
-        VerifyMethod("get_device_prop", ["lumi.0", "alarm_time_len"]);
+        VerifyMethodAsync("get_device_prop", ["lumi.0", "alarm_time_len"]);
         armingOffTime.Should().Be(15);
     }
 
@@ -472,14 +472,14 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingOffTime_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
         
         // Act
         _gateway.SetArmingOffTime(40);
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 1,
                 method = "set_device_prop",
@@ -510,13 +510,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void GetArmingBlinkingTime_Returns_Integer()
     {
         // Arrange
-        SendResultMethod(string.Empty, [15]);
+        SendResultMethodAsync(string.Empty, [15]);
         
         // Act
         var armingBlinkingTime = _gateway.GetArmingBlinkingTime();
 
         // Assert
-        VerifyMethod("get_device_prop", ["lumi.0", "en_alarm_light"]);        
+        VerifyMethodAsync("get_device_prop", ["lumi.0", "en_alarm_light"]);
         armingBlinkingTime.Should().Be(15);
     }
 
@@ -538,14 +538,14 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingBlinkingTime_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
         
         // Act
         _gateway.SetArmingBlinkingTime(40);
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 1,
                 method = "set_device_prop",
@@ -576,13 +576,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void GetArmingVolume_Returns_Integer()
     {
         // Arrange
-        SendResultMethod(string.Empty, [10]);
+        SendResultMethodAsync(string.Empty, [10]);
         
         // Act
         var armingVolume = _gateway.GetArmingVolume();
 
         // Assert
-        VerifyMethod("get_alarming_volume", []);        
+        VerifyMethodAsync("get_alarming_volume", []);
         armingVolume.Should().Be(10);
     }
 
@@ -604,13 +604,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void SetArmingVolume_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
+        SendResultMethodAsync(string.Empty, ["ok"]);
         
         // Act
         _gateway.SetArmingVolume(15);
 
         // Assert
-        VerifyMethod("set_alarming_volume", [15]);
+        VerifyMethodAsync("set_alarming_volume", [15]);
     }
 
     [Fact]
@@ -630,13 +630,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void GetArmingLastTimeTriggeredTimestamp_Returns_Integer()
     {
         // Arrange
-        SendResultMethod(string.Empty, [1609150074]);        
+        SendResultMethodAsync(string.Empty, [1609150074]);
         
         // Act
         var timestamp = _gateway.GetArmingLastTimeTriggeredTimestamp();
 
         // Assert
-        VerifyMethod("get_arming_time", []);
+        VerifyMethodAsync("get_arming_time", []);
         timestamp.Should().Be(1609150074);
     }
 
@@ -659,15 +659,15 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.IsAny<string>()))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
         // Act
         var radioChannels = _gateway.GetRadioChannels();
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 1,
                 method = "get_channels",
@@ -715,8 +715,8 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.IsAny<string>()))
-            .Returns(ToRadioListJson([1025, 1045, 1027]));
+            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1045, 1027])));
 
         // Act
         var actual = _gateway.Invoking(x => x.AddRadioChannel(1045, "http://192.168.1.1/radio.m3u8"));
@@ -729,20 +729,17 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
-        SendResultMethod("add_channels", ["ok"]);
-        // _miioTransport
-        //     .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("add_channels"))))
-        //     .Returns(ResultOkJson(2));
+        SendResultMethodAsync("add_channels", ["ok"]);
 
         // Act
         _gateway.AddRadioChannel(1045, "http://192.168.1.1/radio4.m3u8");
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 2,
                 method = "add_channels",
@@ -778,8 +775,8 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
         // Act
         var actual = _gateway.Invoking(x => x.RemoveRadioChannel(1045));
@@ -793,17 +790,17 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
-        SendResultMethod("remove_channels", ["ok"]);
+        SendResultMethodAsync("remove_channels", ["ok"]);
 
         // Act
         _gateway.RemoveRadioChannel(1027);
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 2,
                 method = "remove_channels",
@@ -839,21 +836,21 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
-        SendResultMethod("remove_channels", ["ok"]);
+        SendResultMethodAsync("remove_channels", ["ok"]);
 
         // Act
         _gateway.RemoveAllRadioChannels();
 
         // Assert
         _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 2,
                 method = "remove_channels",
-                @params = new { chs = new[] 
+                @params = new { chs = new[]
                 {
                     new { id = 1025, url = "http://192.168.1.1/radio1025.m3u8", type = 0 },
                     new { id = 1026, url = "http://192.168.1.1/radio1026.m3u8", type = 0 },
@@ -904,8 +901,8 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
         // Act
         var actual = _gateway.Invoking(x => x.PlayRadio(1045, 50));
@@ -919,17 +916,17 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     {
         // Arrange
         _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(ToRadioListJson([1025, 1026, 1027]));
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
 
-        SendResultMethod("play_specify_fm", ["ok"]);
+        SendResultMethodAsync("play_specify_fm", ["ok"]);
 
         // Act
         _gateway.PlayRadio(1027, 50);
 
         // Assert
          _miioTransport
-            .Verify(x => x.SendMessage(new
+            .Verify(x => x.SendMessageAsync(new
             {
                 id = 2,
                 method = "play_specify_fm",
@@ -964,13 +961,13 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
     public void StopRadio_Should_Not_Throw_Exceptions()
     {
         // Arrange
-        SendResultMethod("play_fm", ["ok"]);
+        SendResultMethodAsync("play_fm", ["ok"]);
 
         // Act
         _gateway.StopRadio();
 
         // Assert
-        VerifyMethod("play_fm", ["off"]);
+        VerifyMethodAsync("play_fm", ["off"]);
     }
 
     [Fact]

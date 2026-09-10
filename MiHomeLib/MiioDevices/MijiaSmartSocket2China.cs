@@ -1,7 +1,7 @@
 ﻿// Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/chuangmi.plug.212a01
 // Your contributions are appreciated
 using System;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 

@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 
@@ -65,7 +65,7 @@ internal class MiioTransport : IMiioTransport
                 discoveredDevices.Add((ip, packet.GetDeviceType(), packet.GetSerial(), packet.GetChecksum()));
             }
         }
-        catch { } // Normal situation, no more data in socket
+        catch (SocketException) { } // Expected: socket receive timeout means no more devices to discover
 
         socket.Close();
 

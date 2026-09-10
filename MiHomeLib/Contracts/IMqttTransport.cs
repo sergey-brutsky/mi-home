@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MiHomeLib.Transport;
+namespace MiHomeLib.Contracts;
 
 public interface IMqttTransport : IDisposable
 {
