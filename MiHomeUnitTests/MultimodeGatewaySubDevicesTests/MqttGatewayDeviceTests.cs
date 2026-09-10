@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib;
 using MiHomeLib.Contracts;
 using MiHomeLib.MqttGateway.JsonResponses;
-using MiHomeLib.Transport;
+
 using Moq;
 using static MiHomeLib.MqttGateway.JsonResponses.BleAsyncEventResponse;
 using static MiHomeLib.MqttGateway.JsonResponses.BleAsyncEventResponse.BleAsyncEventParams;

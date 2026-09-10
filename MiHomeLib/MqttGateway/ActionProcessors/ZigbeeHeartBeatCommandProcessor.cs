@@ -32,10 +32,10 @@ public class ZigbeeHeartBeatCommandProcessor(Dictionary<string, MqttGatewaySubDe
 
         var did = data[0]["did"].GetString();
 
-        if (_devices.ContainsKey(did))
+        if (_devices.TryGetValue(did, out var device))
         {
-            _devices[did].LastTimeMessageReceived = data[0]["time"].GetDouble().UnixMilliSecondsToDateTime();
-            (_devices[did] as ZigBeeDevice).ParseData(data[0]["res_list"].ToString());
+            device.LastTimeMessageReceived = data[0]["time"].GetDouble().UnixMilliSecondsToDateTime();
+            (device as ZigBeeDevice).ParseData(data[0]["res_list"].ToString());
         }
         else
         {

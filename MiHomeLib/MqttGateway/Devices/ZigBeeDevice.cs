@@ -59,13 +59,13 @@ public abstract class ZigBeeDevice : MqttGatewaySubDevice
 
         foreach (var prop in listProps)
         {
-            if (prop.ContainsKey(RES_NAME) && Actions.ContainsKey(prop[RES_NAME].GetString()))
+            if (prop.TryGetValue(RES_NAME, out var resName) && Actions.TryGetValue(resName.GetString(), out var action))
             {
-                Actions[prop[RES_NAME].ToString()](prop[VALUE]);
+                action(prop[VALUE]);
             }
             else
             {
-                _logger.LogWarning($"Property '{prop[RES_NAME].GetString()}' is not supported for this device yet. Please contribute to support.");
+                _logger.LogWarning($"Property '{(prop.ContainsKey(RES_NAME) ? prop[RES_NAME].GetString() : "unknown")}' is not supported for this device yet. Please contribute to support.");
             }
         }
     }

@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 
@@ -17,6 +17,16 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
     protected readonly IMiioTransport _miioTransport = miioTransport;
+
+    /// <summary>
+    /// Run an async Task-returning function synchronously, avoiding boilerplate
+    /// </summary>
+    protected static void RunSync(Func<Task> asyncFunc) => asyncFunc().ConfigureAwait(false).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Run an async Task&lt;T&gt;-returning function synchronously, avoiding boilerplate
+    /// </summary>
+    protected static T RunSync<T>(Func<Task<T>> asyncFunc) => asyncFunc().ConfigureAwait(false).GetAwaiter().GetResult();
 
     protected void CheckMessage(string response, string errorMessage)
     {
@@ -70,6 +80,7 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
     protected string RepeatMessageIfTimeout(Func<string, string> func, string msg, int times = 3)
     {
         var error = string.Empty;
+        Exception lastException = null;
 
         for (int i = 0; i < times; i++)
         {
@@ -83,19 +94,22 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
                 {
                     error = json["error"].ToString();
                     Interlocked.Increment(ref _initialId);
-                    var newMsg = JsonNode.Parse(msg)["id"];
-                    newMsg["id"] = _initialId;
-                    msg = newMsg.ToString();
+                    var msgJson = JsonNode.Parse(msg);
+                    msgJson["id"] = _initialId;
+                    msg = msgJson.ToJsonString();
                     continue;
                 }
 
                 return response;
 
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                lastException = ex;
+            }
         }
 
-        throw new Exception($"No response for msg -> '{msg}' after {times} attempts, error '{error}'");
+        throw new Exception($"No response for msg -> '{msg}' after {times} attempts, error '{error}'", lastException);
     }
     protected string[] GetProps(params string[] props)
     {
@@ -119,5 +133,5 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
 
         return Convert.ToInt32(device.type + device.serial, 16).ToString();
     }
-    public void Dispose() => _miioTransport?.Dispose();
+    public virtual void Dispose() => _miioTransport?.Dispose();
 }

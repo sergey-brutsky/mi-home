@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 using MQTTnet;
 using MQTTnet.Client;
 

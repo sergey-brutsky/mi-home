@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.XiaomiGateway2.Devices;
 
-public abstract class XiaomiGateway2SubDevice(string sid, int shortId, ILoggerFactory loggerFactory)
+public abstract class XiaomiGateway2SubDevice(string sid, int shortId, ILoggerFactory loggerFactory) : GatewaySubDeviceBase(loggerFactory)
 {
-    protected readonly ILogger _logger = loggerFactory.CreateLogger<XiaomiGateway2SubDevice>();
     public string Sid { get; private set; } = sid;
     public int ShortId { get; private set; } = shortId;
+    public override string DeviceId => Sid;
     protected Dictionary<string, Action<JsonElement>> Actions = [];
-    protected internal virtual void ParseData(string data)
+    protected internal override void ParseData(string data)
     {
         LastTimeMessageReceived = DateTime.Now;
 
@@ -19,9 +19,9 @@ public abstract class XiaomiGateway2SubDevice(string sid, int shortId, ILoggerFa
 
         foreach (var prop in listProps)
         {
-            if (Actions.ContainsKey(prop.Key))
+            if (Actions.TryGetValue(prop.Key, out var action))
             {
-                Actions[prop.Key](prop.Value);
+                action(prop.Value);
             }
             else
             {
@@ -29,7 +29,5 @@ public abstract class XiaomiGateway2SubDevice(string sid, int shortId, ILoggerFa
             }
         }
     }    
-    public DateTime LastTimeMessageReceived { get; internal set; }
     public override string ToString() => $"Sid: {Sid}, Type: {GetType().Name}, Last seen: {LastTimeMessageReceived}";    
-    protected virtual string GetBaseInfo(string marketModel, string model) => $"Device: {marketModel} {model} {Sid}, ";
 }

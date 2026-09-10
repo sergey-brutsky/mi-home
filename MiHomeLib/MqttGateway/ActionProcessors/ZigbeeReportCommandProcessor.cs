@@ -21,10 +21,10 @@ public class ZigbeeReportCommandProcessor: IActionProcessor
     {
         var did = json["did"].ToString();
 
-        if (_devices.ContainsKey(did))
+        if (_devices.TryGetValue(did, out var device))
         {
-            _devices[did].LastTimeMessageReceived = json["time"].GetValue<double>().UnixMilliSecondsToDateTime();
-            (_devices[did] as ZigBeeDevice).ParseData((json["mi_spec"] is not null ? json["mi_spec"] : json["params"]).ToString());
+            device.LastTimeMessageReceived = json["time"].GetValue<double>().UnixMilliSecondsToDateTime();
+            (device as ZigBeeDevice).ParseData((json["mi_spec"] is not null ? json["mi_spec"] : json["params"]).ToString());
         }
         else
         {

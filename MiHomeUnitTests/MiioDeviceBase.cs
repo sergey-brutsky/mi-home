@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using MiHomeLib;
-using MiHomeLib.Transport;
+using MiHomeLib.Contracts;
 using Moq;
 
 namespace MiHomeUnitTests;

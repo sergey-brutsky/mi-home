@@ -21,9 +21,9 @@ public abstract class BleDevice(string did, ILoggerFactory loggerFactory) : Mqtt
         {
             var eid = evt["eid"].GetValue<int>();
             
-            if(EidToActions.ContainsKey(eid))
+            if(EidToActions.TryGetValue(eid, out var action))
             {
-                EidToActions[eid](evt["edata"].ToString().ToLower());
+                action(evt["edata"].ToString().ToLower());
             }
             else
             {

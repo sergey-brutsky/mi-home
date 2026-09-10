@@ -87,9 +87,9 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
 
         return Convert.FromBase64String(data);
     }
-    public List<(string did, int pdid, string mac)> DiscoverBleDevices()
+    public List<BleDeviceInfo> DiscoverBleDevices()
     {
-        var bleDevicesList = new List<(string did, int pdid, string mac)>();
+        var bleDevicesList = new List<BleDeviceInfo>();
 
         var tmpName = Path.GetTempFileName();
         File.WriteAllBytes(tmpName, ReadFileByPath(blePath));
@@ -107,19 +107,19 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
             var mac = reader.GetString(0);
             var pdid = reader.GetInt32(1);
             var did = reader.GetString(2);
-            bleDevicesList.Add((did, pdid, mac));
+            bleDevicesList.Add(new BleDeviceInfo(did, pdid, mac));
         }
 
         File.Delete(tmpName);
 
         return bleDevicesList;
     }
-    public List<(string did, string model)> DiscoverZigBeeDevices()
+    public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices()
     {
         var json = JsonNode.Parse(Encoding.ASCII.GetString(ReadFileByPath(zigbeePath)));
 
         return [.. json["devInfo"]
                 .AsArray()
-                .Select(x => (x["did"].ToString(), x["model"].ToString()))];
+                .Select(x => new ZigBeeDeviceInfo(x["did"].ToString(), x["model"].ToString()))];
     }
 }

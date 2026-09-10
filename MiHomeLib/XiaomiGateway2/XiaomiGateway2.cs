@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
-using MiHomeLib.Transport;
+
 using MiHomeLib.XiaomiGateway2.Commands;
 using MiHomeLib.XiaomiGateway2.Devices;
 
@@ -77,15 +77,9 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
 
         var gwPassword = GetDeveloperKey();
 
-        // Building map of the supported devices via reflection props 
-        foreach (Type type in Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
-            .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(XiaomiGateway2SubDevice))))
+        // Building map of the supported devices via reflection
+        foreach (var (type, model) in DeviceTypeScanner.FindDeviceTypes<XiaomiGateway2SubDevice>())
         {
-            var bindFlags = BindingFlags.Public | BindingFlags.Static;
-            var model = type.GetField("MODEL", bindFlags).GetValue(type).ToString();
-
             XiaomiGateway2SubDevice addDevice(string sid, int shortId) =>
                 type.IsSubclassOf(typeof(ManageableXiaomiGateway2SubDevice)) ?
                     Activator.CreateInstance(type, sid, shortId, _messageTransport, gwPassword, _loggerFactory) as ManageableXiaomiGateway2SubDevice :
@@ -139,23 +133,21 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
                     return;
                 }
 
-                if (!_supportedModels.ContainsKey(cmd.Model))
+                if (!_supportedModels.TryGetValue(cmd.Model, out var factory))
                 {
                     _logger?.LogWarning($"Model '{cmd.Model}' is not supported, please contribute to support");
                     return;
                 }
 
-                if (!_devicesList.ContainsKey(cmd.Sid))
+                if (!_devicesList.TryGetValue(cmd.Sid, out var gw2SubDevice))
                 {
-                    var supportedDevice = _supportedModels[cmd.Model](cmd.Sid, cmd.ShortId);
+                    var supportedDevice = factory(cmd.Sid, cmd.ShortId);
                     _devicesList.Add(cmd.Sid, supportedDevice);
                     supportedDevice.ParseData(cmd.Data);
 
                     await OnDeviceDiscoveredAsync(supportedDevice);
                     return;
                 }
-
-                _devicesList.TryGetValue(cmd.Sid, out var gw2SubDevice);
 
                 if (gw2SubDevice is XiaomiMultifunctionalGateway2 && cmd.Token is not null)
                 {
@@ -173,10 +165,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         _messageTransport.SendCommand(new DiscoverGatewayCommand());
     }
 
-    public void SetDeveloperKey(string key)
-    {
-        SetDeveloperKeyAsync(key).ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void SetDeveloperKey(string key) => RunSync(() => SetDeveloperKeyAsync(key));
 
     public async Task SetDeveloperKeyAsync(string key)
     {
@@ -190,10 +179,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(await _miioTransport.SendMessageAsync(msg), "Unable to set developer key");
     }
 
-    public string GetDeveloperKey()
-    {
-        return GetDeveloperKeyAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public string GetDeveloperKey() => RunSync(GetDeveloperKeyAsync);
 
     public async Task<string> GetDeveloperKeyAsync()
     {
@@ -212,40 +198,28 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return json["result"][0].ToString();
     }
 
-    public void EnableNightLight(byte r, byte g, byte b, int brightness)
-    {
-        EnableNightLightAsync(r, g, b, brightness).ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void EnableNightLight(byte r, byte g, byte b, int brightness) => RunSync(() => EnableNightLightAsync(r, g, b, brightness));
 
     public async Task EnableNightLightAsync(byte r, byte g, byte b, int brightness)
     {
         await SetLightAsync("set_night_light_rgb", r, g, b, brightness);
     }
 
-    public void DisableNightLight()
-    {
-        DisableNightLightAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void DisableNightLight() => RunSync(DisableNightLightAsync);
 
     public async Task DisableNightLightAsync()
     {
         await SetLightAsync("set_night_light_rgb", 0, 0, 0, 0);
     }
 
-    public void EnableLight(byte r, byte g, byte b, int brightness)
-    {
-        EnableLightAsync(r, g, b, brightness).ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void EnableLight(byte r, byte g, byte b, int brightness) => RunSync(() => EnableLightAsync(r, g, b, brightness));
 
     public async Task EnableLightAsync(byte r, byte g, byte b, int brightness)
     {
         await SetLightAsync("set_rgb", r, g, b, brightness);
     }
 
-    public void DisableLight()
-    {
-        DisableLightAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void DisableLight() => RunSync(DisableLightAsync);
 
     public async Task DisableLightAsync()
     {
@@ -263,10 +237,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(await _miioTransport.SendMessageAsync(msg), $"Unable to send command '{dayOrNight}' with {rgb} and {brightness}");
     }
 
-    public void PlaySound(Sound sound, int volume)
-    {
-        PlaySoundAsync(sound, volume).ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void PlaySound(Sound sound, int volume) => RunSync(() => PlaySoundAsync(sound, volume));
 
     public async Task PlaySoundAsync(Sound sound, int volume)
     {
@@ -275,20 +246,14 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(await _miioTransport.SendMessageAsync(msg), $"Unable to play sound {sound}");
     }
 
-    public void SoundsOff()
-    {
-        SoundsOffAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void SoundsOff() => RunSync(SoundsOffAsync);
 
     public async Task SoundsOffAsync()
     {
         await PlaySoundAsync(0, 0);
     }
 
-    public void PlayCustomSound(int soundNo, int volume)
-    {
-        PlayCustomSoundAsync(soundNo, volume).ConfigureAwait(false).GetAwaiter().GetResult();
-    }
+    public void PlayCustomSound(int soundNo, int volume) => RunSync(() => PlayCustomSoundAsync(soundNo, volume));
     public async Task PlayCustomSoundAsync(int soundNo, int volume)
     {
         if (soundNo <= 10_000) throw new ArgumentException("Custom sounds must start from 10001");
@@ -298,12 +263,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(await _miioTransport.SendMessageAsync(msg), $"Unable to play custom sound {soundNo}");
     }
 
-    public bool IsArmingOn()
-    {
-        var msg = _miioTransport.SendMessage(BuildParamsArray("get_arming", []));
-
-        return CheckArmingState(msg);
-    }
+    public bool IsArmingOn() => RunSync(IsArmingOnAsync);
 
     public async Task<bool> IsArmingOnAsync()
     {
@@ -327,12 +287,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return result == "on";
     }
 
-    public void SetArmingOff()
-    {
-        var msg = BuildParamsArray("set_arming", "off");
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming off");
-    }
+    public void SetArmingOff() => RunSync(SetArmingOffAsync);
 
     public async Task SetArmingOffAsync()
     {
@@ -341,12 +296,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(result, "Unable to set arming off");
     }
 
-    public void SetArmingOn()
-    {
-        var msg = BuildParamsArray("set_arming", "on");
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming on");
-    }
+    public void SetArmingOn() => RunSync(SetArmingOnAsync);
 
     public async Task SetArmingOnAsync()
     {
@@ -355,12 +305,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(result, "Unable to set arming on");
     }
 
-    public int GetArmingWaitTime()
-    {
-        var msg = BuildParamsArray("get_arm_wait_time", new string[0]);
-        var result = _miioTransport.SendMessage(msg);
-        return CheckArmingWaitResult(result);
-    }
+    public int GetArmingWaitTime() => RunSync(GetArmingWaitTimeAsync);
 
     public async Task<int> GetArmingWaitTimeAsync()
     {
@@ -374,12 +319,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return GetInteger(result, "Unable to get arming wait time");
     }
 
-    public void SetArmingWaitTime(int seconds)
-    {
-        var msg = BuildParamsArray("set_arm_wait_time", seconds);
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming wait time");
-    }
+    public void SetArmingWaitTime(int seconds) => RunSync(() => SetArmingWaitTimeAsync(seconds));
 
     public async Task SetArmingWaitTimeAsync(int seconds)
     {
@@ -388,12 +328,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(result, "Unable to set arming wait time");
     }
 
-    public int GetArmingOffTime()
-    {
-        var msg = BuildParamsArray("get_device_prop", "lumi.0", "alarm_time_len");
-        var result = _miioTransport.SendMessage(msg);
-        return CheckArmingOffTimeResult(result);
-    }
+    public int GetArmingOffTime() => RunSync(GetArmingOffTimeAsync);
 
     public async Task<int> GetArmingOffTimeAsync()
     {
@@ -407,12 +342,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return GetInteger(result, "Unable to get arming off time");
     }
 
-    public void SetArmingOffTime(int seconds)
-    {
-        var msg = BuildSidProp("set_device_prop", "lumi.0", "alarm_time_len", seconds);
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming off time");
-    }
+    public void SetArmingOffTime(int seconds) => RunSync(() => SetArmingOffTimeAsync(seconds));
 
     public async Task SetArmingOffTimeAsync(int seconds)
     {
@@ -421,12 +351,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(result, "Unable to set arming off time");
     }
 
-    public int GetArmingBlinkingTime()
-    {
-        var msg = BuildParamsArray("get_device_prop", "lumi.0", "en_alarm_light");
-        var result = _miioTransport.SendMessage(msg);
-        return CheckArmingBlinkingResult(result);
-    }
+    public int GetArmingBlinkingTime() => RunSync(GetArmingBlinkingTimeAsync);
 
     public async Task<int> GetArmingBlinkingTimeAsync()
     {
@@ -440,12 +365,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return GetInteger(result, "Unable to get arming blinking time");
     }
 
-    public void SetArmingBlinkingTime(int seconds)
-    {
-        var msg = BuildSidProp("set_device_prop", "lumi.0", "en_alarm_light", seconds);
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming blinking time");
-    }
+    public void SetArmingBlinkingTime(int seconds) => RunSync(() => SetArmingBlinkingTimeAsync(seconds));
 
     public async Task SetArmingBlinkingTimeAsync(int seconds)
     {
@@ -454,12 +374,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         CheckMessage(result, "Unable to set arming blinking time");
     }
 
-    public int GetArmingVolume()
-    {
-        var msg = BuildParamsArray("get_alarming_volume", []);
-        var result = _miioTransport.SendMessage(msg);
-        return CheckArmingVolumeResult(result);
-    }
+    public int GetArmingVolume() => RunSync(GetArmingVolumeAsync);
 
     public async Task<int> GetArmingVolumeAsync()
     {
@@ -473,12 +388,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         return GetInteger(result, "Unable to get arming volume level");
     }
 
-    public void SetArmingVolume(int volume)
-    {
-        var msg = BuildParamsArray("set_alarming_volume", volume);
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to set arming volume level");
-    }
+    public void SetArmingVolume(int volume) => RunSync(() => SetArmingVolumeAsync(volume));
 
     public async Task SetArmingVolumeAsync(int volume)
     {
@@ -491,12 +401,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// Get last time when alarm was triggered unix timestamp 
     /// </summary>
     /// <returns>unix timestamp seconds</returns>
-    public int GetArmingLastTimeTriggeredTimestamp()
-    {
-        var msg = BuildParamsArray("get_arming_time", []);
-        var result = _miioTransport.SendMessage(msg);
-        return CheckArmingLastTimeTriggeredResult(result);
-    }
+    public int GetArmingLastTimeTriggeredTimestamp() => RunSync(GetArmingLastTimeTriggeredTimestampAsync);
 
     /// <summary>
     /// Get last time when alarm was triggered unix timestamp 
@@ -518,13 +423,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
     /// </summary>
     /// <returns>List of RadioChannel</returns>
-    public List<RadioChannel> GetRadioChannels()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsObject("get_channels", new { start = 0 }));
-        var channelsJson = JsonNode.Parse(response)["result"]["chs"].ToString();
-        var radioChannels = JsonSerializer.Deserialize<List<RadioChannel>>(channelsJson, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-        return [.. radioChannels];
-    }
+    public List<RadioChannel> GetRadioChannels() => RunSync(GetRadioChannelsAsync);
 
     /// <summary>
     /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
@@ -540,18 +439,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// <summary>
     /// Add custom radio channel to the gateway
     /// </summary>
-    public void AddRadioChannel(int channelId, string channelUrl)
-    {
-        if (channelId < 1024) throw new ArgumentException($"Radio channel id must be > 1024");
-
-        if (GetRadioChannels().Any(x => x.Id == channelId))
-            throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id");
-
-        var msg = BuildParamsObject("add_channels", new { chs = new List<RadioChannel> { new() { Id = channelId, Url = channelUrl, Type = 0 } } });
-        var result = _miioTransport.SendMessage(msg);
-
-        CheckMessage(result, "Unable to add radio channel");
-    }
+    public void AddRadioChannel(int channelId, string channelUrl) => RunSync(() => AddRadioChannelAsync(channelId, channelUrl));
 
     /// <summary>
     /// Add custom radio channel to the gateway
@@ -572,20 +460,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// <summary>
     /// Remove custom radio channel from gateway stations list
     /// </summary>
-    public void RemoveRadioChannel(int channelId)
-    {
-        var radioChannels = GetRadioChannels();
-
-        if (!radioChannels.Any(x => x.Id == channelId))
-            throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
-
-        radioChannels.RemoveAll(x => x.Id != channelId);
-
-        var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
-        var result = _miioTransport.SendMessage(msg);
-
-        CheckMessage(result, $"Unable to remove radio channel with id {channelId}");
-    }
+    public void RemoveRadioChannel(int channelId) => RunSync(() => RemoveRadioChannelAsync(channelId));
 
     /// <summary>
     /// Remove custom radio channel from gateway stations list
@@ -608,13 +483,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// <summary>
     /// Clear all custom radio channels from the gateway
     /// </summary>
-    public void RemoveAllRadioChannels()
-    {
-        var radioChannels = GetRadioChannels();
-        var msg = BuildParamsObject("remove_channels", new { chs = radioChannels });
-        var result = _miioTransport.SendMessage(msg);
-        CheckMessage(result, "Unable to remove all radio channels");
-    }
+    public void RemoveAllRadioChannels() => RunSync(RemoveAllRadioChannelsAsync);
 
     /// <summary>
     /// Clear all custom radio channels from the gateway
@@ -630,17 +499,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// <summary>
     /// Start playing custom channel
     /// </summary>
-    public void PlayRadio(int channelId, int volume)
-    {
-        if (volume < 0 || volume > 100)
-            throw new ArgumentException($"Volume must be within range 0-100");
-
-        if (!GetRadioChannels().Any(x => x.Id == channelId))
-            throw new ArgumentException($"Radio channel with id {channelId} doesn't exist");
-
-        var result = _miioTransport.SendMessage(BuildParamsArray("play_specify_fm", channelId, volume));
-        CheckMessage(result, $"Unable to play channelId: {channelId} with volume {volume}");
-    }
+    public void PlayRadio(int channelId, int volume) => RunSync(() => PlayRadioAsync(channelId, volume));
 
     /// <summary>
     /// Start playing custom channel
@@ -660,11 +519,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     /// <summary>
     /// Stop playing radio
     /// </summary>
-    public void StopRadio()
-    {
-        var result = _miioTransport.SendMessage(BuildParamsArray("play_fm", "off"));
-        CheckMessage(result, $"Unable to stop playing radio");
-    }
+    public void StopRadio() => RunSync(StopRadioAsync);
 
     /// <summary>
     /// Stop playing radio
@@ -703,7 +558,7 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         }
     }
 
-    public new void Dispose()
+    public override void Dispose()
     {
         _messageTransport?.Dispose();
         base.Dispose();
