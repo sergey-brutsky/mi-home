@@ -1,1 +1,1 @@
-Added support for [PTX-YK1-QMIMB](https://github.com/sergey-brutsky/mi-home/wiki/PTX-YK1-QMIMB) (090615.remote.btsw1)
+Added support for Xiaomi Robot Vacuum X20 Plus (https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Robot-Vacuum-X20-Plus)
