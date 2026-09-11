@@ -8,7 +8,7 @@
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-Added support for Xiaomi Robot Vacuum X20 Plus (https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Robot-Vacuum-X20-Plus)
+Added support for Xiaomi TH Sensor 3 MJWSD05MMC (https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-TH-sensor-3-(MJWSD05MMC))
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright 2017-2026 (c) Sergey Brutsky. All rights reserved.</Copyright>
@@ -19,7 +19,7 @@ Added support for Xiaomi Robot Vacuum X20 Plus (https://github.com/sergey-brutsk
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>2.3.8</Version>  
+    <Version>2.3.9</Version>  
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
