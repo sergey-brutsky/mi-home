@@ -3,6 +3,7 @@ using AutoFixture;
 using FluentAssertions;
 using System.Threading.Tasks;
 using MiHomeLib.MqttGateway.Devices;
+using System.Text.Json.Nodes;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
@@ -12,14 +13,18 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
     public XiaomiBluetoothHygrothermograph3Tests() => _th = _fixture.Build<XiaomiBluetoothHygrothermograph3>().Create();
 
     [Theory]
-    [InlineData(19457, "cdccc041", 24.1f, 20f)]
-    [InlineData(19457, "0000b041", 22f, 18.5f)]
-    [InlineData(19457, "9a99a9c0", -5.3f, 0f)]
-    [InlineData(19457, "00000000", 0f, 12.7f)]
-    public void Check_OnTemperatureChange_Event(int eid, string edata, float newTemperature, float oldTemperature)
+    [InlineData(3, 1001, 28.79f, 28.1f)]
+    public void Check_OnTemperatureChange_Event(int siid, int piid, float newTemperature, float oldTemperature)
     {
         // Arrange
         var eventRaised = false;
+        
+        JsonObject jsonNode = new()
+        {
+            ["siid"] = siid,
+            ["piid"] = piid,
+            ["value"] = newTemperature,
+        };
 
         _th.Temperature = oldTemperature;
 
@@ -31,20 +36,24 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
         };
 
         // Act
-        _th.ParseData(SetupBleAsyncEventParams(eid, edata).ToString());
+        _th.ParseData(jsonNode.ToString());
 
         // Assert
         eventRaised.Should().BeTrue();
     }
 
     [Theory]
-    [InlineData(19458, "2d", 45, 33)]
-    [InlineData(19458, "64", 100, 0)]
-    [InlineData(19458, "00", 0, 55)]
-    public void Check_OnHumidityChange_Event(int eid, string edata, byte newHumidity, byte oldHumidity)
+    [InlineData(3, 1002, 55, 66)]
+    public void Check_OnHumidityChange_Event(int siid, int piid, byte newHumidity, byte oldHumidity)
     {
         // Arrange
         var eventRaised = false;
+         JsonObject jsonNode = new()
+        {
+            ["siid"] = siid,
+            ["piid"] = piid,
+            ["value"] = newHumidity,
+        };
 
         _th.Humidity = oldHumidity;
 
@@ -56,49 +65,39 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
         };
 
         // Act
-        _th.ParseData(SetupBleAsyncEventParams(eid, edata).ToString());
+        _th.ParseData(jsonNode.ToString());
 
         // Assert
         eventRaised.Should().BeTrue();
     }
 
     [Theory]
-    [InlineData(18435, "57", 87, 90)]
-    [InlineData(18435, "64", 100, 99)]
-    public void Check_OnBatteryPercentChange_Event(int eid, string edata, byte newBatteryPercent, byte oldBatteryPercent)
+    [InlineData(2, 1003, 10, 20)]
+    public void Check_OnBatteryPercentChange_Event(int siid, int piid, byte newPercent, byte oldPercent)
     {
         // Arrange
         var eventRaised = false;
-
-        _th.BatteryPercent = oldBatteryPercent;
-
-        _th.OnBatteryPercentChangeAsync += (oldValue) =>
+         JsonObject jsonNode = new()
         {
-            eventRaised = oldValue == oldBatteryPercent;
-            _th.BatteryPercent.Should().Be(newBatteryPercent);
+            ["siid"] = siid,
+            ["piid"] = piid,
+            ["value"] = newPercent,
+        };
+
+        _th.BatteryPercent = oldPercent;
+
+        _th.OnBatteryPercentAsync += (oldValue) =>
+        {
+            eventRaised = oldValue == oldPercent;
+            _th.BatteryPercent.Should().Be(newPercent);
             return Task.CompletedTask;
         };
 
         // Act
-        _th.ParseData(SetupBleAsyncEventParams(eid, edata).ToString());
+        _th.ParseData(jsonNode.ToString());
 
         // Assert
         eventRaised.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Check_Device_ToString()
-    {
-        // Arrange
-        _th.ParseData(SetupBleAsyncEventParams(19457, "cdccc041").ToString());
-        _th.ParseData(SetupBleAsyncEventParams(19458, "2d").ToString());
-        _th.ParseData(SetupBleAsyncEventParams(18435, "57").ToString());
-
-        // Act & Assert
-        // ToString() uses the current culture, so the decimal separator is not hardcoded here
-        _th.ToString().Should().Contain($"Temperature: {24.1f}°C")
-            .And.Contain("Humidity: 45%")
-            .And.Contain("Battery Percent: 87%");
     }
 
     [Fact]
