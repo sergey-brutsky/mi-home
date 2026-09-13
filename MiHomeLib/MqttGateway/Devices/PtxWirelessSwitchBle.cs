@@ -1,3 +1,4 @@
+// Support for this device has been partially implemented on top of https://home.miot-spec.com/spec/090615.remote.btsw1
 using System;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
@@ -41,8 +42,10 @@ public class PtxWirelessSwitchBle : BleDevice
         var eiid = @params["eiid"].GetValue<int>();
 
         if (
-            (siid == CLICK_SIID || siid == LOW_BATTERY_SIID)
-            && EidToActions.TryGetValue(siid, out var action) && Enum.IsDefined(typeof(ClickArg), eiid))
+            (siid == CLICK_SIID && Enum.IsDefined(typeof(ClickArg), eiid)                
+            || siid == LOW_BATTERY_SIID)
+            && EidToActions.TryGetValue(siid, out var action)
+        )
         {
             action(eiid.ToString());
         }

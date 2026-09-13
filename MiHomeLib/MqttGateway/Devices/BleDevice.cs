@@ -59,5 +59,20 @@ public abstract class BleDevice(string did, ILoggerFactory loggerFactory) : Mqtt
         arr.Reverse();
         return BitConverter.ToInt16(arr, 0)/10f;
     }
+
+    /// <summary>
+    /// Decodes mibeacon v2 payload carrying IEEE-754 single precision float (little endian)
+    /// </summary>
+    public float ToBleFloat32(string hex)
+    {
+        var arr = hex.ToByteArray();
+
+        if (arr.Length != 4) throw new ArgumentException($"Expected 4 bytes of data, but got '{hex}'", nameof(hex));
+
+        // hex string is little endian !
+        if (!BitConverter.IsLittleEndian) Array.Reverse(arr);
+
+        return BitConverter.ToSingle(arr, 0);
+    }
     
 }

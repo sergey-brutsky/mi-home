@@ -1,1 +1,1 @@
-Added support for Xiaomi Robot Vacuum X20 Plus (https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Robot-Vacuum-X20-Plus)
+Added support for [Xiaomi TH Sensor 3 MJWSD05MMC](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-TH-sensor-3-(MJWSD05MMC))

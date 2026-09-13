@@ -37,6 +37,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             { ZigbeeHeartBeatCommandProcessor.ACTION, new ZigbeeHeartBeatCommandProcessor(_devices, _loggerFactory) },
             { AsyncBleEventMethodProcessor.ACTION, new AsyncBleEventMethodProcessor(_devices, _loggerFactory) },
             { EventOccuredMethodProcessor.ACTION, new EventOccuredMethodProcessor(_devices, _loggerFactory) },
+            { PropertiesChangedMethodProcessor.ACTION, new PropertiesChangedMethodProcessor(_devices, _loggerFactory) },
         };
 
         _mqttTransport = mqttTransport;
