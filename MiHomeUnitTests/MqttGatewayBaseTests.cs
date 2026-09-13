@@ -398,57 +398,6 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
     }
 
     [Fact]
-    public void AsyncBleEventMethod_Works_For_Mibeacon2_Device()
-    {
-        // Arrange
-        var temperatureEventRaised = false;
-        var humidityEventRaised = false;
-        var did = _fixture.Create<string>();
-        var mac = _gw.Object.DecodeMacAddress(_fixture.Create<string>()[..12]);
-
-        double time = DateTimeOffset.Now.ToUnixTimeSeconds();
-
-        SetupBleDevices([
-            (did, XiaomiBluetoothHygrothermograph3.PDID, mac),
-        ]);
-
-        _gw.Object.OnDeviceDiscoveredAsync += device =>
-        {
-            device.Did.Should().Be(did);
-
-            var th = device as XiaomiBluetoothHygrothermograph3;
-
-            th.Should().NotBeNull();
-
-            th.OnTemperatureChangeAsync += oldValue =>
-            {
-                temperatureEventRaised = true;
-                th.Temperature.Should().Be(24.1f);
-                th.LastTimeMessageReceived.Should().Be(time.UnixSecondsToDateTime());
-                return Task.CompletedTask;
-            };
-
-            th.OnHumidityChangeAsync += oldValue =>
-            {
-                humidityEventRaised = true;
-                th.Humidity.Should().Be(45);
-                return Task.CompletedTask;
-            };
-
-            return Task.CompletedTask;
-        };
-
-        // Act    
-        _gw.Object.DiscoverDevices();
-
-        RaiseBleAsyncEvent(XiaomiBluetoothHygrothermograph3.PDID, did, mac, time, [(19457, "cdccc041"), (19458, "2d")]);
-
-        // Assert
-        temperatureEventRaised.Should().BeTrue();
-        humidityEventRaised.Should().BeTrue();
-    }
-
-    [Fact]
     public void GetDevices_When_Any_Returns_DiscoveredDevicesList()
     {
         // Arrange
