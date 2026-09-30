@@ -9,7 +9,7 @@ namespace MiHomeLib.MqttGateway.Devices;
 /// <summary>
 /// WXKG11LM lumi.remote.b1acn01 wireless mini switch (CN revision)
 /// </summary>
-public class AqaraWirelessMiniSwitchCN: ZigBeeBatteryDevice
+public class AqaraWirelessMiniSwitchCN: LumiZigBeeBatteryDevice
 {
     public const string MARKET_MODEL = "WXKG11LM";
     public const string MODEL = "lumi.remote.b1acn01";

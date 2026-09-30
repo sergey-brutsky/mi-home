@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public abstract class ZigBeeDevice : MqttGatewaySubDevice
+public abstract class LumiZigBeeDevice : MqttGatewaySubDevice
 {
     protected const string RES_NAME = "res_name";
     protected const string VALUE = "value";
@@ -24,7 +24,7 @@ public abstract class ZigBeeDevice : MqttGatewaySubDevice
     /// </summary>
     public event Func<byte, Task> OnChipTemperatureChangeAsync = (_) => Task.CompletedTask;
     protected Dictionary<string, Action<JsonElement>> Actions = [];
-    public ZigBeeDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
+    public LumiZigBeeDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
         Actions = new() {
             {LQI_RES_NAME, async x =>

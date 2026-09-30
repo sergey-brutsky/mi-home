@@ -9,7 +9,7 @@ namespace MiHomeLib.MqttGateway.Devices;
 /// <summary>
 /// WXKG01LM lumi.sensor_switch wireless switch
 /// </summary>
-public class XiaomiSmartWirelessSwitch: ZigBeeBatteryDevice
+public class XiaomiSmartWirelessSwitch: LumiZigBeeBatteryDevice
 {
     public const string MARKET_MODEL = "WXKG01LM";
     public const string MODEL = "lumi.sensor_switch";

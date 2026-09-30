@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public abstract class ZigBeeBatteryDevice : ZigBeeDevice
+public abstract class LumiZigBeeBatteryDevice : LumiZigBeeDevice
 {
     private const string BATTERY_RES_NAME = "8.0.2001";
     private const string VOLTAGE_RES_NAME = "8.0.2008";    
@@ -20,7 +20,7 @@ public abstract class ZigBeeBatteryDevice : ZigBeeDevice
     /// Old value battery percent 0-100% (1 step) passed as an argument
     /// </summary>
     public event Func<byte, Task> OnBatteryPercentChange = (_) => Task.CompletedTask;
-    public ZigBeeBatteryDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
+    public LumiZigBeeBatteryDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
         Actions.Add(VOLTAGE_RES_NAME, async x => 
         {

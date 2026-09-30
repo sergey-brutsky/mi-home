@@ -7,7 +7,7 @@ using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public class AqaraDualWirelessRelayCN : ZigBeeManageableDevice
+public class AqaraDualWirelessRelayCN : LumiZigBeeManageableDevice
 {
     public const string MARKET_MODEL = "LLKZMK11LM";
     public const string MODEL = "lumi.relay.c2acn01";

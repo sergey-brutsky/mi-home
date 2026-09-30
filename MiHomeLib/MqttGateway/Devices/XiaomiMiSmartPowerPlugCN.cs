@@ -7,7 +7,7 @@ using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public class XiaomiMiSmartPowerPlugCN: ZigBeeManageableDevice
+public class XiaomiMiSmartPowerPlugCN: LumiZigBeeManageableDevice
 {   
     public const string MARKET_MODEL = "ZNCZ02LM";
     public const string MODEL = "lumi.plug";    

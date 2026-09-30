@@ -3,7 +3,7 @@ using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public abstract class ZigBeeManageableDevice(string did, IMqttTransport mqttTransport, ILoggerFactory loggerFactory) : ZigBeeDevice(did, loggerFactory)
+public abstract class LumiZigBeeManageableDevice(string did, IMqttTransport mqttTransport, ILoggerFactory loggerFactory) : LumiZigBeeDevice(did, loggerFactory)
 {
     private readonly ZigBeeTransport _zigBeeTransport = new(mqttTransport);
     protected void SendWriteCommand(string resName, int value) => _zigBeeTransport.SendWriteCommand(Did, resName, value);

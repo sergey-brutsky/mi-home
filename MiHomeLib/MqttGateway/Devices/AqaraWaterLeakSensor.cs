@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.MqttGateway.Devices;
-public class AqaraWaterLeakSensor : ZigBeeBatteryDevice
+public class AqaraWaterLeakSensor : LumiZigBeeBatteryDevice
 {
     public const string MARKET_MODEL = "SJCGQ11LM";
     public const string MODEL = "lumi.sensor_wleak.aq1";

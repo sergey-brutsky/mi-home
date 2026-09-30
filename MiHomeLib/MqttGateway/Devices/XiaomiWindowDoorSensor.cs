@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public class XiaomiWindowDoorSensor : ZigBeeBatteryDevice
+public class XiaomiWindowDoorSensor : LumiZigBeeBatteryDevice
 {   
     public const string MARKET_MODEL = "MCCGQ01LM";
     public const string MODEL = "lumi.sensor_magnet"; 

@@ -7,7 +7,7 @@ using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public class AqaraVirationSensor : ZigBeeManageableBatteryDevice
+public class AqaraVirationSensor : LumiZigBeeManageableBatteryDevice
 {
     public const string MARKET_MODEL = "DJT11LM";
     public const string MODEL = "lumi.vibration.aq1";

@@ -1,14 +1,12 @@
 using System;
-using Microsoft.Extensions.Logging;
-using System.Text.Json.Nodes;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging.Abstractions;
 using System.Linq;
-
-using MiHomeLib.MiioDevices;
-
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.Contracts;
+using MiHomeLib.MiioDevices;
 using MiHomeLib.MqttGateway.ActionProcessors;
 using MiHomeLib.MqttGateway.Devices;
 
@@ -22,7 +20,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     protected IDevicesDiscoverer _devicesDiscoverer;
     private readonly IMqttTransport _mqttTransport;
     private readonly Dictionary<string, IActionProcessor> _supportedActionProcessors;
-    private readonly Dictionary<string, Func<string, MqttGatewaySubDevice>> _supportedModels = [];
+    private readonly Dictionary<string, Type> _supportedModels = [];
     private readonly Dictionary<int, string> _pdidToModel = [];
     private readonly Dictionary<string, MqttGatewaySubDevice> _devices = [];
     public event Func<MqttGatewaySubDevice, Task> OnDeviceDiscoveredAsync = (_) => Task.CompletedTask;
@@ -44,14 +42,9 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         _devicesDiscoverer = devicesDiscoverer;
 
         // Building map of the supported devices via reflection
-        foreach (var (type, model) in DeviceTypeScanner.FindDeviceTypes(typeof(ZigBeeDevice), typeof(BleDevice)))
+        foreach (var (type, model) in DeviceTypeScanner.FindDeviceTypes(typeof(MiSpecZigBeeDevice), typeof(LumiZigBeeDevice), typeof(BleDevice)))
         {
-            MqttGatewaySubDevice addDevice(string did) =>
-                type.IsSubclassOf(typeof(ZigBeeManageableDevice)) || type.IsSubclassOf(typeof(ZigBeeManageableBatteryDevice)) ?
-                    Activator.CreateInstance(type, did, _mqttTransport, _loggerFactory) as MqttGatewaySubDevice :
-                    Activator.CreateInstance(type, did, _loggerFactory) as MqttGatewaySubDevice;
-
-            _supportedModels.Add(model, addDevice);
+            _supportedModels.Add(model, type);
 
             if (!type.IsSubclassOf(typeof(BleDevice))) continue;
 
@@ -109,17 +102,29 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         {
             var model = device.Model;
 
-            if (!_supportedModels.TryGetValue(model, out var factory))
+            if (!_supportedModels.TryGetValue(model, out var type))
             {
                 _logger.LogWarning($"Device '{model}' is not supported yet. Please contribute to support");
                 continue;
             }
 
             var did = device.Did;
-            var mihomeDevice = factory(did) as ZigBeeDevice;
 
             _logger.LogInformation($"Device '{model}' with did '{did}' has been discovered");
 
+            if(type.IsSubclassOf(typeof(MiSpecZigBeeDevice)))
+            {
+                var mispecDevice = Activator.CreateInstance(type, did, _loggerFactory) as MiSpecZigBeeDevice;
+                _devices.Add(did, mispecDevice);
+                mispecDevice.LastTimeMessageReceived = DateTime.Now;
+                await OnDeviceDiscoveredAsync(mispecDevice);
+                continue;
+            }
+
+            var mihomeDevice = (type.IsSubclassOf(typeof(LumiZigBeeManageableDevice)) || type.IsSubclassOf(typeof(LumiZigBeeManageableBatteryDevice)) ?
+                Activator.CreateInstance(type, did, _mqttTransport, _loggerFactory):
+                Activator.CreateInstance(type, did, _loggerFactory)) as LumiZigBeeDevice;
+            
             var props = mihomeDevice.GetProps();
             var sendMsg = BuildParamsArray("get_device_prop", [did, .. props]);
             var json = JsonNode.Parse(_miioTransport.SendMessageRepeated(sendMsg));
@@ -178,7 +183,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                 continue;
             }
 
-            var mihomeDevice = _supportedModels[model](device.Did) as BleDevice;
+            var mihomeDevice = Activator.CreateInstance(_supportedModels[model], device.Did, _loggerFactory) as BleDevice;
 
             mihomeDevice.Mac = DecodeMacAddress(device.Mac);
 

@@ -11,6 +11,7 @@ namespace MiHomeLib.MqttGateway.Devices;
 /// </summary>
 public class PtxWirelessSwitchBle : BleDevice
 {
+    //TODO: Refactor me ! Write parser for MiSpecBleDevice
     public const string MARKET_MODEL = "PTX-YK1-QMIMB";
     public const string MODEL = "090615.remote.btsw1";
     public const int PDID = 14523;

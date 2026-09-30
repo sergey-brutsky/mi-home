@@ -1,1 +1,1 @@
-Added support for [Aqara Wireless Mini Switch WXKG11LM](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Wireless-Mini-Switch-(WXKG11LM))
+Added support for [Aqara Wireless Mini Switch E1 WXKG20LM](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Wireless-Mini-Switch-E1(WXKG20LM))
