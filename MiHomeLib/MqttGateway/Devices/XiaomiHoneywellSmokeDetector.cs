@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
-public class XiaomiHoneywellSmokeDetector : ZigBeeManageableDevice
+public class XiaomiHoneywellSmokeDetector : LumiZigBeeManageableDevice
 {
     public const string MARKET_MODEL = "JTYJ-GD-01LM/BW";
     public const string MODEL = "lumi.sensor_smoke";

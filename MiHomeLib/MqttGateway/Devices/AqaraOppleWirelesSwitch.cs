@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.MqttGateway.Devices;
-public abstract class AqaraOppleWirelesSwitch(string did, ILoggerFactory loggerFactory) : ZigBeeBatteryDevice(did, loggerFactory)
+public abstract class AqaraOppleWirelesSwitch(string did, ILoggerFactory loggerFactory) : LumiZigBeeBatteryDevice(did, loggerFactory)
 {
     public enum ClickArg
     {

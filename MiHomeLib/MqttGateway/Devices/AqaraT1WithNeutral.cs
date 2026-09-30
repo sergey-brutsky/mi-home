@@ -8,7 +8,7 @@ using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
 
-public class AqaraT1WithNeutral : ZigBeeManageableDevice
+public class AqaraT1WithNeutral : LumiZigBeeManageableDevice
 {
     public const string MARKET_MODEL = "SSM-U01";
     public const string MODEL = "lumi.switch.n0agl1";

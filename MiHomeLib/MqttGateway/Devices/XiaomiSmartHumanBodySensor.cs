@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway.Devices;
-public class XiaomiSmartHumanBodySensor : ZigBeeBatteryDevice
+public class XiaomiSmartHumanBodySensor : LumiZigBeeBatteryDevice
 {   
     public const string MARKET_MODEL = "RTCGQ01LM";
     public const string MODEL = "lumi.sensor_motion";
