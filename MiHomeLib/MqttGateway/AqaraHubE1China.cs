@@ -32,6 +32,9 @@ public class AqaraHubE1China : MqttGatewayBase, IDisposable
     // This gateway doesn't suppport BLE devices, no need to discover them
     protected sealed override Task DiscoverBleDevices() => Task.CompletedTask; 
 
+    // Mesh devices are not supported by this gateway either
+    protected sealed override Task DiscoverMeshDevices() => Task.CompletedTask;
+
     /// <summary>
     /// Enable night mode (at night hours led will be turned off)
     /// </summary>

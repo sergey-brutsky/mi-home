@@ -34,6 +34,10 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             .Setup(x => x.DiscoverBleDevices())
             .Returns([]);
 
+        _devicesDiscoverer
+            .Setup(x => x.DiscoverMeshDevices())
+            .Returns([]);
+
         _miioTransport
             .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
             .Returns(new
@@ -395,6 +399,70 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         // Assert
         temperatureEventRaised.Should().BeTrue();
+    }
+
+    [Fact]
+    public void PropertiesChanged_Reaches_Miot_Ble_Device()
+    {
+        // Arrange: MJWSD05MMC is discovered as a BLE device and reports in miot format
+        var did = _fixture.Create<string>();
+
+        SetupBleDevices([
+            (did, XiaomiBluetoothHygrothermograph3.PDID, "79e0fe38c1a4"),
+        ]);
+
+        XiaomiBluetoothHygrothermograph3 th = null;
+        var temperatureEventRaised = false;
+
+        _gw.Object.OnDeviceDiscoveredAsync += device =>
+        {
+            th = device as XiaomiBluetoothHygrothermograph3;
+            th.OnTemperatureChangeAsync += _ =>
+            {
+                temperatureEventRaised = true;
+                return Task.CompletedTask;
+            };
+            return Task.CompletedTask;
+        };
+
+        // Act: same envelope as central/report properties_changed in the gateway logs
+        _gw.Object.DiscoverDevices();
+
+        _mqttTransport.Raise(x => x.OnMessageReceived += null, "central/report",
+            $"{{\"id\":1,\"_to\":128,\"type\":16,\"method\":\"properties_changed\",\"params\":[{{\"did\":\"{did}\",\"siid\":3,\"piid\":1001,\"value\":21.5}}]}}");
+
+        // Assert
+        th.Should().NotBeNull();
+        temperatureEventRaised.Should().BeTrue();
+        th.Temperature.Should().Be(21.5f);
+    }
+
+    [Fact]
+    public void MeshDevice_Discovered_With_Mac_As_Stored_And_Commands_Go_To_MiioCommand()
+    {
+        // Arrange
+        var did = _fixture.Create<string>();
+        var mac = "AA:BB:CC:DD:EE:FF";
+
+        _devicesDiscoverer
+            .Setup(x => x.DiscoverMeshDevices())
+            .Returns([new MeshDeviceInfo(did, XiaomiMeshWallSwitchSingleOpen.PDID, mac)]);
+
+        XiaomiMeshWallSwitchSingleOpen discovered = null;
+        _gw.Object.OnDeviceDiscoveredAsync += device =>
+        {
+            discovered = device as XiaomiMeshWallSwitchSingleOpen;
+            return Task.CompletedTask;
+        };
+
+        // Act
+        _gw.Object.DiscoverDevices();
+        discovered.Should().NotBeNull();
+        discovered.TurnOn();
+
+        // Assert: mesh MAC is kept as stored, not byte-reversed like gateway_authed_table MACs
+        discovered.Mac.Should().Be(mac);
+        _mqttTransport.Verify(x => x.SendCommand("miio/command", It.Is<string>(s => s.Contains("set_properties") && s.Contains(did))), Times.Once);
     }
 
     [Fact]

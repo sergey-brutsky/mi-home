@@ -100,6 +100,49 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
         eventRaised.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(2, 1001)]
+    [InlineData(3, 1003)]
+    public void Check_Property_With_Wrong_Siid_Is_Ignored(int siid, int piid)
+    {
+        // Arrange: piid alone is not enough, the same piid under another service must not change anything
+        var eventRaised = false;
+
+        _th.OnTemperatureChangeAsync += _ => { eventRaised = true; return Task.CompletedTask; };
+        _th.OnHumidityChangeAsync += _ => { eventRaised = true; return Task.CompletedTask; };
+        _th.OnBatteryPercentAsync += _ => { eventRaised = true; return Task.CompletedTask; };
+
+        JsonObject jsonNode = new()
+        {
+            ["siid"] = siid,
+            ["piid"] = piid,
+            ["value"] = 50,
+        };
+
+        // Act
+        _th.ParseData(jsonNode.ToString());
+
+        // Assert
+        eventRaised.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Check_Ble_Event_Payload_Is_Ignored()
+    {
+        // Arrange: _async.ble_event params have evt/eid and no siid
+        var eventRaised = false;
+        _th.OnTemperatureChangeAsync += _ => { eventRaised = true; return Task.CompletedTask; };
+
+        var bleEvent = SetupBleAsyncEventParams(4100, "d400").ToString();
+
+        // Act
+        var act = () => _th.ParseData(bleEvent);
+
+        // Assert
+        act.Should().NotThrow();
+        eventRaised.Should().BeFalse();
+    }
+
     [Fact]
     public void Check_Device_Model_And_Pdid()
     {

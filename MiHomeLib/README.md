@@ -1,1 +1,1 @@
-Added support for [Aqara Wireless Mini Switch E1 WXKG20LM](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Wireless-Mini-Switch-E1(WXKG20LM))
+Added support for [Xiaomi Smart Wall Switch Single Open](https://github.com/sergey-brutsky/mi-home/wiki/Xiaomi-Smart-Switch-(DHKG01CM))  BLE Mesh, with control of on/off, toggle, wireless mode, indicator light and power-change

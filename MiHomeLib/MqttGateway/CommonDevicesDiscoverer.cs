@@ -114,6 +114,41 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
 
         return bleDevicesList;
     }
+    public List<MeshDeviceInfo> DiscoverMeshDevices()
+    {
+        var meshDevicesList = new List<MeshDeviceInfo>();
+
+        var tmpName = Path.GetTempFileName();
+        File.WriteAllBytes(tmpName, ReadFileByPath(blePath));
+
+        using var conn = new SqliteConnection($"Data Source={tmpName}");
+        conn.Open();
+
+        var command = conn.CreateCommand();
+        command.CommandText = "SELECT did, pdid, mac FROM mesh_device_v3";
+
+        // Older firmware has no mesh table, which just means there are no mesh devices
+        try
+        {
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                meshDevicesList.Add(new MeshDeviceInfo(reader.GetString(0), reader.GetInt32(1), reader.GetString(2)));
+            }
+        }
+        catch (SqliteException e) when (e.Message.Contains("no such table"))
+        {
+            meshDevicesList.Clear();
+        }
+        finally
+        {
+            conn.Close();
+            File.Delete(tmpName);
+        }
+
+        return meshDevicesList;
+    }
     public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices()
     {
         var json = JsonNode.Parse(Encoding.ASCII.GetString(ReadFileByPath(zigbeePath)));
