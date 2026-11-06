@@ -86,6 +86,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
         DiscoverZigbeeDevices().Wait();
         DiscoverBleDevices().Wait();
+        DiscoverMeshDevices().Wait();
     }
 
     protected virtual async Task DiscoverZigbeeDevices()
@@ -189,6 +190,27 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
             _devices.Add(mihomeDevice.Did, mihomeDevice);
             _logger.LogInformation($"Device '{model}' with did '{mihomeDevice.Did}' has been successfully discovered");
+            await OnDeviceDiscoveredAsync(mihomeDevice);
+        }
+    }
+    protected virtual async Task DiscoverMeshDevices()
+    {
+        foreach (var device in _devicesDiscoverer.DiscoverMeshDevices())
+        {
+            if (!_pdidToModel.TryGetValue(device.Pdid, out var model))
+            {
+                _logger.LogWarning($"Mesh device with pdid '{device.Pdid}' is not supported yet. Please contribute to support.");
+                continue;
+            }
+
+            var mihomeDevice = Activator.CreateInstance(_supportedModels[model], device.Did, _loggerFactory) as MeshDevice;
+
+            // mesh_device_v3 stores MAC already as aa:bb:cc:dd:ee:ff, unlike gateway_authed_table
+            mihomeDevice.Mac = device.Mac;
+            mihomeDevice.MqttTransport = _mqttTransport;
+
+            _devices.Add(mihomeDevice.Did, mihomeDevice);
+            _logger.LogInformation($"Mesh device '{model}' with did '{mihomeDevice.Did}' has been successfully discovered");
             await OnDeviceDiscoveredAsync(mihomeDevice);
         }
     }

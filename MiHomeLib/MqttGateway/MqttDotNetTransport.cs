@@ -53,10 +53,12 @@ internal class MqttDotNetTransport : IMqttTransport, IDisposable
     }
 
 
-    public void SendMessage(string message)
+    public void SendMessage(string message) => SendCommand(_commandsTopic, message);
+
+    public void SendCommand(string topic, string message)
     {
         _mqttClient
-            .PublishStringAsync(_commandsTopic, message)
+            .PublishStringAsync(topic, message)
             .Wait(TimeSpan.FromMilliseconds(TIMEOUT_MS));
     }
     public event Action<string, string> OnMessageReceived;
