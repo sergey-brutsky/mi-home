@@ -4,25 +4,25 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using AutoFixture;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.Contracts;
 using Moq;
 
 namespace MiHomeUnitTests.XiaomiGateway2SubDevicesTests;
 
-public class Gw2DeviceTests: MiioDeviceBase
+public class Gw2DeviceTests: MiioDeviceBase, IDisposable
 {
     protected readonly Mock<IMessageTransport> _messageTransport;
-    protected readonly NullLoggerFactory _loggerFactory;
+    protected readonly ErrorRecordingLoggerFactory _loggerFactory = new();
     protected readonly Fixture _fixture = new();
     
     public Gw2DeviceTests()
     {
-        _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => new NullLoggerFactory()));
+        _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => _loggerFactory));
         _messageTransport = new Mock<IMessageTransport>();
         _messageTransport.SetupProperty(m => m.Token);        
-        _loggerFactory = new NullLoggerFactory();
     }
+
+    public void Dispose() => _loggerFactory.ThrowIfAnyErrors();
 
     public string CreateCommand(string cmd, string model, string sid, int short_id, Dictionary<string, object> data)
     {

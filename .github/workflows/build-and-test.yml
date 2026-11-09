@@ -16,11 +16,11 @@ jobs:
     name: 'Build & Test'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
     - name: Setup dotnet core
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        global-json-file: global.json
     - name: Restore dependencies
       run: dotnet restore -s https://api.nuget.org/v3/index.json
     - name: Build

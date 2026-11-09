@@ -18,15 +18,13 @@ public class ZigbeeHeartBeatCommandProcessor(Dictionary<string, MqttGatewaySubDe
 
         if (data.Count != 1)
         {
-            _logger.LogWarning($"Wrong structure of heartbeat message --> '{data}'." +
-            "Processing of such structure is not supported");
+            _logger.LogWarning("Wrong structure of heartbeat message --> '{Message}'. Processing of such structure is not supported", json);
             return;
         }
 
         if (!data[0].ContainsKey("did"))
         {
-            _logger.LogWarning("Heartbeat message doesn't contain 'did'." +
-            "Processing of such structure is not supported");
+            _logger.LogWarning("Heartbeat message doesn't contain 'did'. Processing of such structure is not supported");
             return;
         }
 
@@ -39,7 +37,7 @@ public class ZigbeeHeartBeatCommandProcessor(Dictionary<string, MqttGatewaySubDe
         }
         else
         {
-            _logger.LogWarning($"Did '{did}' is unknown. Cannot process '{ACTION}' command for this device.");
+            _logger.LogWarning("Did '{Did}' is unknown. Cannot process '{Action}' command for this device.", did, ACTION);
         }
     }
 }

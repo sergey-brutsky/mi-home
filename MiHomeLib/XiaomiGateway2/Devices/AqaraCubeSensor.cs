@@ -28,7 +28,7 @@ public class AqaraCubeSensor : BatteryXiaomiGateway2SubDevice
 
         Status = CubeStatus.Undefined;
 
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {            
             Status = x.GetString() switch
             {
@@ -40,15 +40,15 @@ public class AqaraCubeSensor : BatteryXiaomiGateway2SubDevice
                 _ => CubeStatus.Undefined,
             };  
 
-            if(OnStatusChangedAsync is not null) await OnStatusChangedAsync.Invoke(Status);
+            if(OnStatusChangedAsync is not null) RaiseEvent(() => OnStatusChangedAsync.Invoke(Status));
         });
 
-        Actions.Add("rotate", async x => 
+        Actions.Add("rotate", x => 
         {
             var array = x.GetString().Split(',').Select(short.Parse).ToArray();
             Rotate = new CubeRotate(array[0], array[1]);;
             Status = CubeStatus.Rotated;
-            await OnStatusChangedAsync(Status);
+            RaiseEvent(() => OnStatusChangedAsync(Status));
         });
     }
 

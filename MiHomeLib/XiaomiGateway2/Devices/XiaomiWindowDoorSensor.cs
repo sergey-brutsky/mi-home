@@ -11,33 +11,33 @@ public class XiaomiWindowDoorSensor : BatteryXiaomiGateway2SubDevice
 
     public XiaomiWindowDoorSensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
             var status = x.GetString();
 
             if (status == "open")
             {
                 Status = status;
-                await OnOpenAsync();
+                RaiseEvent(() => OnOpenAsync());
             }
             else if (status == "close")
             {
                 Status = status;
-                await OnCloseAsync();
+                RaiseEvent(() => OnCloseAsync());
             }
         });
 
-        Actions.Add("no_close", async x => 
+        Actions.Add("no_close", x => 
         {
             var noClose = int.Parse(x.GetString());
 
             if(noClose == 60 && NotClosedFor1MinuteAsync is not null) 
             {
-                await NotClosedFor1MinuteAsync();
+                RaiseEvent(() => NotClosedFor1MinuteAsync());
             }
             else if(noClose == 300 && NotClosedFor5MinutesAsync is not null) 
             {
-                await NotClosedFor5MinutesAsync();
+                RaiseEvent(() => NotClosedFor5MinutesAsync());
             }
         });
     }

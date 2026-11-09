@@ -12,33 +12,7 @@ public class XiaomiRobotVacuumX20PlusTests : MiioDeviceBase
 
     public XiaomiRobotVacuumX20PlusTests()
     {
-        _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(new {
-                id = 1,
-                result = new
-                {
-                    uptime = 9683307,
-                    life = 9683307,
-                    miio_ver = "0.0.9",
-                    mac = "dc:dc:13:25:17:34",
-                    fw_ver = "4.3.3_0027",
-                    hw_ver = "Linux",
-                    ap = new
-                    {
-                        ssid = "ssid1",
-                        bssid = "bssid1",
-                        rssi = -35,
-                        freq = 2437,
-                    },
-                    netif = new
-                    {
-                        localIp = "192.168.1.100",
-                        mask = "255.255.255.0",
-                        gw = "192.168.1.1",
-                    }
-                }
-            }.ToJson());
+        SetupMiioInfo();
 
         _miRobot = new XiaomiRobotVacuumX20Plus(_miioTransport.Object);
     }

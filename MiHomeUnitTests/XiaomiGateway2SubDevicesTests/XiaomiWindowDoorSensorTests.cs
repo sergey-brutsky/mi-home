@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoFixture;
 using MiHomeLib.XiaomiGateway2.Devices;
@@ -14,76 +16,29 @@ public class XiaomiWindowDoorSensorTests: Gw2DeviceTests
         _device = new XiaomiWindowDoorSensor(_fixture.Create<string>(), _fixture.Create<byte>(), _loggerFactory);
     }
 
-    [Fact]
-    public void Check_DoorWindowSensor_Raised_Open_Event()
+    private static readonly Dictionary<string, Action<XiaomiWindowDoorSensor, Func<Task>>> Subscribe = new()
+    {
+        ["open"] = (d, h) => d.OnOpenAsync += h,
+        ["close"] = (d, h) => d.OnCloseAsync += h,
+        ["no_close_60"] = (d, h) => d.NotClosedFor1MinuteAsync += h,
+        ["no_close_300"] = (d, h) => d.NotClosedFor5MinutesAsync += h,
+    };
+
+    [Theory]
+    [InlineData("open", "{\"status\":\"open\"}")]
+    [InlineData("close", "{\"status\":\"close\"}")]
+    [InlineData("no_close_60", "{\"no_close\":\"60\"}")]
+    [InlineData("no_close_300", "{\"no_close\":\"300\"}")]
+    public void Report_Raises_Matching_Event(string @event, string data)
     {
         // Arrange
         var eventRaised = false;
-        
-        _device.OnOpenAsync += () => 
-        {
-            eventRaised = true;
-            return Task.CompletedTask;
-        };
+        Subscribe[@event](_device, () => { eventRaised = true; return Task.CompletedTask; });
 
         // Act
-        _device.ParseData($"{{\"status\":\"open\"}}");
+        _device.ParseData(data);
 
         // Assert
-        Assert.True(eventRaised);
-    }
-
-    [Fact]
-    public void Check_DoorWindowSensor_Raised_Closed_Event()
-    {
-        // Arrange
-        var eventRaised = false;
-        
-        _device.OnCloseAsync += () => 
-        {
-            eventRaised = true;
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _device.ParseData($"{{\"status\":\"close\"}}");
-
-        Assert.True(eventRaised);
-    }
-
-    [Fact]
-    public void Check_DoorWindowSensor_Raised_NotClosedFor1Minute_Event()
-    {
-        // Arrange
-        var eventRaised = false;
-        
-        _device.NotClosedFor1MinuteAsync += () => 
-        {
-            eventRaised = true;
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _device.ParseData($"{{\"no_close\":\"60\"}}");
-
-        Assert.True(eventRaised);
-    }
-
-    [Fact]
-    public void Check_DoorWindowSensor_Raised_NotClosedFor5Minutes_Event()
-    {
-        // Arrange
-        var eventRaised = false;
-        
-        _device.NotClosedFor5MinutesAsync += () => 
-        {
-            eventRaised = true;
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _device.ParseData($"{{\"no_close\":\"300\"}}");
-
         Assert.True(eventRaised);
     }
 }

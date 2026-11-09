@@ -22,47 +22,16 @@ public class ResponseCommandTests
         responseCommand.Command.Should().Be(expected);
     }
 
+    private const string PlugReport = "{\"cmd\":\"report\",\"model\":\"plug\",\"sid\":\"158d0001826509\",\"short_id\":11109,\"data\":\"{\\\"temperature\\\":\\\"2246\\\"}\"}";
+
     [Fact]
-    public void CheckModel()
+    public void Parses_Model_Sid_ShortId_And_Data()
     {
-        // Arrange
-        var str = "{\"cmd\":\"report\",\"model\":\"plug\",\"sid\":\"158d0001826509\",\"short_id\":11109,\"data\":\"{\\\"temperature\\\":\\\"2246\\\"}\"}";
-        // Act 
-        var responseCommand = ResponseCommand.FromString(str);
-        // Assert
+        var responseCommand = ResponseCommand.FromString(PlugReport);
+
         responseCommand.Model.Should().Be("plug");
-    }
-
-    [Fact]
-    public void CheckSid()
-    {
-        // Arrange
-        var str = "{\"cmd\":\"report\",\"model\":\"plug\",\"sid\":\"158d0001826509\",\"short_id\":11109,\"data\":\"{\\\"temperature\\\":\\\"2246\\\"}\"}";
-        // Act 
-        var responseCommand = ResponseCommand.FromString(str);
-        // Assert
         responseCommand.Sid.Should().Be("158d0001826509");
-    }
-
-    [Fact]
-    public void CheckShortId()
-    {
-        // Arrange
-        var str = "{\"cmd\":\"report\",\"model\":\"plug\",\"sid\":\"158d0001826509\",\"short_id\":11109,\"data\":\"{\\\"temperature\\\":\\\"2246\\\"}\"}";
-        // Act 
-        var responseCommand = ResponseCommand.FromString(str);
-        // Assert
         responseCommand.ShortId.Should().Be(11109);
-    }
-
-    [Fact]
-    public void CheckData()
-    {
-        // Arrange
-        var str = "{\"cmd\":\"report\",\"model\":\"plug\",\"sid\":\"158d0001826509\",\"short_id\":11109,\"data\":\"{\\\"temperature\\\":\\\"2246\\\"}\"}";
-        // Act 
-        var responseCommand = ResponseCommand.FromString(str);
-        // Assert
         responseCommand.Data.Should().Be("{\"temperature\":\"2246\"}");
     }
 

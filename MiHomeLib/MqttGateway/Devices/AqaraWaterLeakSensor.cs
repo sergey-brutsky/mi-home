@@ -12,10 +12,10 @@ public class AqaraWaterLeakSensor : LumiZigBeeBatteryDevice
     public event Func<Task> OnMoistureChangeAsync = () => Task.CompletedTask;
     public AqaraWaterLeakSensor(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Actions.Add(MOISTURE_RES_NAME, async x =>
+        Actions.Add(MOISTURE_RES_NAME, x =>
         {
             Moisture = x.GetInt32() == 1;
-            await OnMoistureChangeAsync();
+            RaiseEvent(() => OnMoistureChangeAsync());
         });
     }
 

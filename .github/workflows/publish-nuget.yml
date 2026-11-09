@@ -1,0 +1,34 @@
+name: publish nuget
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      id-token: write
+    name: 'Publish to nuget.org'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup dotnet core
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - name: Read package version
+      id: version
+      run: echo "value=$(dotnet msbuild MiHomeLib -getProperty:Version -nologo)" >> "$GITHUB_OUTPUT"
+    - name: Restore dependencies
+      run: dotnet restore -s https://api.nuget.org/v3/index.json
+    - name: Test
+      run: dotnet test --no-restore MiHomeUnitTests
+    - name: Pack
+      run: dotnet pack MiHomeLib --no-restore -c Release -o artifacts
+    - name: NuGet login (OIDC -> temporary API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+    - name: Push MiHomeLib ${{ steps.version.outputs.value }}
+      run: dotnet nuget push artifacts/MiHomeLib.${{ steps.version.outputs.value }}.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

@@ -30,9 +30,9 @@ public class XiaomiMeshWallSwitchSingleOpen : MeshDevice
 
     public XiaomiMeshWallSwitchSingleOpen(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Properties.Add((SWITCH_SIID, ON_PIID), x => _ = OnStateAsync(x.GetValue<bool>()));
-        Properties.Add((INDICATOR_SIID, INDICATOR_PIID), x => _ = OnIndicatorLightAsync(x.GetValue<bool>()));
-        Events.Add((CLICK_SIID, CLICK_EIID), () => _ = OnClickAsync());
+        Properties.Add((SWITCH_SIID, ON_PIID), x => UpdateState(x.GetValue<bool>()));
+        Properties.Add((INDICATOR_SIID, INDICATOR_PIID), x => UpdateIndicatorLight(x.GetValue<bool>()));
+        Events.Add((CLICK_SIID, CLICK_EIID), () => RaiseEvent(() => OnClickAsync()));
     }
 
     public enum WirelessMode
@@ -106,18 +106,18 @@ public class XiaomiMeshWallSwitchSingleOpen : MeshDevice
     /// </summary>
     public void SetPowerChangeValue(PowerChangeValue value) => SetProperty(POWER_CHANGE_SIID, POWER_CHANGE_PIID, (int)value);
 
-    private async Task OnStateAsync(bool value)
+    private void UpdateState(bool value)
     {
         var oldValue = IsTurnedOn;
         IsTurnedOn = value;
-        await OnStateChangeAsync(oldValue);
+        RaiseEvent(() => OnStateChangeAsync(oldValue));
     }
 
-    private async Task OnIndicatorLightAsync(bool value)
+    private void UpdateIndicatorLight(bool value)
     {
         var oldValue = IsIndicatorLightEnabled;
         IsIndicatorLightEnabled = value;
-        await OnIndicatorLightChangeAsync(oldValue);
+        RaiseEvent(() => OnIndicatorLightChangeAsync(oldValue));
     }
 
     public override string ToString() => GetBaseInfo(MARKET_MODEL, MODEL) + $"On: {IsTurnedOn}";

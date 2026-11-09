@@ -17,16 +17,16 @@ public class AqaraOppleFourButtonsWirelesSwitch: AqaraOppleTwoButtonsWirelesSwit
     public event Func<ClickArg, Task> OnButton4ClickAsync = (_) => Task.CompletedTask;
     public AqaraOppleFourButtonsWirelesSwitch(string did, ILoggerFactory loggerFactory): base(did, loggerFactory)
     {
-        Actions.Add(BUTTON3_RES_NAME, async x => 
+        Actions.Add(BUTTON3_RES_NAME, x => 
         {
             var val = x.GetInt32();
-            if(_validClickValues.Contains(val)) await OnButton3ClickAsync((ClickArg)val);
+            if(_validClickValues.Contains(val)) RaiseEvent(() => OnButton3ClickAsync((ClickArg)val));
         });
 
-        Actions.Add(BUTTON4_RES_NAME, async x => 
+        Actions.Add(BUTTON4_RES_NAME, x => 
         {
             var val = x.GetInt32();
-            if(_validClickValues.Contains(val)) await OnButton4ClickAsync((ClickArg)val);
+            if(_validClickValues.Contains(val)) RaiseEvent(() => OnButton4ClickAsync((ClickArg)val));
         });
     }
 

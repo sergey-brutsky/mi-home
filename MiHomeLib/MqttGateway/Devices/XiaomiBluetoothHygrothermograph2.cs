@@ -14,18 +14,18 @@ public class XiaomiBluetoothHygrothermograph2 : BleBatteryDevice
 
     public XiaomiBluetoothHygrothermograph2(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(TEMPERATURE_EID, async x => 
+        EidToActions.Add(TEMPERATURE_EID, x => 
         {
             var oldTemperature = Temperature;
             Temperature = ToBleFloat(x);
-            await OnTemperatureChangeAsync(oldTemperature);
+            RaiseEvent(() => OnTemperatureChangeAsync(oldTemperature));
         });
 
-        EidToActions.Add(HUMIDITY_EID, async x => 
+        EidToActions.Add(HUMIDITY_EID, x => 
         {
             var oldHumidity = Humidity;
             Humidity = ToBleFloat(x);
-            await OnHumidityChangeAsync(oldHumidity);
+            RaiseEvent(() => OnHumidityChangeAsync(oldHumidity));
         });
     }
     public float Temperature { get; set; }

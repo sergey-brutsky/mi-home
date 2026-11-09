@@ -22,36 +22,36 @@ public class XiaomiBluetoothHygrothermograph3 : MiSpecBleDevice
 
     public XiaomiBluetoothHygrothermograph3(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Properties.Add((BATTERY_SIID, BATTERY_PIID), async value =>
+        Properties.Add((BATTERY_SIID, BATTERY_PIID), value =>
         {
             var oldBatteryPercent = BatteryPercent;
 
             if (byte.TryParse(value.ToString(), out var result))
             {
                 BatteryPercent = result;
-                await OnBatteryPercentAsync(oldBatteryPercent);
+                RaiseEvent(() => OnBatteryPercentAsync(oldBatteryPercent));
             }
         });
 
-        Properties.Add((SENSOR_SIID, TEMPERATURE_PIID), async value =>
+        Properties.Add((SENSOR_SIID, TEMPERATURE_PIID), value =>
         {
             var oldTemperature = Temperature;
 
             if (float.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
             {
                 Temperature = result;
-                await OnTemperatureChangeAsync(oldTemperature);
+                RaiseEvent(() => OnTemperatureChangeAsync(oldTemperature));
             }
         });
 
-        Properties.Add((SENSOR_SIID, HUMIDITY_PIID), async value =>
+        Properties.Add((SENSOR_SIID, HUMIDITY_PIID), value =>
         {
             var oldHumidity = Humidity;
 
             if (byte.TryParse(value.ToString(), out var result))
             {
                 Humidity = result;
-                await OnHumidityChangeAsync(oldHumidity);
+                RaiseEvent(() => OnHumidityChangeAsync(oldHumidity));
             }
         });
     }

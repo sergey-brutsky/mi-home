@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using FluentAssertions;
 using MiHomeLib.MiioDevices;
-using Moq;
 using Xunit;
+using static MiHomeLib.MiioDevices.XiaomiAirHumidifierV1;
 
 namespace MiHomeUnitTests.MiioDevicesTests;
 
@@ -15,386 +15,180 @@ public class XiaomiAirHumidifierV1Tests: MiioDeviceBase
         _airHumidifier = new XiaomiAirHumidifierV1(_miioTransport.Object);
     }
 
-    [Fact]
-    public void PowerOn_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PowerOn_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("set_power", "ok");
+        SetupResult(isAsync, "set_power", "ok");
 
-        // Act
-        _airHumidifier.PowerOn();
+        await Call(isAsync, _airHumidifier.PowerOn, _airHumidifier.PowerOnAsync);
 
-        // Assert
-        VerifyMethod("set_power", "on");
+        VerifySent(isAsync, "set_power", "on");
     }
 
-    [Fact]
-    public async Task PowerOnAsync_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PowerOff_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethodAsync("set_power", "ok");
-        
-        // Act
-        await _airHumidifier.PowerOnAsync();
+        SetupResult(isAsync, "set_power", "ok");
 
-        // Assert
-        VerifyMethodAsync("set_power", "on");
+        await Call(isAsync, _airHumidifier.PowerOff, _airHumidifier.PowerOffAsync);
+
+        VerifySent(isAsync, "set_power", "off");
     }
 
-    [Fact]
-    public void PowerOff_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, Mode.High, "high")]
+    [InlineData(true, Mode.Medium, "medium")]
+    public async Task SetMode_Sends_Command(bool isAsync, Mode mode, string expected)
     {
-        // Arrange
-        SendResultMethod(string.Empty, ["ok"]);
-        
-        // Act
-        _airHumidifier.PowerOff();
+        SetupResult(isAsync, "set_mode", "ok");
 
-        // Assert
-        VerifyMethod("set_power", "off");
+        await Call(isAsync, () => _airHumidifier.SetMode(mode), () => _airHumidifier.SetModeAsync(mode));
+
+        VerifySent(isAsync, "set_mode", expected);
     }
 
-    [Fact]
-    public async Task PowerOffAsync_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, "on", true)]
+    [InlineData(true, "on", true)]
+    public async Task IsTurnedOn_Returns_Power_State(bool isAsync, string reported, bool expected)
     {
-        // Arrange
-        SendResultMethodAsync("set_power", "ok");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        await _airHumidifier.PowerOffAsync();
+        var power = await Call(isAsync, _airHumidifier.IsTurnedOn, _airHumidifier.IsTurnedOnAsync);
 
-        // Assert
-        VerifyMethodAsync("set_power", "off");
+        VerifySent(isAsync, "get_prop", "power");
+        power.Should().Be(expected);
     }
 
-    [Fact]
-    public void SetMode_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, "high", Mode.High)]
+    [InlineData(true, "medium", Mode.Medium)]
+    public async Task GetDeviceMode_Returns_Mode(bool isAsync, string reported, Mode expected)
     {
-        // Arrange
-        SendResultMethod("set_mode", "ok");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        _airHumidifier.SetMode(XiaomiAirHumidifierV1.Mode.High);
+        var mode = await Call(isAsync, _airHumidifier.GetDeviceMode, _airHumidifier.GetDeviceModeAsync);
 
-        // Assert
-        VerifyMethod("set_mode", "high");
+        VerifySent(isAsync, "get_prop", "mode");
+        mode.Should().Be(expected);
     }
 
-    [Fact]
-    public async Task SetModeAsync_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, "323", 32.3f)]
+    [InlineData(true, "325", 32.5f)]
+    public async Task GetTemperature_Returns_Temperature(bool isAsync, string reported, float expected)
     {
-        // Arrange
-        SendResultMethodAsync("set_mode", "ok");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        await _airHumidifier.SetModeAsync(XiaomiAirHumidifierV1.Mode.Medium);
+        var temperature = await Call(isAsync, _airHumidifier.GetTemperature, _airHumidifier.GetTemperatureAsync);
 
-        // Assert
-        VerifyMethodAsync("set_mode", "medium");
+        VerifySent(isAsync, "get_prop", "temp_dec");
+        temperature.Should().Be(expected);
     }
 
-    [Fact]
-    public void IsTurnedOn_Returns_State_Power()
+    [Theory]
+    [InlineData(false, "45", 45)]
+    [InlineData(true, "41", 41)]
+    public async Task GetHumidity_Returns_Humidity(bool isAsync, string reported, int expected)
     {
-        // Arrange
-        SendResultMethod("get_prop", "on");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        var power = _airHumidifier.IsTurnedOn();
+        var humidity = await Call(isAsync, _airHumidifier.GetHumidity, _airHumidifier.GetHumidityAsync);
 
-        // Assert
-        VerifyMethod("get_prop", "power");        
-        power.Should().BeTrue();
+        VerifySent(isAsync, "get_prop", "humidity");
+        humidity.Should().Be(expected);
     }
 
-    [Fact]
-    public async Task IsTurnedOnAsync_Returns_State_Power()
+    [Theory]
+    [InlineData(false, "0", Brightness.Bright)]
+    [InlineData(true, "2", Brightness.Off)]
+    public async Task GetBrightness_Returns_Brightness(bool isAsync, string reported, Brightness expected)
     {
-        // Arrange
-        SendResultMethodAsync("get_prop", "on");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        var power = await _airHumidifier.IsTurnedOnAsync();
+        var brightness = await Call(isAsync, _airHumidifier.GetBrightness, _airHumidifier.GetBrightnessAsync);
 
-        // Assert
-        VerifyMethodAsync("get_prop", "power");        
-        power.Should().BeTrue();
+        VerifySent(isAsync, "get_prop", "led_b");
+        brightness.Should().Be(expected);
     }
 
-    [Fact]
-    public void GetDeviceMode_Returns_Valid_Mode()
+    [Theory]
+    [InlineData(false, Brightness.Bright, 0)]
+    [InlineData(true, Brightness.Off, 2)]
+    public async Task SetBrightness_Sends_Command(bool isAsync, Brightness brightness, int expected)
     {
-        // Arrange
-        SendResultMethod("get_prop", "high");
+        SetupResult(isAsync, "set_led_b", "ok");
 
-        // Act
-        var mode = _airHumidifier.GetDeviceMode();
+        await Call(isAsync, () => _airHumidifier.SetBrightness(brightness), () => _airHumidifier.SetBrightnessAsync(brightness));
 
-        // Assert
-        VerifyMethod("get_prop", "mode");
-        mode.Should().Be(XiaomiAirHumidifierV1.Mode.High);
+        VerifySent(isAsync, "set_led_b", expected);
     }
 
-    [Fact]
-    public async Task GetDeviceModeAsync_Returns_Valid_Mode()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetTargetHumidity_Returns_TargetHumidity(bool isAsync)
     {
-        // Arrange
-        SendResultMethodAsync("get_prop", "medium");
- 
-        // Act
-        var mode = await _airHumidifier.GetDeviceModeAsync();
+        SetupResult(isAsync, "get_prop", "50");
 
-        // Assert
-        VerifyMethodAsync("get_prop", "mode");
-        mode.Should().Be(XiaomiAirHumidifierV1.Mode.Medium);
-    }
+        var targetHumidity = await Call(isAsync, _airHumidifier.GetTargetHumidity, _airHumidifier.GetTargetHumidityAsync);
 
-    [Fact]
-    public void GetTemperature_Returns_Valid_Temperature()
-    {
-        // Arrange
-        SendResultMethod("get_prop", "323");
-
-        // Act
-        var temperature = _airHumidifier.GetTemperature();
-
-        // Assert
-        VerifyMethod("get_prop", "temp_dec");
-
-        temperature.Should().Be(32.3f);
-    }
-
-    [Fact]
-    public async Task GetTemperatureAsync_Returns_Valid_Temperature()
-    {
-        // Arrange
-        SendResultMethodAsync("get_prop", "325");
-        
-        // Act
-        var temperature = await _airHumidifier.GetTemperatureAsync();
-
-        // Assert
-        VerifyMethodAsync("get_prop", "temp_dec");
-
-        temperature.Should().Be(32.5f);
-    }
-
-    [Fact]
-    public void GetHumidity_Returns_Valid_Humidity()
-    {
-        // Arrange
-        SendResultMethod("get_prop", "45");
-
-        // Act
-        var humidity = _airHumidifier.GetHumidity();
-
-        // Assert
-        VerifyMethod("get_prop", "humidity");        
-        humidity.Should().Be(45);
-    }
-
-    [Fact]
-    public async Task GetHumidityAsync_Returns_Valid_Humidity()
-    {
-        // Arrange
-        SendResultMethodAsync("get_prop", "41");
-        
-        // Act
-        var humidity = await _airHumidifier.GetHumidityAsync();
-
-        // Assert
-        VerifyMethodAsync("get_prop", "humidity");
-        humidity.Should().Be(41);
-    }
-
-    [Fact]
-    public void GetBrightness_Returns_Valid_Brightness()
-    {
-        // Arrange
-        SendResultMethod("get_prop", "0");
-
-        // Act
-        var brightness = _airHumidifier.GetBrightness();
-
-        // Assert
-        VerifyMethod("get_prop", "led_b");
-        brightness.Should().Be(XiaomiAirHumidifierV1.Brightness.Bright);
-    }
-
-    [Fact]
-    public async Task GetBrightnessAsync_Returns_Valid_Brightness()
-    {
-        // Arrange
-        SendResultMethodAsync("get_prop", "2");
-
-        // Act
-        var brightness = await _airHumidifier.GetBrightnessAsync();
-
-        // Assert
-        VerifyMethodAsync("get_prop", "led_b");
-        brightness.Should().Be(XiaomiAirHumidifierV1.Brightness.Off);
-    }
-
-    [Fact]
-    public void SetBrightness_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethod("set_led_b", "ok");
-        
-        // Act
-        _airHumidifier.SetBrightness(XiaomiAirHumidifierV1.Brightness.Bright);
-
-        // Assert
-        VerifyMethod("set_led_b", 1, 0);
-    }
-
-    [Fact]
-    public async Task SetBrightnessAsync_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync("set_led_b", "ok");
-
-        // Act
-        await _airHumidifier.SetBrightnessAsync(XiaomiAirHumidifierV1.Brightness.Off);
-
-        // Assert
-        VerifyMethodAsync("set_led_b", 2);
-    }
-
-    [Fact]
-    public void GetTargetHumidity_Returns_Valid_TargetHumidity()
-    {
-        // Arrange
-        SendResultMethod("get_prop", "50");
-
-        // Act
-        var targetHumidity = _airHumidifier.GetTargetHumidity();
-
-        // Assert
-        VerifyMethod("get_prop", "limit_hum");
+        VerifySent(isAsync, "get_prop", "limit_hum");
         targetHumidity.Should().Be(50);
     }
 
-    [Fact]
-    public async Task GetTargetHumidityAsync_Returns_Valid_TargetHumidity()
+    [Theory]
+    [InlineData(false, "on", true)]
+    [InlineData(true, "off", false)]
+    public async Task IsBuzzerOn_Returns_Buzzer_State(bool isAsync, string reported, bool expected)
     {
-        // Arrange
-        SendResultMethodAsync("get_prop", "50");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        var targetHumidity = await _airHumidifier.GetTargetHumidityAsync();
+        var buzzer = await Call(isAsync, _airHumidifier.IsBuzzerOn, _airHumidifier.IsBuzzerOnAsync);
 
-        // Assert
-        VerifyMethodAsync("get_prop", "limit_hum");
-        targetHumidity.Should().Be(50);
+        VerifySent(isAsync, "get_prop", "buzzer");
+        buzzer.Should().Be(expected);
     }
 
-    [Fact]
-    public void IsBuzzerOn_Returns_Valid_BuzzerState()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task BuzzerOn_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("get_prop", "on");
+        SetupResult(isAsync, "set_buzzer", "ok");
 
-        // Act
-        var buzzer = _airHumidifier.IsBuzzerOn();
+        await Call(isAsync, _airHumidifier.BuzzerOn, _airHumidifier.BuzzerOnAsync);
 
-        // Assert
-        VerifyMethod("get_prop", "buzzer");
-        buzzer.Should().BeTrue();
+        VerifySent(isAsync, "set_buzzer", "on");
     }
 
-    [Fact]
-    public async Task IsBuzzerOnAsync_Returns_Valid_BuzzerState()
+    [Theory]
+    [InlineData(false, "on", true)]
+    [InlineData(true, "off", false)]
+    public async Task IsChildLockOn_Returns_ChildLock_State(bool isAsync, string reported, bool expected)
     {
-        // Arrange
-        SendResultMethodAsync("get_prop", "off");
+        SetupResult(isAsync, "get_prop", reported);
 
-        // Act
-        var buzzer = await _airHumidifier.IsBuzzerOnAsync();
+        var childLock = await Call(isAsync, _airHumidifier.IsChildLockOn, _airHumidifier.IsChildLockOnAsync);
 
-        // Assert
-        VerifyMethodAsync("get_prop", "buzzer");
-        buzzer.Should().BeFalse();
+        VerifySent(isAsync, "get_prop", "child_lock");
+        childLock.Should().Be(expected);
     }
 
-    [Fact]
-    public void BuzzerOn_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ChildLockOn_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("set_buzzer", "ok");
+        SetupResult(isAsync, "set_child_lock", "ok");
 
-        // Act
-        _airHumidifier.BuzzerOn();
+        await Call(isAsync, _airHumidifier.ChildLockOn, _airHumidifier.ChildLockOnAsync);
 
-        // Assert
-        VerifyMethod("set_buzzer", "on");
-    }
-
-    [Fact]
-    public async Task BuzzerOnAsync_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync("set_buzzer", "ok");
-
-        // Act
-        await _airHumidifier.BuzzerOnAsync();
-
-        // Assert
-        VerifyMethodAsync("set_buzzer", "on");
-    }
-
-    [Fact]
-    public void IsChildLockOn_Returns_Valid_ChildLockState()
-    {
-        // Arrange
-        SendResultMethod("get_prop", "on");
-
-        // Act
-        var childLock = _airHumidifier.IsChildLockOn();
-
-        // Assert
-        VerifyMethod("get_prop", "child_lock");
-        childLock.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task IsChildLockOnAsync_Returns_Valid_ChildLockState()
-    {
-        // Arrange
-        SendResultMethodAsync("get_prop", "off");
-        
-        // Act
-        var childLock = await _airHumidifier.IsChildLockOnAsync();
-
-        // Assert
-        VerifyMethodAsync("get_prop", "child_lock");
-        childLock.Should().BeFalse();
-    }
-
-    [Fact]
-    public void ChildLockOn_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethod("set_child_lock", "ok");
-
-        // Act
-        _airHumidifier.ChildLockOn();
-
-        // Assert
-        VerifyMethod("set_child_lock", "on");
-    }
-
-    [Fact]
-    public async Task ChildLockOnAsync_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync("set_child_lock", "ok");
-
-        // Act
-        await _airHumidifier.ChildLockOnAsync();
-
-        // Assert
-        VerifyMethodAsync("set_child_lock", "on");
+        VerifySent(isAsync, "set_child_lock", "on");
     }
 
     [Fact]

@@ -31,8 +31,8 @@ public class PtxWirelessSwitchBle : BleDevice
 
     public PtxWirelessSwitchBle(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(CLICK_SIID, async x => await OnClickAsync((ClickArg)int.Parse(x)));
-        EidToActions.Add(LOW_BATTERY_SIID, async _ => await OnLowBatteryAsync());
+        EidToActions.Add(CLICK_SIID, x => RaiseEvent(() => OnClickAsync((ClickArg)int.Parse(x))));
+        EidToActions.Add(LOW_BATTERY_SIID, _ => RaiseEvent(() => OnLowBatteryAsync()));
     }
 
     protected internal override void ParseData(string data)

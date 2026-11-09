@@ -11,23 +11,23 @@ public class XiaomiHoneywellSmokeDetector : BatteryXiaomiGateway2SubDevice
 
     public XiaomiHoneywellSmokeDetector(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("alarm", async x => 
+        Actions.Add("alarm", x => 
         {
             Alarm = int.Parse(x.GetString()) == 1;
 
             if (Alarm)
             {
-                await OnAlarmAsync();
+                RaiseEvent(() => OnAlarmAsync());
             }
             else
             {
-                await OnAlarmStoppedAsync();
+                RaiseEvent(() => OnAlarmStoppedAsync());
             }
         });
 
-        Actions.Add("density", async x => 
+        Actions.Add("density", x => 
         {
-            await OnDensityChangeAsync(int.Parse(x.ToString()) / 100f);
+            RaiseEvent(() => OnDensityChangeAsync(int.Parse(x.ToString()) / 100f));
         });
     }
 

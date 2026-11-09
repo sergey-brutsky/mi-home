@@ -24,18 +24,18 @@ public class XiaomiTemperatureHumiditySensor : LumiZigBeeBatteryDevice
     public event Func<float, Task> OnHumidityChangeAsync = (_) => Task.CompletedTask;
     public XiaomiTemperatureHumiditySensor(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Actions.Add(TEMPERATURE_RES_NAME, async x =>
+        Actions.Add(TEMPERATURE_RES_NAME, x =>
         {
             var oldVal = Temperature;
             Temperature = (float)x.GetDouble()/100;
-            await OnTemperatureChangeAsync(oldVal);
+            RaiseEvent(() => OnTemperatureChangeAsync(oldVal));
         });
 
-        Actions.Add(HUMIDITY_RES_NAME, async x =>
+        Actions.Add(HUMIDITY_RES_NAME, x =>
         {
             var oldVal = Humidity;
             Humidity = (float)x.GetDouble()/100;
-            await OnHumidityChangeAsync(oldVal);
+            RaiseEvent(() => OnHumidityChangeAsync(oldVal));
         });
     }
     protected internal override string[] GetProps()

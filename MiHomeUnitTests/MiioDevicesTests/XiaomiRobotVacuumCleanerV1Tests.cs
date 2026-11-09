@@ -52,173 +52,90 @@ public class XiaomiRobotVacuumCleanerV1Tests: MiioDeviceBase
             $"IP Address: \nToken: ");
     }
 
-    [Fact]
-    public void FindMe_Should_Now_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task FindMe_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("find_me", "ok");
-        
-        // Act
-        _miRobot.FindMe();
+        SetupResult(isAsync, "find_me", "ok");
 
-        // Assert
-        VerifyMethod("find_me", string.Empty);
+        await Call(isAsync, _miRobot.FindMe, _miRobot.FindMeAsync);
+
+        VerifySent(isAsync, "find_me", string.Empty);
     }
 
-    [Fact]
-    public async Task FindMeAsync_Should_Now_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Home_Pauses_Then_Sends_To_Charging(bool isAsync)
     {
         // Arrange
-        SendResultMethodAsync("find_me", "ok");
-        
+        SetupResult(isAsync, "app_pause", "ok");
+        var charge = new { result = new[] { "ok" }, id = 2 }.ToJson();
+        var expectedCharge = new { id = 2, method = "app_charge", @params = new[] { string.Empty } }.ToJson();
+
+        if (isAsync)
+            _miioTransport.Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("app_charge")))).Returns(Task.FromResult(charge));
+        else
+            _miioTransport.Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("app_charge")))).Returns(charge);
+
         // Act
-        await _miRobot.FindMeAsync();
+        await Call(isAsync, _miRobot.Home, _miRobot.HomeAsync);
 
         // Assert
-        VerifyMethodAsync("find_me", string.Empty);
+        VerifySent(isAsync, "app_pause", string.Empty);
+
+        if (isAsync)
+            _miioTransport.Verify(x => x.SendMessageAsync(expectedCharge), Times.Once());
+        else
+            _miioTransport.Verify(x => x.SendMessage(expectedCharge), Times.Once());
     }
 
-    [Fact]
-    public void Home_Should_Now_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Start_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("app_pause", "ok");
+        SetupResult(isAsync, "app_start", "ok");
 
-        _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(new { result = new[] { "ok" }, id = 2 }.ToJson());
-        
-        // Act
-        _miRobot.Home();
+        await Call(isAsync, _miRobot.Start, _miRobot.StartAsync);
 
-        // Assert
-        VerifyMethod("app_pause", string.Empty);
-        
-        _miioTransport
-            .Verify(x => x.SendMessage(new { id = 2, method = "app_charge", @params = new[] {string.Empty} }.ToJson()), Times.Once());
+        VerifySent(isAsync, "app_start", string.Empty);
     }
 
-    [Fact]
-    public async Task HomeAsync_Should_Now_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Stop_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethodAsync("app_pause", "ok");
+        SetupResult(isAsync, "app_stop", "ok");
 
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("app_charge"))))
-            .Returns(Task.FromResult(new { result = new[] { "ok" }, id = 2 }.ToJson()));
-        
-        // Act
-        await _miRobot.HomeAsync();
+        await Call(isAsync, _miRobot.Stop, _miRobot.StopAsync);
 
-        // Assert
-        VerifyMethodAsync("app_pause", string.Empty);
-
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new { id = 2, method = "app_charge", @params = new[] {string.Empty}}.ToJson()), Times.Once());
+        VerifySent(isAsync, "app_stop", string.Empty);
     }
 
-    [Fact]
-    public void Start_Should_Now_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Pause_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethod("app_start", "ok");
-        
-        // Act
-        _miRobot.Start();
+        SetupResult(isAsync, "app_pause", "ok");
 
-        // Assert
-        VerifyMethod("app_start", string.Empty);
+        await Call(isAsync, _miRobot.Pause, _miRobot.PauseAsync);
+
+        VerifySent(isAsync, "app_pause", string.Empty);
     }
 
-    [Fact]
-    public async Task StartAsync_Should_Now_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Spot_Sends_Command(bool isAsync)
     {
-        // Arrange
-        SendResultMethodAsync("app_start", "ok");
-        
-        // Act
-        await _miRobot.StartAsync();
+        SetupResult(isAsync, "app_spot", "ok");
 
-        // Assert
-        VerifyMethodAsync("app_start", string.Empty);
-    }
+        await Call(isAsync, _miRobot.Spot, _miRobot.SpotAsync);
 
-    [Fact]
-    public void Stop_Should_Now_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethod("app_stop", "ok");
-        
-        // Act
-        _miRobot.Stop();
-
-        // Assert
-        VerifyMethod("app_stop", string.Empty);
-    }
-
-    [Fact]
-    public async Task StopAsync_Should_Now_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync("app_stop", "ok");
-        
-        // Act
-        await _miRobot.StopAsync();
-
-        // Assert
-        VerifyMethodAsync("app_stop", string.Empty);
-    }
-
-    [Fact]
-    public void Pause_Should_Now_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethod("app_pause", "ok");
-        
-        // Act
-        _miRobot.Pause();
-
-        // Assert
-        VerifyMethod("app_pause", string.Empty);
-    }
-
-    [Fact]
-    public async Task PauseAsync_Should_Now_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync("app_pause", "ok");
-        
-        // Act
-        await _miRobot.PauseAsync();
-
-        // Assert
-        VerifyMethodAsync("app_pause", string.Empty);
-    }
-
-    [Fact]
-    public void Spot_Should_Now_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethod("app_spot", "ok");
-        
-        // Act
-        _miRobot.Spot();
-
-        // Assert
-        VerifyMethod("app_spot", string.Empty);
-    }
-
-    [Fact]
-    public async Task SpotAsync_Should_Now_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync("app_spot", "ok");
-        
-        // Act
-        await _miRobot.SpotAsync();
-
-        // Assert
-        VerifyMethodAsync("app_spot", string.Empty);
+        VerifySent(isAsync, "app_spot", string.Empty);
     }
 }

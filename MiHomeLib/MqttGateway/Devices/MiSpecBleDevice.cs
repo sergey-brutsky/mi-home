@@ -27,7 +27,7 @@ public abstract class MiSpecBleDevice(string did, ILoggerFactory loggerFactory) 
         // _async.ble_event payloads carry evt/eid instead of siid, they are not meant for miot devices
         if (!@params.ContainsKey("siid"))
         {
-            _logger.LogWarning($"Message '{data}' is not in miot format (no siid). Processing is skipped");
+            _logger.LogWarning("Message '{Message}' is not in miot format (no siid). Processing is skipped", data);
             return;
         }
 

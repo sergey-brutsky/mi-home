@@ -28,22 +28,22 @@ public class XiaomiHoneywellSmokeDetector : LumiZigBeeManageableDevice
     public event Func<SensivityMode, Task> OnSmokeSensivityModeChanged = (_) => Task.CompletedTask;
     public XiaomiHoneywellSmokeDetector(string did, IMqttTransport mqttTransport, ILoggerFactory loggerFactory) : base(did, mqttTransport, loggerFactory)
     {
-        Actions.Add(SMOKE_DETECTED_RES_NAME, async x =>
+        Actions.Add(SMOKE_DETECTED_RES_NAME, x =>
         {
             SmokeDetected = x.GetInt32() == 1;
-            await OnSmokeDetectedAsync();
+            RaiseEvent(() => OnSmokeDetectedAsync());
         });
 
-        Actions.Add(SMOKE_DENSITY_RES_NAME, async x =>
+        Actions.Add(SMOKE_DENSITY_RES_NAME, x =>
         {
             var oldValue = SmokeDensity;
             SmokeDensity = (byte)x.GetInt32();
-            await OnSmokeDensityChangedAsync(oldValue);
+            RaiseEvent(() => OnSmokeDensityChangedAsync(oldValue));
         });
 
-        Actions.Add(SMOKE_MODE_RES_NAME, async x =>
+        Actions.Add(SMOKE_MODE_RES_NAME, x =>
         {
-            await OnSmokeSensivityModeChanged((SensivityMode)x.GetInt32());
+            RaiseEvent(() => OnSmokeSensivityModeChanged((SensivityMode)x.GetInt32()));
         });
     }
     protected internal override string[] GetProps()

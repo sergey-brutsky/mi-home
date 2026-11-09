@@ -18,16 +18,16 @@ public class AqaraOppleTwoButtonsWirelesSwitch: AqaraOppleWirelesSwitch
     public event Func<ClickArg, Task> OnButton2ClickAsync = (_) => Task.CompletedTask;
     public AqaraOppleTwoButtonsWirelesSwitch(string did, ILoggerFactory loggerFactory): base(did, loggerFactory)
     {
-        Actions.Add(BUTTON1_RES_NAME, async x => 
+        Actions.Add(BUTTON1_RES_NAME, x => 
         {
             var val = x.GetInt32();
-            if(_validClickValues.Contains(val)) await OnButton1ClickAsync((ClickArg)val);
+            if(_validClickValues.Contains(val)) RaiseEvent(() => OnButton1ClickAsync((ClickArg)val));
         });
 
-        Actions.Add(BUTTON2_RES_NAME, async x => 
+        Actions.Add(BUTTON2_RES_NAME, x => 
         {
             var val = x.GetInt32();
-            if(_validClickValues.Contains(val)) await OnButton2ClickAsync((ClickArg)val);
+            if(_validClickValues.Contains(val)) RaiseEvent(() => OnButton2ClickAsync((ClickArg)val));
         });
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MiHomeLib.XiaomiGateway2.Commands;
@@ -17,87 +18,31 @@ public class AqaraWirelessMiniSwitchCNTests : Gw2DeviceTests
         _switch = new AqaraWirelessMiniSwitchCN(_sid, _shortId, _loggerFactory);
     }
 
-    [Fact]
-    public void Check_Switch_Click_Raised()
+    private static readonly Dictionary<string, Action<AqaraWirelessMiniSwitchCN, Func<Task>>> Subscribe = new()
     {
-        bool clickRaised = false;
+        ["click"] = (sw, h) => sw.OnClickAsync += h,
+        ["double_click"] = (sw, h) => sw.OnDoubleClickAsync += h,
+        ["long_click_press"] = (sw, h) => sw.OnLongPressAsync += h,
+        ["long_click_release"] = (sw, h) => sw.OnLongReleaseAsync += h,
+    };
 
-        _switch.OnClickAsync += () =>
-        {
-            clickRaised = true;
-            return Task.CompletedTask;
-        };
+    [Theory]
+    [InlineData("click")]
+    [InlineData("double_click")]
+    [InlineData("long_click_press")]
+    [InlineData("long_click_release")]
+    public void Status_Raises_Matching_Event(string status)
+    {
+        var raised = false;
+        Subscribe[status](_switch, () => { raised = true; return Task.CompletedTask; });
 
         var cmd = CreateCommand("report", AqaraWirelessMiniSwitchCN.MODEL, _sid, _shortId, new Dictionary<string, object>
             {
-                { "status", "click" },
+                { "status", status },
             });
 
         _switch.ParseData(ResponseCommand.FromString(cmd).Data);
 
-        Assert.True(clickRaised);
-    }
-
-    [Fact]
-    public void Check_Switch_DoubleClick_Raised()
-    {
-        bool doubleClickRaised = false;
-
-        _switch.OnDoubleClickAsync += () =>
-        {
-            doubleClickRaised = true;
-            return Task.CompletedTask;
-        };
-
-        var cmd = CreateCommand("report", AqaraWirelessMiniSwitchCN.MODEL, _sid, _shortId, new Dictionary<string, object>
-            {
-                { "status", "double_click" },
-            });
-
-        _switch.ParseData(ResponseCommand.FromString(cmd).Data);
-
-        Assert.True(doubleClickRaised);
-    }
-
-    [Fact]
-    public void Check_Switch_LongPressClick_Raised()
-    {
-        bool longClickRaised = false;
-
-        _switch.OnLongPressAsync += () =>
-        {
-            longClickRaised = true;
-            return Task.CompletedTask;
-        };
-
-        var cmd = CreateCommand("report", AqaraWirelessMiniSwitchCN.MODEL, _sid, _shortId, new Dictionary<string, object>
-            {
-                { "status", "long_click_press" },
-            });
-
-        _switch.ParseData(ResponseCommand.FromString(cmd).Data);
-
-        Assert.True(longClickRaised);
-    }
-
-    [Fact]
-    public void Check_Switch_LongReleaseClick_Raised()
-    {
-        bool longClickRaised = false;
-
-        _switch.OnLongReleaseAsync += () =>
-        {
-            longClickRaised = true;
-            return Task.CompletedTask;
-        };
-
-        var cmd = CreateCommand("report", AqaraWirelessMiniSwitchCN.MODEL, _sid, _shortId, new Dictionary<string, object>
-            {
-                { "status", "long_click_release" },
-            });
-
-        _switch.ParseData(ResponseCommand.FromString(cmd).Data);
-
-        Assert.True(longClickRaised);
+        Assert.True(raised);
     }
 }

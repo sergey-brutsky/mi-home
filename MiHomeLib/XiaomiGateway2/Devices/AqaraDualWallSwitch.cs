@@ -11,16 +11,16 @@ public class AqaraDualWallSwitch: XiaomiGateway2SubDevice
 
     public AqaraDualWallSwitch(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("channel_0", async x => 
+        Actions.Add("channel_0", x => 
         {
             StatusLeft = x.GetString();
-            await OnSwitchChannelLeftAsync(StatusLeft);
+            RaiseEvent(() => OnSwitchChannelLeftAsync(StatusLeft));
         });
 
-        Actions.Add("channel_1", async x => 
+        Actions.Add("channel_1", x => 
         {
             StatusRight = x.GetString();
-            await OnSwitchChannelRightAsync(StatusRight);
+            RaiseEvent(() => OnSwitchChannelRightAsync(StatusRight));
         });
     }
 

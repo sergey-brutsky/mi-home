@@ -14,7 +14,7 @@ public class AqaraHubE1ChinaTests : MqttGatewayDeviceTests
 
     public AqaraHubE1ChinaTests()
     {
-        _gw = new AqaraHubE1China(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
+        _gw = new AqaraHubE1China(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object, _loggerFactory);
     }
 
     [Fact]

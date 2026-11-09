@@ -12,36 +12,36 @@ public class AqaraVirationSensor : BatteryXiaomiGateway2SubDevice
     
     public AqaraVirationSensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
             switch (x.GetString())
             {
                 case "vibrate":
-                    await OnVibrationAsync();
+                    RaiseEvent(() => OnVibrationAsync());
                     break;
                 case "tilt":
-                    await OnTiltAsync();
+                    RaiseEvent(() => OnTiltAsync());
                     break;
                 case "free_fall":
-                    await OnFreeFallAsync();
+                    RaiseEvent(() => OnFreeFallAsync());
                     break;
             }
         });  
 
-        Actions.Add("final_tilt_angle", async x => 
+        Actions.Add("final_tilt_angle", x => 
         {
-            await OnFinalTiltAngleAsync(int.Parse(x.GetString()));
+            RaiseEvent(() => OnFinalTiltAngleAsync(int.Parse(x.GetString())));
         }); 
 
-        Actions.Add("coordination", async x => 
+        Actions.Add("coordination", x => 
         {
             var coords = x.GetString().Split(',').Select(int.Parse).ToArray();
-            await OnCoordinationsAsync((coords[0], coords[1], coords[2]));
+            RaiseEvent(() => OnCoordinationsAsync((coords[0], coords[1], coords[2])));
         });  
 
-        Actions.Add("bed_activity", async x => 
+        Actions.Add("bed_activity", x => 
         {
-            await OnBedActivityAsync(int.Parse(x.GetString()));
+            RaiseEvent(() => OnBedActivityAsync(int.Parse(x.GetString())));
         }); 
     }
     public event Func<Task> OnVibrationAsync = () => Task.CompletedTask;

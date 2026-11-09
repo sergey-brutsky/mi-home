@@ -2,7 +2,6 @@ using AutoFixture;
 using Xunit;
 using FluentAssertions;
 using Moq;
-using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.Contracts;
 using System.Threading.Tasks;
 using MiHomeLib.MqttGateway.Devices;
@@ -46,7 +45,7 @@ public class XiaomiSmartHumanBodySensorTests: MqttGatewayDeviceTests
             .Setup(timer => timer.Start())
             .Raises(x => x.Elapsed += null, null, null);
 
-        var motionSensor = new XiaomiSmartHumanBodySensor(did, new NullLoggerFactory(), timer1.Object, timer2.Object);
+        var motionSensor = new XiaomiSmartHumanBodySensor(did, _loggerFactory, timer1.Object, timer2.Object);
         
         var eventRaised = false;
 
@@ -77,7 +76,7 @@ public class XiaomiSmartHumanBodySensorTests: MqttGatewayDeviceTests
             .Setup(timer => timer.Start())
             .Raises(x => x.Elapsed += null, null, null);
 
-        var motionSensor = new XiaomiSmartHumanBodySensor(did, new NullLoggerFactory(), timer1.Object, timer2.Object);
+        var motionSensor = new XiaomiSmartHumanBodySensor(did, _loggerFactory, timer1.Object, timer2.Object);
         
         var eventRaised = false;
 

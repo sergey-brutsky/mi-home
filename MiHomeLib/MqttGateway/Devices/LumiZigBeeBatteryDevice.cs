@@ -22,18 +22,18 @@ public abstract class LumiZigBeeBatteryDevice : LumiZigBeeDevice
     public event Func<byte, Task> OnBatteryPercentChange = (_) => Task.CompletedTask;
     public LumiZigBeeBatteryDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Actions.Add(VOLTAGE_RES_NAME, async x => 
+        Actions.Add(VOLTAGE_RES_NAME, x => 
         {
             var oldVal = Voltage;
             Voltage = x.GetInt32()/1000f;
-            await OnVoltageChangeAsync(oldVal);
+            RaiseEvent(() => OnVoltageChangeAsync(oldVal));
         });
         
-        Actions.Add(BATTERY_RES_NAME, async x => 
+        Actions.Add(BATTERY_RES_NAME, x => 
         {
             var oldVal = BatteryPercent;
             BatteryPercent = (byte)x.GetInt32();
-            await OnBatteryPercentChange(oldVal);
+            RaiseEvent(() => OnBatteryPercentChange(oldVal));
         });
     }
     protected internal override string[] GetProps()

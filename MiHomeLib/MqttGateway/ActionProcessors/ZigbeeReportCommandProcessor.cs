@@ -28,7 +28,7 @@ public class ZigbeeReportCommandProcessor: IActionProcessor
         }
         else
         {
-            _logger.LogWarning($"Did '{did}' is unknown. Cannot process '{ACTION}' command for this device.");
+            _logger.LogWarning("Did '{Did}' is unknown. Cannot process '{Action}' command for this device.", did, ACTION);
         }
     }
 }

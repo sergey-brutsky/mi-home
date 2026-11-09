@@ -54,53 +54,28 @@ public class AqaraWaterLeakSensorTests : Gw2DeviceTests
         Assert.Equal(3.005f, _waterLeakSensor.Voltage);
     }
 
-    [Fact]
-    public void Check_WaterLeakSensor_Raised_Leak()
+    [Theory]
+    [InlineData("leak", true)]
+    [InlineData("no_leak", false)]
+    public void Check_WaterLeakSensor_Raises_Matching_Event(string status, bool leak)
     {
         // Arrange
-        bool leakRaised = false;
+        bool leakRaised = false, noLeakRaised = false;
 
-        _waterLeakSensor.OnLeakAsync += () =>
-        {
-            leakRaised = true;
-            return Task.CompletedTask;
-        };
-        
-        // Act
-        var cmd = CreateCommand("report", AqaraWaterLeakSensor.MODEL, _sid, _shortId,
-                new Dictionary<string, object>
-                {
-                    { "status", "leak" }
-                });
-
-        _waterLeakSensor.ParseData(ResponseCommand.FromString(cmd).Data);
-
-        // Assert
-        Assert.True(leakRaised);
-    }
-
-    [Fact]
-    public void Check_WaterLeakSensor_Raised_NoLeak()
-    {
-        // Arrange
-        bool noleakRaised = false;
-
-        _waterLeakSensor.OnNoLeakAsync += () =>
-        {
-            noleakRaised = true;
-            return Task.CompletedTask;
-        };
+        _waterLeakSensor.OnLeakAsync += () => { leakRaised = true; return Task.CompletedTask; };
+        _waterLeakSensor.OnNoLeakAsync += () => { noLeakRaised = true; return Task.CompletedTask; };
 
         // Act
         var cmd = CreateCommand("report", AqaraWaterLeakSensor.MODEL, _sid, _shortId,
                 new Dictionary<string, object>
                 {
-                    { "status", "no_leak" }
+                    { "status", status }
                 });
 
         _waterLeakSensor.ParseData(ResponseCommand.FromString(cmd).Data);
 
         // Assert
-        Assert.True(noleakRaised);
+        Assert.Equal(leak, leakRaised);
+        Assert.Equal(!leak, noLeakRaised);
     }
 }

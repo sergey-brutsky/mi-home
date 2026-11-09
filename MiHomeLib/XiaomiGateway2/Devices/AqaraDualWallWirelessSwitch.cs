@@ -13,39 +13,39 @@ public class AqaraDualWallWirelessSwitch: BatteryXiaomiGateway2SubDevice
 
     public AqaraDualWallWirelessSwitch(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add(LeftChannel, async x => 
+        Actions.Add(LeftChannel, x => 
         {
             var leftChannel = x.GetString();
 
             if (leftChannel == "click")
             {
-                await OnLeftClickAsync();
+                RaiseEvent(() => OnLeftClickAsync());
             }
             else if (leftChannel == "double_click")
             {
-                 await OnLeftDoubleClickAsync();
+                 RaiseEvent(() => OnLeftDoubleClickAsync());
             }
             else if (leftChannel == "long_click")
             {
-                await OnLeftLongClickAsync();
+                RaiseEvent(() => OnLeftLongClickAsync());
             }
         });
 
-        Actions.Add(RightChannel, async x => 
+        Actions.Add(RightChannel, x => 
         {
             var rightChannel = x.GetString();
 
             if (rightChannel == "click")
             {
-                await OnRightClickAsync();
+                RaiseEvent(() => OnRightClickAsync());
             }
             else if (rightChannel == "double_click")
             {
-                await OnRightDoubleClickAsync();
+                RaiseEvent(() => OnRightDoubleClickAsync());
             }
             else if (rightChannel == "long_click")
             {
-                await OnRightLongClickAsync();
+                RaiseEvent(() => OnRightLongClickAsync());
             }
         });
     }

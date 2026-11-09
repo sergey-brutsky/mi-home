@@ -11,17 +11,17 @@ public class AqaraWaterLeakSensor : BatteryXiaomiGateway2SubDevice
 
     public AqaraWaterLeakSensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
             Status = x.GetString();
 
             if (Status == "leak")
             {
-                await OnLeakAsync();
+                RaiseEvent(() => OnLeakAsync());
             }
             else if (Status == "no_leak")
             {
-                await OnNoLeakAsync();
+                RaiseEvent(() => OnNoLeakAsync());
             }
         });
     }

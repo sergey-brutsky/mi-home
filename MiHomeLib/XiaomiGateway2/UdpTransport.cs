@@ -31,8 +31,25 @@ internal class UdpTransport: IMessageTransport
         {
             while (!_cts.IsCancellationRequested)
             {
-                var data = (await _udpClient.ReceiveAsync()).Buffer;
-                OnMessageReceived?.Invoke(Encoding.ASCII.GetString(data));
+                string message;
+
+                try
+                {
+                    message = Encoding.ASCII.GetString((await _udpClient.ReceiveAsync()).Buffer);
+                }
+                catch (Exception) when (_cts.IsCancellationRequested)
+                {
+                    return; // socket closed by Dispose
+                }
+
+                // A failing subscriber must not stop receiving messages for all the others
+                try
+                {
+                    OnMessageReceived?.Invoke(message);
+                }
+                catch (Exception)
+                {
+                }
             }
         }, _cts.Token);
     }
@@ -54,7 +71,8 @@ internal class UdpTransport: IMessageTransport
 
     public void Dispose()
     {
-        _udpClient?.Dispose();
+        // Cancel first, so the receive loop sees the cancellation when the socket closes under it
         _cts?.Cancel();
+        _udpClient?.Dispose();
     }
 }

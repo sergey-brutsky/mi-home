@@ -45,10 +45,10 @@ internal class MqttDotNetTransport : IMqttTransport, IDisposable
             throw new Exception($"Looks like MQTT brokker is not running on the {ip}:{port} . Please refer to the WIKI how to enable it on your hub");
         }
 
-        _logger.LogInformation($"MQTT client connected to the broker --> {ip}:{port}");
+        _logger.LogInformation("MQTT client connected to the broker --> {Ip}:{Port}", ip, port);
 
         _mqttClient.SubscribeAsync(subscriptionBuilder.Build()).Wait(TimeSpan.FromMilliseconds(TIMEOUT_MS));
-        _logger.LogInformation($"MQTT client subscribed to the topics --> {string.Join(",", listenTopics)}");
+        _logger.LogInformation("MQTT client subscribed to the topics --> {Topics}", string.Join(",", listenTopics));
         
     }
 

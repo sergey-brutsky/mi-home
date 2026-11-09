@@ -2,6 +2,7 @@
 // Your contributions are appreciated
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 
@@ -62,16 +63,21 @@ public class MultimodeGateway : MqttGatewayBase
         High = 3,
     }
 
-    public MultimodeGateway(string ip, string token, string did = "", int port = 1883) :
+    public MultimodeGateway(string ip, string token, string did = "", int port = 1883) : this(ip, token, did, port, null) { }
+
+    /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    public MultimodeGateway(string ip, string token, string did, int port, ILoggerFactory loggerFactory) :
         this(
                 did,
                 new MiioTransport(ip, token),
-                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, _loggerFactory),
-                new CommonDevicesDiscoverer(ip, 23, "admin", "# ", "/data/zigbee/device.info", "/data/miio/mible_local.db")
+                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory)),
+                new CommonDevicesDiscoverer(ip, 23, "admin", "# ", "/data/zigbee/device.info", "/data/miio/mible_local.db"),
+                loggerFactory
         )
     { }
 
-    internal MultimodeGateway(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(did, miioTransport, mqttTransport, devicesDiscoverer)
+    internal MultimodeGateway(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory = null)
+        : base(did, miioTransport, mqttTransport, devicesDiscoverer, loggerFactory)
     {
     }
 

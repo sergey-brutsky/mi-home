@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MiHomeLib;
 using MiHomeLib.Contracts;
@@ -9,6 +10,26 @@ namespace MiHomeUnitTests;
 public class MiioDeviceBase
 {
     protected Mock<IMiioTransport> _miioTransport = new();
+    protected void SetupMiioInfo()
+    {
+        _miioTransport
+            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
+            .Returns(new
+            {
+                id = 1,
+                result = new
+                {
+                    uptime = 502175,
+                    life = 502175,
+                    miio_ver = "0.0.9",
+                    mac = "34:EF:44:49:BC:63",
+                    fw_ver = "1.0.5_0008",
+                    hw_ver = "Linux",
+                    ap = new { ssid = "ssid1", bssid = "bssid1", rssi = -35, freq = 2437 },
+                    netif = new { localIp = "192.168.1.100", mask = "255.255.255.0", gw = "192.168.1.1" },
+                }
+            }.ToJson());
+    }
     protected void VerifyMethod(string method, params object[] args)
     {
         VerifyMethod(method, 1, args);
@@ -37,6 +58,25 @@ public class MiioDeviceBase
     {
         SendResultMethod(method, 1, args);
     }
+
+    // Sync and async device methods use SendMessage and SendMessageAsync respectively,
+    // these let one theory cover both with an isAsync parameter
+    protected void SetupResult(bool isAsync, string method, params object[] result)
+    {
+        if (isAsync) SendResultMethodAsync(method, result);
+        else SendResultMethod(method, result);
+    }
+    protected void VerifySent(bool isAsync, string method, params object[] args)
+    {
+        if (isAsync) VerifyMethodAsync(method, args);
+        else VerifyMethod(method, args);
+    }
+    protected static async Task Call(bool isAsync, Action sync, Func<Task> async)
+    {
+        if (isAsync) await async();
+        else sync();
+    }
+    protected static async Task<T> Call<T>(bool isAsync, Func<T> sync, Func<Task<T>> async) => isAsync ? await async() : sync();
     protected void SendResultMethod(string method, int id, params object[] args)
     {
         _miioTransport

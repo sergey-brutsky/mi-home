@@ -10,11 +10,11 @@ public abstract class BleBatteryDevice : BleDevice
 
     public BleBatteryDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(BATTERY_EID, async x => 
+        EidToActions.Add(BATTERY_EID, x => 
         {
             var oldValue = BatteryPercent;
             BatteryPercent = ToBleByte(x);
-            await OnBatteryPercentChangeAsync(oldValue);
+            RaiseEvent(() => OnBatteryPercentChangeAsync(oldValue));
         });
     }
 
