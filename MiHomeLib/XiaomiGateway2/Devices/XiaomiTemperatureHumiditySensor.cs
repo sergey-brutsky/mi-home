@@ -11,16 +11,16 @@ public class XiaomiTemperatureHumiditySensor: BatteryXiaomiGateway2SubDevice
 
     public XiaomiTemperatureHumiditySensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("temperature", async x => 
+        Actions.Add("temperature", x => 
         {
             Temperature = int.Parse(x.GetString())/100f;
-            await OnTemperatureChangeAsync(Temperature);
+            RaiseEvent(() => OnTemperatureChangeAsync(Temperature));
         });
 
-        Actions.Add("humidity", async x => 
+        Actions.Add("humidity", x => 
         {
             Humidity = int.Parse(x.GetString())/100f;
-            await OnHumidityChangeAsync(Humidity);
+            RaiseEvent(() => OnHumidityChangeAsync(Humidity));
         }); 
     }
     public event Func<float, Task> OnTemperatureChangeAsync = (_) => Task.CompletedTask;

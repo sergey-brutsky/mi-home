@@ -35,7 +35,7 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
         _miioTransport = new Mock<IMiioTransport>();
         SendResultMethodAsync(string.Empty, ["f40e1b285fes68cd"]);
 
-        _gateway = new XiaomiGateway2(_miioTransport.Object, _messageTransport.Object, _gatewaySid, -1);        
+        _gateway = new XiaomiGateway2(_miioTransport.Object, _messageTransport.Object, _gatewaySid, -1, _loggerFactory);
     }
 
     [Fact]
@@ -89,6 +89,27 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
         actualGw.Rgb.Should().Be(rgb);
         actualGw.Illumination.Should().Be(illumination);
         actualGw.ProtoVersion.Should().Be(protoVersion);
+    }
+
+    [Fact]
+    public void DiscoverDevices_Called_Twice_Handles_Each_Message_Once()
+    {
+        var cmd = new Gw2Response()
+        {
+            Cmd = "get_id_list_ack",
+            Sid = _gatewaySid,
+            Token = _fixture.Create<string>(),
+            Data = "[]"
+        };
+
+        _messageTransport
+            .Setup(x => x.SendCommand(It.IsAny<DiscoverGatewayCommand>())).Returns(0)
+            .Raises(x => x.OnMessageReceived += null, cmd.ToString());
+
+        _gateway.DiscoverDevices();
+        _gateway.DiscoverDevices();
+
+        _messageTransport.Verify(x => x.SendCommand(It.Is<ReadDeviceCommand>(c => c.Sid == _gatewaySid)), Times.Exactly(2));
     }
 
     [Fact]
@@ -147,6 +168,78 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
 
         waterLeakSensorDiscovered.Should().BeTrue();
         thSensorDiscovered.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DiscoverDevicesAsync_Discovers_Children_SubDevices()
+    {
+        var waterLeakSid = _fixture.Create<string>();
+        var thSensorSid = _fixture.Create<string>();
+        var discovered = new System.Collections.Concurrent.ConcurrentBag<string>();
+
+        _gateway.OnDeviceDiscoveredAsync += device =>
+        {
+            discovered.Add(device.Sid);
+            return Task.CompletedTask;
+        };
+
+        _messageTransport
+            .Setup(x => x.SendCommand(It.IsAny<DiscoverGatewayCommand>())).Returns(0)
+            .Raises(x => x.OnMessageReceived += null, new Gw2Response
+            {
+                Cmd = "get_id_list_ack",
+                Sid = _gatewaySid,
+                Token = _fixture.Create<string>(),
+                Data = $"[\"{waterLeakSid}\",\"{thSensorSid}\"]"
+            }.ToString());
+
+        _messageTransport
+            .Setup(x => x.SendCommand(It.Is<ReadDeviceCommand>(cmd => cmd.Sid == waterLeakSid))).Returns(0)
+            .Raises(x => x.OnMessageReceived += null, new Gw2Response { Cmd = "read_ack", Sid = waterLeakSid, Model = "sensor_wleak.aq1", Data = "{\"voltage\":3015}" }.ToString());
+
+        _messageTransport
+            .Setup(x => x.SendCommand(It.Is<ReadDeviceCommand>(cmd => cmd.Sid == thSensorSid))).Returns(0)
+            .Raises(x => x.OnMessageReceived += null, new Gw2Response { Cmd = "read_ack", Sid = thSensorSid, Model = "sensor_ht", Data = "{\"voltage\":3025}" }.ToString());
+
+        await _gateway.DiscoverDevicesAsync();
+
+        discovered.Should().BeEquivalentTo([waterLeakSid, thSensorSid]);
+    }
+
+    [Fact]
+    public async Task DiscoverDevicesAsync_Throws_When_Gateway_Does_Not_Answer()
+    {
+        _gateway.DiscoveryTimeout = TimeSpan.FromMilliseconds(200);
+
+        var act = () => _gateway.DiscoverDevicesAsync();
+
+        await act.Should().ThrowAsync<TimeoutException>();
+    }
+
+    [Fact]
+    public async Task DiscoverDevicesAsync_Does_Not_Block_A_Thread_During_Pauses()
+    {
+        var sids = Enumerable.Range(0, 3).Select(_ => _fixture.Create<string>()).ToArray();
+
+        _messageTransport
+            .Setup(x => x.SendCommand(It.IsAny<DiscoverGatewayCommand>())).Returns(0)
+            .Raises(x => x.OnMessageReceived += null, new Gw2Response
+            {
+                Cmd = "get_id_list_ack",
+                Sid = _gatewaySid,
+                Token = _fixture.Create<string>(),
+                Data = JsonSerializer.Serialize(sids)
+            }.ToString());
+
+        // Three 100 ms pauses: a blocking wait would hold the caller for at least 300 ms
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var discovery = _gateway.DiscoverDevicesAsync();
+        var returnedAfter = sw.ElapsedMilliseconds;
+
+        await discovery;
+
+        returnedAfter.Should().BeLessThan(250, "DiscoverDevicesAsync must return to the caller before the pauses run");
+        _messageTransport.Verify(x => x.SendCommand(It.IsAny<ReadDeviceCommand>()), Times.Exactly(sids.Length + 1));
     }
 
     [Fact]
@@ -305,681 +398,234 @@ public class XiaomiGateway2Tests: Gw2DeviceTests
         VerifyMethodAsync("play_music_new", sound.ToString(), volume);
     }
 
-    [Fact]
-    public void IsArmingOn_Returns_Arming_State()
+    [Theory]
+    [InlineData(false, "on", true)]
+    [InlineData(true, "off", false)]
+    public async Task IsArmingOn_Returns_Arming_State(bool isAsync, string reported, bool expected)
     {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["on"]);
-        
-        // Act
-        var arming = _gateway.IsArmingOn();
+        SendResultMethodAsync(string.Empty, [reported]);
 
-        // Assert
+        var arming = await Call(isAsync, _gateway.IsArmingOn, _gateway.IsArmingOnAsync);
+
         VerifyMethodAsync("get_arming", Array.Empty<string>());
-        arming.Should().BeTrue();
+        arming.Should().Be(expected);
     }
 
-    [Fact]
-    public async Task IsArmingOnAsync_Returns_Arming_StateAsync()
+    [Theory]
+    [InlineData(false, true, "on")]
+    [InlineData(true, true, "on")]
+    [InlineData(false, false, "off")]
+    [InlineData(true, false, "off")]
+    public async Task SetArming_Sends_Command(bool isAsync, bool on, string expected)
     {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["off"]);
-        
-        // Act
-        var arming = await _gateway.IsArmingOnAsync();
-
-        // Assert
-        VerifyMethodAsync("get_arming", Array.Empty<string>());
-        arming.Should().BeFalse();
-    }
-
-    [Fact]
-    public void SetArmingOn_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
         SendResultMethodAsync(string.Empty, ["ok"]);
 
-        // Act
-        _gateway.SetArmingOn();
+        if (on) await Call(isAsync, _gateway.SetArmingOn, _gateway.SetArmingOnAsync);
+        else await Call(isAsync, _gateway.SetArmingOff, _gateway.SetArmingOffAsync);
 
-        // Assert
-        VerifyMethodAsync("set_arming", ["on"]);
+        VerifyMethodAsync("set_arming", [expected]);
     }
 
-    [Fact]
-    public async Task SetArmingOnAsync_Should_Not_Throw_ExceptionsAsync()
+    public static TheoryData<bool, string, int, Func<XiaomiGateway2, bool, Task<int>>, object[]> IntGetters => new()
     {
-        // Arrange
+        { false, "wait time", 15, (gw, a) => Call(a, gw.GetArmingWaitTime, gw.GetArmingWaitTimeAsync), ["get_arm_wait_time", Array.Empty<object>()] },
+        { true, "wait time", 30, (gw, a) => Call(a, gw.GetArmingWaitTime, gw.GetArmingWaitTimeAsync), ["get_arm_wait_time", Array.Empty<object>()] },
+        { false, "off time", 15, (gw, a) => Call(a, gw.GetArmingOffTime, gw.GetArmingOffTimeAsync), ["get_device_prop", new object[] { "lumi.0", "alarm_time_len" }] },
+        { true, "off time", 30, (gw, a) => Call(a, gw.GetArmingOffTime, gw.GetArmingOffTimeAsync), ["get_device_prop", new object[] { "lumi.0", "alarm_time_len" }] },
+        { false, "blinking time", 15, (gw, a) => Call(a, gw.GetArmingBlinkingTime, gw.GetArmingBlinkingTimeAsync), ["get_device_prop", new object[] { "lumi.0", "en_alarm_light" }] },
+        { true, "blinking time", 30, (gw, a) => Call(a, gw.GetArmingBlinkingTime, gw.GetArmingBlinkingTimeAsync), ["get_device_prop", new object[] { "lumi.0", "en_alarm_light" }] },
+        { false, "volume", 10, (gw, a) => Call(a, gw.GetArmingVolume, gw.GetArmingVolumeAsync), ["get_alarming_volume", Array.Empty<object>()] },
+        { true, "volume", 20, (gw, a) => Call(a, gw.GetArmingVolume, gw.GetArmingVolumeAsync), ["get_alarming_volume", Array.Empty<object>()] },
+        { false, "last triggered", 1609150074, (gw, a) => Call(a, gw.GetArmingLastTimeTriggeredTimestamp, gw.GetArmingLastTimeTriggeredTimestampAsync), ["get_arming_time", Array.Empty<object>()] },
+        { true, "last triggered", 1609150074, (gw, a) => Call(a, gw.GetArmingLastTimeTriggeredTimestamp, gw.GetArmingLastTimeTriggeredTimestampAsync), ["get_arming_time", Array.Empty<object>()] },
+    };
+
+    [Theory]
+    [MemberData(nameof(IntGetters))]
+    public async Task Arming_Getter_Returns_Integer(bool isAsync, string property, int value, Func<XiaomiGateway2, bool, Task<int>> get, object[] expectedRequest)
+    {
+        SendResultMethodAsync(string.Empty, [value]);
+
+        var actual = await get(_gateway, isAsync);
+
+        VerifyMethodAsync((string)expectedRequest[0], (object[])expectedRequest[1]);
+        actual.Should().Be(value, property);
+    }
+
+    [Theory]
+    [InlineData(false, 20)]
+    [InlineData(true, 30)]
+    public async Task SetArmingWaitTime_Sends_Command(bool isAsync, int seconds)
+    {
         SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingOnAsync();
 
-        // Assert
-        VerifyMethodAsync("set_arming", ["on"]);
+        await Call(isAsync, () => _gateway.SetArmingWaitTime(seconds), () => _gateway.SetArmingWaitTimeAsync(seconds));
+
+        VerifyMethodAsync("set_arm_wait_time", [seconds]);
     }
 
-    [Fact]
-    public void SetArmingOff_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, 40)]
+    [InlineData(true, 45)]
+    public async Task SetArmingOffTime_Sends_Command(bool isAsync, int seconds)
     {
-        // Arrange
         SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        _gateway.SetArmingOff();
 
-        // Assert
-        VerifyMethodAsync("set_arming", ["off"]);
+        await Call(isAsync, () => _gateway.SetArmingOffTime(seconds), () => _gateway.SetArmingOffTimeAsync(seconds));
+
+        VerifySetDeviceProp(new { sid = "lumi.0", alarm_time_len = seconds });
     }
 
-    [Fact]
-    public async Task SetArmingOffAsync_Should_Not_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false, 40)]
+    [InlineData(true, 45)]
+    public async Task SetArmingBlinkingTime_Sends_Command(bool isAsync, int seconds)
     {
-        // Arrange
         SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingOffAsync();
 
-        // Assert
-        VerifyMethodAsync("set_arming", ["off"]);
+        await Call(isAsync, () => _gateway.SetArmingBlinkingTime(seconds), () => _gateway.SetArmingBlinkingTimeAsync(seconds));
+
+        VerifySetDeviceProp(new { sid = "lumi.0", en_alarm_light = seconds });
     }
 
-    [Fact]
-    public void GetArmingWaitTime_Returns_Integer()
+    [Theory]
+    [InlineData(false, 15)]
+    [InlineData(true, 30)]
+    public async Task SetArmingVolume_Sends_Command(bool isAsync, int volume)
     {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [15]);
-        
-        // Act
-        var armingWaitTime = _gateway.GetArmingWaitTime();
-
-        // Assert
-        VerifyMethodAsync("get_arm_wait_time", []);
-
-        armingWaitTime.Should().Be(15);
-    }
-
-    [Fact]
-    public async Task GetArmingWaitTimeAsync_Returns_IntegerAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [30]);
-        
-        // Act
-        var armingWaitTime = await _gateway.GetArmingWaitTimeAsync();
-
-        // Assert
-        VerifyMethodAsync("get_arm_wait_time", []);
-        armingWaitTime.Should().Be(30);
-    }
-
-    [Fact]
-    public void SetArmingWaitTime_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
         SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        _gateway.SetArmingWaitTime(20);
 
-        // Assert
-        VerifyMethodAsync("set_arm_wait_time", [20]);
+        await Call(isAsync, () => _gateway.SetArmingVolume(volume), () => _gateway.SetArmingVolumeAsync(volume));
+
+        VerifyMethodAsync("set_alarming_volume", [volume]);
     }
 
-    [Fact]
-    public async Task SetWaitTimeAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingWaitTimeAsync(30);
+    private void VerifySetDeviceProp(object @params) =>
+        _miioTransport.Verify(x => x.SendMessageAsync(new { id = 1, method = "set_device_prop", @params }.ToJson()), Times.Once());
 
-        // Assert
-        VerifyMethodAsync("set_arm_wait_time", [30]);
-    }
+    private static readonly int[] DefaultChannels = [1025, 1026, 1027];
 
-    [Fact]
-    public void GetArmingOffTime_Returns_Integer()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [15]);
-        
-        // Act
-        var armingOffTime = _gateway.GetArmingOffTime();
-
-        // Assert
-        VerifyMethodAsync("get_device_prop", ["lumi.0", "alarm_time_len"]);
-        armingOffTime.Should().Be(15);
-    }
-
-    [Fact]
-    public async Task GetArmingOffTimeAsync_Returns_IntegerAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [30]);
-        
-        // Act
-        var armingOffTime = await _gateway.GetArmingOffTimeAsync();
-
-        // Assert
-        VerifyMethodAsync("get_device_prop", ["lumi.0", "alarm_time_len"]);        
-        armingOffTime.Should().Be(30);
-    }
-
-    [Fact]
-    public void SetArmingOffTime_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        _gateway.SetArmingOffTime(40);
-
-        // Assert
+    private void SetupRadioChannels(params int[] ids) =>
         _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "set_device_prop",
-                @params = new { sid = "lumi.0", alarm_time_len = 40 },
-            }.ToJson()), Times.Once());
-    }
+            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
+            .Returns(Task.FromResult(ToRadioListJson(ids)));
 
-    [Fact]
-    public async Task SetArmingOffTimeAsync_Should_Not_Throw_ExceptionsAsync()
+    private static object Channel(int id, string url = null) => new { id, url = url ?? $"http://192.168.1.1/radio{id}.m3u8", type = 0 };
+
+    private void VerifySentSecond(string method, object @params) =>
+        _miioTransport.Verify(x => x.SendMessageAsync(new { id = 2, method, @params }.ToJson()), Times.Once());
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task GetRadioChannels_Returns_List_of_RadioChannels(bool isAsync)
     {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingOffTimeAsync(45);
+        SetupRadioChannels(DefaultChannels);
 
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "set_device_prop",
-                @params = new { sid = "lumi.0", alarm_time_len = 45 },
-            }.ToJson()), Times.Once());
-    }
+        var radioChannels = await Call(isAsync, _gateway.GetRadioChannels, _gateway.GetRadioChannelsAsync);
 
-    [Fact]
-    public void GetArmingBlinkingTime_Returns_Integer()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [15]);
-        
-        // Act
-        var armingBlinkingTime = _gateway.GetArmingBlinkingTime();
-
-        // Assert
-        VerifyMethodAsync("get_device_prop", ["lumi.0", "en_alarm_light"]);
-        armingBlinkingTime.Should().Be(15);
-    }
-
-    [Fact]
-    public async Task GetArmingBlinkingTimeAsync_Returns_IntegerAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [30]);
-        
-        // Act
-        var armingBlinkingTime = await _gateway.GetArmingBlinkingTimeAsync();
-
-        // Assert
-        VerifyMethodAsync("get_device_prop", ["lumi.0", "en_alarm_light"]);                
-        armingBlinkingTime.Should().Be(30);
-    }
-
-    [Fact]
-    public void SetArmingBlinkingTime_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        _gateway.SetArmingBlinkingTime(40);
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "set_device_prop",
-                @params = new { sid = "lumi.0", en_alarm_light = 40 },
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public async Task SetArmingBlinkingTimeAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingBlinkingTimeAsync(45);
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "set_device_prop",
-                @params = new { sid = "lumi.0", en_alarm_light = 45 }
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public void GetArmingVolume_Returns_Integer()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [10]);
-        
-        // Act
-        var armingVolume = _gateway.GetArmingVolume();
-
-        // Assert
-        VerifyMethodAsync("get_alarming_volume", []);
-        armingVolume.Should().Be(10);
-    }
-
-    [Fact]
-    public async Task GetArmingVolumeAsync_Returns_IntegerAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [20]);
-        
-        // Act
-        var armingVolume = await _gateway.GetArmingVolumeAsync();
-
-        // Assert
-        VerifyMethodAsync("get_alarming_volume", []);
-        armingVolume.Should().Be(20);
-    }
-
-    [Fact]
-    public void SetArmingVolume_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        _gateway.SetArmingVolume(15);
-
-        // Assert
-        VerifyMethodAsync("set_alarming_volume", [15]);
-    }
-
-    [Fact]
-    public async Task SetArmingVolumeAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, ["ok"]);
-        
-        // Act
-        await _gateway.SetArmingVolumeAsync(30);
-
-        // Assert
-        VerifyMethodAsync("set_alarming_volume", [30]);
-    }
-
-    [Fact]
-    public void GetArmingLastTimeTriggeredTimestamp_Returns_Integer()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [1609150074]);
-        
-        // Act
-        var timestamp = _gateway.GetArmingLastTimeTriggeredTimestamp();
-
-        // Assert
-        VerifyMethodAsync("get_arming_time", []);
-        timestamp.Should().Be(1609150074);
-    }
-
-    [Fact]
-    public async Task GetArmingLastTimeTriggeredTimestampAsync_Returns_IntegerAsync()
-    {
-        // Arrange
-        SendResultMethodAsync(string.Empty, [1609150074]);
-        
-        // Act
-        var timestamp = await _gateway.GetArmingLastTimeTriggeredTimestampAsync();
-
-        // Assert
-        VerifyMethodAsync("get_arming_time", []);
-        timestamp.Should().Be(1609150074);
-    }
-
-    [Fact]
-    public void GetRadioChannels_Returns_List_of_RadioChannels()
-    {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
-        // Act
-        var radioChannels = _gateway.GetRadioChannels();
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "get_channels",
-                @params = new { start = 0 },
-            }.ToJson()), Times.Once());
-
-        radioChannels.Should().HaveCount(3);
-    }
-
-    [Fact]
-    public async Task GetRadioChannels_Returns_List_of_RadioChannelAsync()
-    {
-        // Arrange        
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
-        // Act
-        var radioChannels = await _gateway.GetRadioChannelsAsync();
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 1,
-                method = "get_channels",
-                @params = new { start = 0 },
-            }.ToJson()), Times.Once());
-
+        _miioTransport.Verify(x => x.SendMessageAsync(new { id = 1, method = "get_channels", @params = new { start = 0 } }.ToJson()), Times.Once());
         radioChannels.Should().HaveCount(3);
     }
 
     [Fact]
     public void AddRadioChannel_with_Id_less_than_1024_throws_exception()
     {
-        // Act
-        var actual = _gateway.Invoking(x => x.AddRadioChannel(1000, "url here"));
-
-        // Assert
-        actual.Should().Throw<ArgumentException>();
+        _gateway.Invoking(x => x.AddRadioChannel(1000, "url here")).Should().Throw<ArgumentException>();
     }
 
     [Fact]
     public void AddRadioChannel_with_existing_Id_throws_exception()
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.IsAny<string>()))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1045, 1027])));
+        SetupRadioChannels(1025, 1045, 1027);
 
-        // Act
-        var actual = _gateway.Invoking(x => x.AddRadioChannel(1045, "http://192.168.1.1/radio.m3u8"));
-        // Assert
-        actual.Should().Throw<ArgumentException>();
+        _gateway.Invoking(x => x.AddRadioChannel(1045, "http://192.168.1.1/radio.m3u8")).Should().Throw<ArgumentException>();
     }
 
-    [Fact]
-    public void AddRadioChannel_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AddRadioChannel_Sends_Command(bool isAsync)
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
+        const string url = "http://192.168.1.1/radio4.m3u8";
+        SetupRadioChannels(DefaultChannels);
         SendResultMethodAsync("add_channels", ["ok"]);
 
-        // Act
-        _gateway.AddRadioChannel(1045, "http://192.168.1.1/radio4.m3u8");
+        await Call(isAsync, () => _gateway.AddRadioChannel(1045, url), () => _gateway.AddRadioChannelAsync(1045, url));
 
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "add_channels",
-                @params = new { chs = new[] {new { id = 1045, url = "http://192.168.1.1/radio4.m3u8", type = 0}} },
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public async Task AddRadioChannelAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-        
-        SendResultMethodAsync("add_channels", ["ok"]);
-
-        // Act
-        await _gateway.AddRadioChannelAsync(1045, "http://192.168.1.1/radio4.m3u8");
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "add_channels",
-                @params = new { chs = new[] {new { id = 1045, url = "http://192.168.1.1/radio4.m3u8", type = 0}} },
-            }.ToJson()), Times.Once());
+        VerifySentSecond("add_channels", new { chs = new[] { Channel(1045, url) } });
     }
 
     [Fact]
     public void RemoveRadioChannel_Should_Throw_Exception_When_Non_Existing_Id()
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
+        SetupRadioChannels(DefaultChannels);
 
-        // Act
-        var actual = _gateway.Invoking(x => x.RemoveRadioChannel(1045));
-
-        // Assert
-        actual.Should().Throw<ArgumentException>();
+        _gateway.Invoking(x => x.RemoveRadioChannel(1045)).Should().Throw<ArgumentException>();
     }
 
-    [Fact]
-    public void RemoveRadioChannel_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, 1027)]
+    [InlineData(true, 1025)]
+    public async Task RemoveRadioChannel_Sends_Command(bool isAsync, int channelId)
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
+        SetupRadioChannels(DefaultChannels);
         SendResultMethodAsync("remove_channels", ["ok"]);
 
-        // Act
-        _gateway.RemoveRadioChannel(1027);
+        await Call(isAsync, () => _gateway.RemoveRadioChannel(channelId), () => _gateway.RemoveRadioChannelAsync(channelId));
 
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "remove_channels",
-                @params = new { chs = new[] {new { id = 1027, url = "http://192.168.1.1/radio1027.m3u8", type = 0}} },
-            }.ToJson()), Times.Once());
+        VerifySentSecond("remove_channels", new { chs = new[] { Channel(channelId) } });
     }
 
-    [Fact]
-    public async Task RemoveRadioChannelAsync_Should_Not_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RemoveAllRadioChannels_Sends_Command(bool isAsync)
     {
-        // Arrange        
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
+        SetupRadioChannels(DefaultChannels);
         SendResultMethodAsync("remove_channels", ["ok"]);
 
-        // Act
-        await _gateway.RemoveRadioChannelAsync(1025);
+        await Call(isAsync, _gateway.RemoveAllRadioChannels, _gateway.RemoveAllRadioChannelsAsync);
 
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "remove_channels",
-                @params = new { chs = new[] {new { id = 1025, url = "http://192.168.1.1/radio1025.m3u8", type = 0}} },
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public void RemoveAllRadioChannels_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
-        SendResultMethodAsync("remove_channels", ["ok"]);
-
-        // Act
-        _gateway.RemoveAllRadioChannels();
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "remove_channels",
-                @params = new { chs = new[]
-                {
-                    new { id = 1025, url = "http://192.168.1.1/radio1025.m3u8", type = 0 },
-                    new { id = 1026, url = "http://192.168.1.1/radio1026.m3u8", type = 0 },
-                    new { id = 1027, url = "http://192.168.1.1/radio1027.m3u8", type = 0 },
-                }},
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public async Task RemoveAllRadioChannelsAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
-        SendResultMethodAsync("remove_channels", ["ok"]);
-
-        // Act
-        await _gateway.RemoveAllRadioChannelsAsync();
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "remove_channels",
-                @params = new { chs = new[] 
-                {
-                    new { id = 1025, url = "http://192.168.1.1/radio1025.m3u8", type = 0 },
-                    new { id = 1026, url = "http://192.168.1.1/radio1026.m3u8", type = 0 },
-                    new { id = 1027, url = "http://192.168.1.1/radio1027.m3u8", type = 0 },
-                }},
-            }.ToJson()), Times.Once());
+        VerifySentSecond("remove_channels", new { chs = new[] { Channel(1025), Channel(1026), Channel(1027) } });
     }
 
     [Fact]
     public void PlayRadio_Should_Throw_Exception_When_Wrong_Volume()
     {
-        // Act & Assert
-        var actual = _gateway.Invoking(x => x.PlayRadio(1045, 120));
-        // Assert
-        actual.Should().Throw<ArgumentException>();
+        _gateway.Invoking(x => x.PlayRadio(1045, 120)).Should().Throw<ArgumentException>();
     }
 
     [Fact]
     public void PlayRadio_Should_Throw_Exception_When_Wrong_ChannelId()
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
+        SetupRadioChannels(DefaultChannels);
 
-        // Act
-        var actual = _gateway.Invoking(x => x.PlayRadio(1045, 50));
-
-        // Assert
-        actual.Should().Throw<ArgumentException>();
+        _gateway.Invoking(x => x.PlayRadio(1045, 50)).Should().Throw<ArgumentException>();
     }
 
-    [Fact]
-    public void PlayRadio_Should_Not_Throw_Exceptions()
+    [Theory]
+    [InlineData(false, 1027)]
+    [InlineData(true, 1025)]
+    public async Task PlayRadio_Sends_Command(bool isAsync, int channelId)
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
+        SetupRadioChannels(DefaultChannels);
         SendResultMethodAsync("play_specify_fm", ["ok"]);
 
-        // Act
-        _gateway.PlayRadio(1027, 50);
+        await Call(isAsync, () => _gateway.PlayRadio(channelId, 50), () => _gateway.PlayRadioAsync(channelId, 50));
 
-        // Assert
-         _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "play_specify_fm",
-                @params = new[] {1027, 50},
-            }.ToJson()), Times.Once());
+        VerifySentSecond("play_specify_fm", new[] { channelId, 50 });
     }
 
-    [Fact]
-    public async Task PlayRadioAsync_Should_Not_Throw_ExceptionsAsync()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task StopRadio_Sends_Command(bool isAsync)
     {
-        // Arrange
-        _miioTransport
-            .Setup(x => x.SendMessageAsync(It.Is<string>(s => s.Contains("get_channels"))))
-            .Returns(Task.FromResult(ToRadioListJson([1025, 1026, 1027])));
-
-        SendResultMethodAsync("play_specify_fm", ["ok"]);
-        
-        // Act
-        await _gateway.PlayRadioAsync(1025, 50);
-
-        // Assert
-        _miioTransport
-            .Verify(x => x.SendMessageAsync(new
-            {
-                id = 2,
-                method = "play_specify_fm",
-                @params = new[] {1025, 50},
-            }.ToJson()), Times.Once());
-    }
-
-    [Fact]
-    public void StopRadio_Should_Not_Throw_Exceptions()
-    {
-        // Arrange
         SendResultMethodAsync("play_fm", ["ok"]);
 
-        // Act
-        _gateway.StopRadio();
+        await Call(isAsync, _gateway.StopRadio, _gateway.StopRadioAsync);
 
-        // Assert
-        VerifyMethodAsync("play_fm", ["off"]);
-    }
-
-    [Fact]
-    public async Task StopRadioAsync_Should_Not_Throw_ExceptionsAsync()
-    {
-        // Arrange
-        SendResultMethodAsync("play_fm", ["ok"]);
-
-        // Act
-        await _gateway.StopRadioAsync();
-
-        // Assert
         VerifyMethodAsync("play_fm", ["off"]);
     }
 }

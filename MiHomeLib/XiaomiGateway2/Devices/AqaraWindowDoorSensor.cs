@@ -11,17 +11,17 @@ public class AqaraWindowDoorSensor : BatteryXiaomiGateway2SubDevice
 
     public AqaraWindowDoorSensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
             var status = x.GetString();
 
             if (status == "open")
             {
-                await OnOpenAsync();
+                RaiseEvent(() => OnOpenAsync());
             }
             else if (status == "close")
             {
-                await OnCloseAsync();
+                RaiseEvent(() => OnCloseAsync());
             }
         });
     }

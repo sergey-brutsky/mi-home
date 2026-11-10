@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using Xunit;
 using FluentAssertions;
@@ -7,31 +8,33 @@ using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
+/// <summary>
+/// Covers AqaraWindowDoorSensor too: it inherits the parsing of XiaomiWindowDoorSensor
+/// </summary>
 public class XiaomiWindowDoorSensorTests: MqttGatewayDeviceTests
 {
     [Theory]
-    [InlineData("[{\"res_name\":\"3.1.85\",\"value\":1}]")]
-    [InlineData("[{\"res_name\":\"3.1.85\",\"value\":0}]")]
-    public void Check_OnContactChange_Event(string data)
+    [InlineData(typeof(XiaomiWindowDoorSensor), 1, DoorWindowContactState.Opened)]
+    [InlineData(typeof(XiaomiWindowDoorSensor), 0, DoorWindowContactState.Closed)]
+    [InlineData(typeof(AqaraWindowDoorSensor), 1, DoorWindowContactState.Opened)]
+    [InlineData(typeof(AqaraWindowDoorSensor), 0, DoorWindowContactState.Closed)]
+    public void Check_OnContactChange_Event(Type sensorType, int value, DoorWindowContactState expected)
     {
         // Arrange  
-        var dwSensor = _fixture
-                    .Build<XiaomiWindowDoorSensor>()
-                    .Create();
-        
+        var dwSensor = (XiaomiWindowDoorSensor)Activator.CreateInstance(sensorType, _fixture.Create<string>(), _loggerFactory);
         var eventRaised = false;
 
         dwSensor.OnContactChangedAsync += () => 
         { 
             eventRaised = true;
-            dwSensor.Contact.Should().Be((DoorWindowContactState)DataToZigbeeResource(data)[0].Value);
             return Task.CompletedTask;
         };
 
         // Act
-        dwSensor.ParseData(data);
+        dwSensor.ParseData($"[{{\"res_name\":\"3.1.85\",\"value\":{value}}}]");
 
         // Assert
         eventRaised.Should().BeTrue();
+        dwSensor.Contact.Should().Be(expected);
     }
 }

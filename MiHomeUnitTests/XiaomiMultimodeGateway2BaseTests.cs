@@ -7,6 +7,8 @@ using System;
 
 namespace MiHomeUnitTests;
 
+// Created without its own logger factory, so it reads the process-wide default changed by LoggingTests
+[Collection(nameof(LoggingTests))]
 public class XiaomiMultimodeGateway2BaseTests : MqttGatewayDeviceTests
 {
     private const string GW_DID = "397569381";

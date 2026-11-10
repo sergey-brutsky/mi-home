@@ -25,7 +25,7 @@ public abstract class XiaomiGateway2SubDevice(string sid, int shortId, ILoggerFa
             }
             else
             {
-                _logger.LogWarning($"Property '{prop.Key}' is not supported for this device yet. Please contribute to support.");
+                _logger.LogWarning("Property '{Property}' is not supported for this device yet. Please contribute to support.", prop.Key);
             }
         }
     }    

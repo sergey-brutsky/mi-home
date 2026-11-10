@@ -38,36 +38,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             .Setup(x => x.DiscoverMeshDevices())
             .Returns([]);
 
-        _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(new
-            {
-                id = 1,
-                result = new
-                {
-                    uptime = 502175,
-                    life = 502175,
-                    miio_ver = "0.0.9",
-                    mac = "34:EF:44:49:BC:63",
-                    fw_ver = "1.0.5_0008",
-                    hw_ver = "Linux",
-                    ap = new
-                    {
-                        ssid = "ssid1",
-                        bssid = "bssid1",
-                        rssi = -35,
-                        freq = 2437,
-                    },
-                    netif = new
-                    {
-                        localIp = "192.168.1.100",
-                        mask = "255.255.255.0",
-                        gw = "192.168.1.1",
-                    }
-                }
-            }.ToJson());
-
-        _gw = new Mock<MqttGatewayBase>(_gwDid, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object)
+        _gw = new Mock<MqttGatewayBase>(_gwDid, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object, _loggerFactory)
         {
             CallBase = true // this is important ! don't remove
         };
@@ -247,6 +218,8 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             (did, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
         ]);
 
+        DateTime? receivedAt = null;
+
         _gw.Object.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
@@ -255,7 +228,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             sw.OnClickAsync += clickArgs =>
             {
                 eventRaised = clickArgs == XiaomiSmartWirelessSwitch.ClickArg.SingleClick;
-                sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                receivedAt = sw.LastTimeMessageReceived;
                 return Task.CompletedTask;
             };
 
@@ -269,6 +242,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         // Assert
         eventRaised.Should().BeTrue();
+        receivedAt.Should().Be(time.UnixMilliSecondsToDateTime());
     }
 
     [Fact]
@@ -283,6 +257,8 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             (did, AqaraT1WithNeutral.MODEL),
         ]);
 
+        DateTime? receivedAt = null;
+
         _gw.Object.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
@@ -292,7 +268,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             aqaraRelay.OnLoadPowerChangeAsync += x =>
             {
                 eventRaised = true;
-                aqaraRelay.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                receivedAt = aqaraRelay.LastTimeMessageReceived;
                 return Task.CompletedTask;
             };
 
@@ -306,6 +282,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         // Assert
         eventRaised.Should().BeTrue();
+        receivedAt.Should().Be(time.UnixMilliSecondsToDateTime());
     }
 
     [Fact]
@@ -325,27 +302,27 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             (did, XiaomiSmartWirelessSwitch.MODEL, [oldVoltage, oldBatteryPerent, 192, 88]),
         ]);
 
+        float? oldVoltageReported = null;
+        int? oldBatteryReported = null;
+        XiaomiSmartWirelessSwitch sw = null;
+
         _gw.Object.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
 
-            var sw = device as XiaomiSmartWirelessSwitch;
+            sw = device as XiaomiSmartWirelessSwitch;
 
             sw.OnVoltageChangeAsync += oldValue =>
             {
                 voltageEventRaised = true;
-                (oldVoltage / 1000f).Should().Be(oldValue);
-                sw.Voltage.Should().Be(newVoltage / 1000f);
-                sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                oldVoltageReported = oldValue;
                 return Task.CompletedTask;
             };
 
             sw.OnBatteryPercentChange += oldValue =>
             {
                 batteryEventRaised = true;
-                oldBatteryPerent.Should().Be(oldBatteryPerent);
-                sw.BatteryPercent.Should().Be((byte)newBatteryPerent);
-                sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
+                oldBatteryReported = oldValue;
                 return Task.CompletedTask;
             };
 
@@ -360,6 +337,11 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         // Assert
         voltageEventRaised.Should().BeTrue();
         batteryEventRaised.Should().BeTrue();
+        oldVoltageReported.Should().Be(oldVoltage / 1000f);
+        oldBatteryReported.Should().Be(oldBatteryPerent);
+        sw.Voltage.Should().Be(newVoltage / 1000f);
+        sw.BatteryPercent.Should().Be((byte)newBatteryPerent);
+        sw.LastTimeMessageReceived.Should().Be(time.UnixMilliSecondsToDateTime());
     }
 
     [Fact]
@@ -376,6 +358,8 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             (did, XiaomiBluetoothHygrothermograph2.PDID, mac),
         ]);
 
+        DateTime? receivedAt = null;
+
         _gw.Object.OnDeviceDiscoveredAsync += device =>
         {
             device.Did.Should().Be(did);
@@ -385,7 +369,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
             th.OnTemperatureChangeAsync += oldValue =>
             {
                 temperatureEventRaised = true;
-                th.LastTimeMessageReceived.Should().Be(time.UnixSecondsToDateTime());
+                receivedAt = th.LastTimeMessageReceived;
                 return Task.CompletedTask;
             };
 
@@ -399,6 +383,7 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
 
         // Assert
         temperatureEventRaised.Should().BeTrue();
+        receivedAt.Should().Be(time.UnixSecondsToDateTime());
     }
 
     [Fact]
@@ -434,6 +419,133 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         // Assert
         th.Should().NotBeNull();
         temperatureEventRaised.Should().BeTrue();
+        th.Temperature.Should().Be(21.5f);
+    }
+
+    [Fact]
+    public void Repeated_Discovery_Keeps_Devices_And_Does_Not_Double_Messages()
+    {
+        // Arrange
+        var clicks = 0;
+        var discovered = 0;
+        var did = _fixture.Create<string>();
+        var time = (double)DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+        SetupZigBeeDevices([
+            (did, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+        ]);
+
+        _gw.Object.OnDeviceDiscoveredAsync += device =>
+        {
+            discovered++;
+            ((XiaomiSmartWirelessSwitch)device).OnClickAsync += _ =>
+            {
+                clicks++;
+                return Task.CompletedTask;
+            };
+            return Task.CompletedTask;
+        };
+
+        // Act
+        _gw.Object.DiscoverDevices();
+        var first = _gw.Object.GetDeviceByDid<XiaomiSmartWirelessSwitch>(did);
+        _gw.Object.Invoking(x => x.DiscoverDevices()).Should().NotThrow();
+
+        RaiseZigbeeReportEvent(did, time, [("13.1.85", 1)]);
+
+        // Assert: same device instance, reported once, one message handled once
+        _gw.Object.GetDeviceByDid<XiaomiSmartWirelessSwitch>(did).Should().BeSameAs(first);
+        _gw.Object.GetDevices().Should().ContainSingle();
+        discovered.Should().Be(1);
+        clicks.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DiscoverDevicesAsync_Discovers_Same_Devices_As_DiscoverDevices()
+    {
+        // Arrange
+        var did = _fixture.Create<string>();
+
+        SetupZigBeeDevices([
+            (did, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+        ]);
+        SetupBleDevices([
+            ("ble-did", XiaomiBluetoothHygrothermograph2.PDID, "79e0fe38c1a4"),
+        ]);
+        _devicesDiscoverer
+            .Setup(x => x.DiscoverMeshDevices())
+            .Returns([new MeshDeviceInfo("1063744008", XiaomiMeshWallSwitchSingleOpen.PDID, "AA:BB:CC:DD:EE:FF")]);
+
+        // Act
+        await _gw.Object.DiscoverDevicesAsync();
+
+        // Assert
+        _gw.Object.GetDeviceByDid<XiaomiSmartWirelessSwitch>(did).Should().NotBeNull();
+        _gw.Object.GetDeviceByDid<XiaomiBluetoothHygrothermograph2>("ble-did").Mac.Should().Be("a4:c1:38:fe:e0:79");
+        _gw.Object.GetDeviceByDid<XiaomiMeshWallSwitchSingleOpen>("1063744008").Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Message_From_Unsupported_Topic_Is_Not_Dispatched_To_Previous_Processor()
+    {
+        // Arrange
+        var clicks = 0;
+        var did = _fixture.Create<string>();
+        var time = (double)DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+        SetupZigBeeDevices([
+            (did, XiaomiSmartWirelessSwitch.MODEL, [3032, 100, 192, 88]),
+        ]);
+
+        _gw.Object.OnDeviceDiscoveredAsync += device =>
+        {
+            ((XiaomiSmartWirelessSwitch)device).OnClickAsync += _ =>
+            {
+                clicks++;
+                return Task.CompletedTask;
+            };
+            return Task.CompletedTask;
+        };
+
+        _gw.Object.DiscoverDevices();
+
+        RaiseZigbeeReportEvent(did, time, [("13.1.85", 1)]);
+
+        // Act: same report payload, but from a topic the gateway doesn't handle
+        var report = $"{{\"cmd\":\"report\",\"did\":\"{did}\",\"time\":{time},\"params\":[{{\"res_name\":\"13.1.85\",\"value\":1}}]}}";
+        _mqttTransport.Raise(x => x.OnMessageReceived += null, "some/other/topic", report);
+
+        // Assert
+        clicks.Should().Be(1);
+    }
+
+    [Fact]
+    public void PropertiesChanged_Unknown_Did_Does_Not_Drop_Rest_Of_Batch()
+    {
+        // Arrange
+        var did = _fixture.Create<string>();
+
+        SetupBleDevices([
+            (did, XiaomiBluetoothHygrothermograph3.PDID, "79e0fe38c1a4"),
+        ]);
+
+        XiaomiBluetoothHygrothermograph3 th = null;
+        _gw.Object.OnDeviceDiscoveredAsync += device =>
+        {
+            th = device as XiaomiBluetoothHygrothermograph3;
+            return Task.CompletedTask;
+        };
+
+        _gw.Object.DiscoverDevices();
+
+        // Act: one message carries a device the library doesn't know first, then a known one
+        _mqttTransport.Raise(x => x.OnMessageReceived += null, "central/report",
+            "{\"id\":1,\"method\":\"properties_changed\",\"params\":[" +
+            "{\"did\":\"unknown-did\",\"siid\":2,\"piid\":1,\"value\":true}," +
+            $"{{\"did\":\"{did}\",\"siid\":3,\"piid\":1001,\"value\":21.5}}]}}");
+
+        // Assert
+        th.Should().NotBeNull();
         th.Temperature.Should().Be(21.5f);
     }
 
@@ -606,7 +718,6 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         var expectedSsid = _fixture.Create<string>();
         var expectedBssid = _fixture.Create<string>();
         var expectedRssi = _fixture.Create<int>();
-        // var expectedFreq = _fixture.Create<int>();
         var expectedLocalIp = "192.168.1.100";
         var expectedMask = "255.255.255.0";
         var expectedGw = "192.168.1.1";
@@ -629,7 +740,6 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
                         ssid = expectedSsid,
                         bssid = expectedBssid,
                         rssi = expectedRssi,
-                        // freq = expectedFreq,
                     },
                     netif = new
                     {
@@ -640,7 +750,6 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
                 }
             }.ToJson());
 
-
         // Assert        
         _gw.Object.UptimeSeconds.Should().Be(expectedUptime);
         _gw.Object.MiioVersion.Should().Be(expectedMiioVersion);
@@ -650,8 +759,6 @@ public class MqttGatewayBaseTests : MqttGatewayDeviceTests
         _gw.Object.Wifi.Ssid.Should().Be(expectedSsid);
         _gw.Object.Wifi.Bssid.Should().Be(expectedBssid);
         _gw.Object.Wifi.Rssi.Should().Be(expectedRssi);
-        // _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
-        // _gw.Object.Wifi.Freq.Should().Be(expectedFreq);
         _gw.Object.Network.Ip.Should().Be(expectedLocalIp);
         _gw.Object.Network.Mask.Should().Be(expectedMask);
         _gw.Object.Network.Gateway.Should().Be(expectedGw);

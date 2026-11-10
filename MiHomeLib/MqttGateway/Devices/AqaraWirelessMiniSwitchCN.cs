@@ -29,10 +29,10 @@ public class AqaraWirelessMiniSwitchCN: LumiZigBeeBatteryDevice
 
     public AqaraWirelessMiniSwitchCN(string did, ILoggerFactory loggerFactory): base(did, loggerFactory)
     {
-        Actions.Add(CLICK_RES_NAME, async x => 
+        Actions.Add(CLICK_RES_NAME, x => 
         {
             var val = x.GetInt32();
-            if(_validClickValues.Contains(val)) await OnClickAsync((ClickArg)val);
+            if(_validClickValues.Contains(val)) RaiseEvent(() => OnClickAsync((ClickArg)val));
         });
     }
     public override string ToString() => GetBaseInfo(MARKET_MODEL, MODEL) +  base.ToString();

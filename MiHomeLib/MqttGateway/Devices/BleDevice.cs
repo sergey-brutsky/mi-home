@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +26,7 @@ public abstract class BleDevice(string did, ILoggerFactory loggerFactory) : Mqtt
             }
             else
             {
-                _logger.LogWarning($"Eid '{eid}' is not supported for this device yet. Please contribute to support.");
+                _logger.LogWarning("Eid '{Eid}' is not supported for this device yet. Please contribute to support.", eid);
             }
         }
     }
@@ -54,9 +53,9 @@ public abstract class BleDevice(string did, ILoggerFactory loggerFactory) : Mqtt
 
     public float ToBleFloat(string hex)
     {
-        // hex string is little endian !
+        // hex string is little endian signed int16 in tenths.
+        // Bytes are combined explicitly: arr.Reverse() binds to MemoryExtensions.Reverse (in-place) since C# 14
         var arr = hex.ToByteArray();
-        arr.Reverse();
-        return BitConverter.ToInt16(arr, 0)/10f;
+        return (short)(arr[0] | arr[1] << 8) / 10f;
     }
 }

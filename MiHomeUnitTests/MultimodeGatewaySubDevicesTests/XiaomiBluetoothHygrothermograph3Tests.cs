@@ -12,92 +12,46 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
 
     public XiaomiBluetoothHygrothermograph3Tests() => _th = _fixture.Build<XiaomiBluetoothHygrothermograph3>().Create();
 
-    [Theory]
-    [InlineData(3, 1001, 28.79f, 28.1f)]
-    public void Check_OnTemperatureChange_Event(int siid, int piid, float newTemperature, float oldTemperature)
+    private static string Property(int siid, int piid, object value) =>
+        new JsonObject { ["siid"] = siid, ["piid"] = piid, ["value"] = JsonValue.Create(value) }.ToString();
+
+    [Fact]
+    public void Check_OnTemperatureChange_Event()
     {
-        // Arrange
-        var eventRaised = false;
-        
-        JsonObject jsonNode = new()
-        {
-            ["siid"] = siid,
-            ["piid"] = piid,
-            ["value"] = newTemperature,
-        };
+        float? oldValue = null;
+        _th.Temperature = 28.1f;
+        _th.OnTemperatureChangeAsync += x => { oldValue = x; return Task.CompletedTask; };
 
-        _th.Temperature = oldTemperature;
+        _th.ParseData(Property(3, 1001, 28.79f));
 
-        _th.OnTemperatureChangeAsync += (oldValue) =>
-        {
-            eventRaised = oldValue == oldTemperature;
-            _th.Temperature.Should().Be(newTemperature);
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _th.ParseData(jsonNode.ToString());
-
-        // Assert
-        eventRaised.Should().BeTrue();
+        oldValue.Should().Be(28.1f);
+        _th.Temperature.Should().Be(28.79f);
     }
 
-    [Theory]
-    [InlineData(3, 1002, 55, 66)]
-    public void Check_OnHumidityChange_Event(int siid, int piid, byte newHumidity, byte oldHumidity)
+    [Fact]
+    public void Check_OnHumidityChange_Event()
     {
-        // Arrange
-        var eventRaised = false;
-         JsonObject jsonNode = new()
-        {
-            ["siid"] = siid,
-            ["piid"] = piid,
-            ["value"] = newHumidity,
-        };
+        byte? oldValue = null;
+        _th.Humidity = 66;
+        _th.OnHumidityChangeAsync += x => { oldValue = x; return Task.CompletedTask; };
 
-        _th.Humidity = oldHumidity;
+        _th.ParseData(Property(3, 1002, (byte)55));
 
-        _th.OnHumidityChangeAsync += (oldValue) =>
-        {
-            eventRaised = oldValue == oldHumidity;
-            _th.Humidity.Should().Be(newHumidity);
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _th.ParseData(jsonNode.ToString());
-
-        // Assert
-        eventRaised.Should().BeTrue();
+        oldValue.Should().Be(66);
+        _th.Humidity.Should().Be(55);
     }
 
-    [Theory]
-    [InlineData(2, 1003, 10, 20)]
-    public void Check_OnBatteryPercentChange_Event(int siid, int piid, byte newPercent, byte oldPercent)
+    [Fact]
+    public void Check_OnBatteryPercentChange_Event()
     {
-        // Arrange
-        var eventRaised = false;
-         JsonObject jsonNode = new()
-        {
-            ["siid"] = siid,
-            ["piid"] = piid,
-            ["value"] = newPercent,
-        };
+        byte? oldValue = null;
+        _th.BatteryPercent = 20;
+        _th.OnBatteryPercentAsync += x => { oldValue = x; return Task.CompletedTask; };
 
-        _th.BatteryPercent = oldPercent;
+        _th.ParseData(Property(2, 1003, (byte)10));
 
-        _th.OnBatteryPercentAsync += (oldValue) =>
-        {
-            eventRaised = oldValue == oldPercent;
-            _th.BatteryPercent.Should().Be(newPercent);
-            return Task.CompletedTask;
-        };
-
-        // Act
-        _th.ParseData(jsonNode.ToString());
-
-        // Assert
-        eventRaised.Should().BeTrue();
+        oldValue.Should().Be(20);
+        _th.BatteryPercent.Should().Be(10);
     }
 
     [Theory]
@@ -112,15 +66,8 @@ public class XiaomiBluetoothHygrothermograph3Tests : MqttGatewayDeviceTests
         _th.OnHumidityChangeAsync += _ => { eventRaised = true; return Task.CompletedTask; };
         _th.OnBatteryPercentAsync += _ => { eventRaised = true; return Task.CompletedTask; };
 
-        JsonObject jsonNode = new()
-        {
-            ["siid"] = siid,
-            ["piid"] = piid,
-            ["value"] = 50,
-        };
-
         // Act
-        _th.ParseData(jsonNode.ToString());
+        _th.ParseData(Property(siid, piid, 50));
 
         // Assert
         eventRaised.Should().BeFalse();

@@ -19,11 +19,11 @@ public class AqaraTemperatureHumiditySensor : XiaomiTemperatureHumiditySensor
     public event Func<float, Task> OnPressureChangeAsync = (_) => Task.CompletedTask;
     public AqaraTemperatureHumiditySensor(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Actions.Add(PRESSURE_RES_NAME, async x =>
+        Actions.Add(PRESSURE_RES_NAME, x =>
         {
             var oldVal = Pressure;
             Pressure = (float)x.GetDouble()/100;
-            await OnPressureChangeAsync(oldVal);
+            RaiseEvent(() => OnPressureChangeAsync(oldVal));
         });
     }
     protected internal override string[] GetProps()

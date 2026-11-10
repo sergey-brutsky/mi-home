@@ -11,14 +11,14 @@ public class AqaraSmartHumanBodySensor : BatteryXiaomiGateway2SubDevice
 
     public AqaraSmartHumanBodySensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
             Status = x.GetString();
 
             if (Status == "motion")
             {
                 MotionDate = DateTime.Now;
-                await OnMotionAsync();
+                RaiseEvent(() => OnMotionAsync());
             }
         });
 
@@ -27,10 +27,10 @@ public class AqaraSmartHumanBodySensor : BatteryXiaomiGateway2SubDevice
             Lux = x.GetInt32();
         });
 
-        Actions.Add("no_motion", async x => 
+        Actions.Add("no_motion", x => 
         {
             NoMotion = x.GetInt32();
-            await OnNoMotionAsync(NoMotion);
+            RaiseEvent(() => OnNoMotionAsync(NoMotion));
         });
     }
 

@@ -36,29 +36,29 @@ public class XiaomiSmartHumanBodySensor2 : BleBatteryDevice
     public event Func<NoMotionState, Task> OnNoMotionDetectedAsync = (_) => Task.CompletedTask;
     public XiaomiSmartHumanBodySensor2(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(MOTION_EID, async x => 
+        EidToActions.Add(MOTION_EID, x => 
         {
             var value = (MotionState)int.Parse(x);
 
             if(value == Motion) return; // prevent event duplication when state is actual
 
             (var oldValue, Motion) = (Motion, value);
-            await OnMotionDetectedAsync(oldValue);
+            RaiseEvent(() => OnMotionDetectedAsync(oldValue));
         });
 
-        EidToActions.Add(LIGHT_EID, async x => 
+        EidToActions.Add(LIGHT_EID, x => 
         {
             var value = (LightState)int.Parse(x);
 
             if(value == Light) return; // prevent event duplication when state is actual
 
             (var oldValue, Light) = (Light, value);
-            await OnLightChangeAsync(oldValue);
+            RaiseEvent(() => OnLightChangeAsync(oldValue));
         });
 
-        EidToActions.Add(IDLE_TIME_EID, async x => 
+        EidToActions.Add(IDLE_TIME_EID, x => 
         {
-            await OnNoMotionDetectedAsync((NoMotionState)ToBleInt256(x));
+            RaiseEvent(() => OnNoMotionDetectedAsync((NoMotionState)ToBleInt256(x)));
         });
     }
     public override string ToString()

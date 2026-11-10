@@ -15,7 +15,7 @@ public class AsyncBleEventMethodProcessor(Dictionary<string, MqttGatewaySubDevic
     {
         if (!json.AsObject().ContainsKey("params") || !json["params"].AsObject().ContainsKey("dev"))
         {
-            _logger.LogWarning($"Json string --> '{json}' is not valid for ble parsing");
+            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
             return;
         }
 
@@ -24,7 +24,7 @@ public class AsyncBleEventMethodProcessor(Dictionary<string, MqttGatewaySubDevic
 
         if (!dev.ContainsKey("did"))
         {
-            _logger.LogWarning($"json --> {json} has no 'did' property. Futher processing is impossible");
+            _logger.LogWarning("json --> {Message} has no 'did' property. Futher processing is impossible", json);
             return;
         }
 
@@ -32,7 +32,7 @@ public class AsyncBleEventMethodProcessor(Dictionary<string, MqttGatewaySubDevic
 
         if (!_devices.TryGetValue(did, out var device))
         {
-            _logger.LogWarning($"Device with did '{did}' is unknown. Processing is skipped");
+            _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
             return;
         }
 

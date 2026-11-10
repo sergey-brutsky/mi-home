@@ -14,13 +14,14 @@ namespace MiHomeLib.MqttGateway;
 internal class CommonDevicesDiscoverer(string host, int port, string login, string endMarker, string zigbeePath, string blePath) : IDevicesDiscoverer
 {
     private const int READ_DELAY_MS = 100;
-    private const int MAX_READ_ATTEMPTS = 100;
+    // Give up when the gateway sends nothing for this long; any received data restarts the wait
+    private static readonly TimeSpan SILENCE_TIMEOUT = TimeSpan.FromSeconds(10);
     private const string END_LINE = "\r\n";
     private const string PROMPT = ": ";
     private string ReadUntil(NetworkStream stream, string endMarker, string failString = "Password: ")
     {
         var sb = new StringBuilder();
-        var attempt = 0;
+        var deadline = DateTime.UtcNow + SILENCE_TIMEOUT;
 
         do
         {
@@ -28,6 +29,7 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
             {
                 var resp = Encoding.ASCII.GetString(ReceiveBytes(stream));
                 sb.Append(resp);
+                deadline = DateTime.UtcNow + SILENCE_TIMEOUT;
                 if (resp.EndsWith(endMarker) || resp.EndsWith(failString))
                     return sb
                             .ToString()
@@ -35,9 +37,9 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
                             .TrimEnd(END_LINE.ToCharArray());
             }
             Thread.Sleep(READ_DELAY_MS);
-        } while (attempt < MAX_READ_ATTEMPTS);
+        } while (DateTime.UtcNow < deadline);
 
-        throw new Exception($"No data ending with marker '{endMarker}' detected");
+        throw new Exception($"No data ending with marker '{endMarker}' detected within {SILENCE_TIMEOUT.TotalSeconds} seconds");
     }
     public byte[] ReceiveBytes(NetworkStream stream, int bufferSize = 4096)
     {
@@ -87,67 +89,60 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
 
         return Convert.FromBase64String(data);
     }
+    // BLE and mesh devices live in the same database. The copy downloaded for BLE discovery is kept
+    // only for the mesh discovery that follows it, so a later discovery run still sees a fresh database
+    private byte[] _bleDbForMesh;
+
     public List<BleDeviceInfo> DiscoverBleDevices()
     {
-        var bleDevicesList = new List<BleDeviceInfo>();
+        var db = ReadFileByPath(blePath);
+        _bleDbForMesh = db;
 
-        var tmpName = Path.GetTempFileName();
-        File.WriteAllBytes(tmpName, ReadFileByPath(blePath));
-
-        using var conn = new SqliteConnection($"Data Source={tmpName}");
-        conn.Open();
-
-        var command = conn.CreateCommand();
-        command.CommandText = "SELECT mac, pid, did FROM gateway_authed_table";
-
-        using var reader = command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            var mac = reader.GetString(0);
-            var pdid = reader.GetInt32(1);
-            var did = reader.GetString(2);
-            bleDevicesList.Add(new BleDeviceInfo(did, pdid, mac));
-        }
-
-        File.Delete(tmpName);
-
-        return bleDevicesList;
+        return QueryBleDb(db, "SELECT mac, pid, did FROM gateway_authed_table",
+            reader => new BleDeviceInfo(reader.GetString(2), reader.GetInt32(1), reader.GetString(0)));
     }
     public List<MeshDeviceInfo> DiscoverMeshDevices()
     {
-        var meshDevicesList = new List<MeshDeviceInfo>();
-
-        var tmpName = Path.GetTempFileName();
-        File.WriteAllBytes(tmpName, ReadFileByPath(blePath));
-
-        using var conn = new SqliteConnection($"Data Source={tmpName}");
-        conn.Open();
-
-        var command = conn.CreateCommand();
-        command.CommandText = "SELECT did, pdid, mac FROM mesh_device_v3";
+        var db = _bleDbForMesh ?? ReadFileByPath(blePath);
+        _bleDbForMesh = null;
 
         // Older firmware has no mesh table, which just means there are no mesh devices
         try
         {
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                meshDevicesList.Add(new MeshDeviceInfo(reader.GetString(0), reader.GetInt32(1), reader.GetString(2)));
-            }
+            return QueryBleDb(db, "SELECT did, pdid, mac FROM mesh_device_v3",
+                reader => new MeshDeviceInfo(reader.GetString(0), reader.GetInt32(1), reader.GetString(2)));
         }
         catch (SqliteException e) when (e.Message.Contains("no such table"))
         {
-            meshDevicesList.Clear();
+            return [];
+        }
+    }
+    private static List<T> QueryBleDb<T>(byte[] db, string sql, Func<SqliteDataReader, T> map)
+    {
+        var tmpName = Path.GetTempFileName();
+
+        try
+        {
+            File.WriteAllBytes(tmpName, db);
+
+            // Pooling=False releases the file handle on dispose, otherwise the temp file can't be deleted on Windows
+            using var conn = new SqliteConnection($"Data Source={tmpName};Pooling=False");
+            conn.Open();
+
+            using var command = conn.CreateCommand();
+            command.CommandText = sql;
+
+            using var reader = command.ExecuteReader();
+            var result = new List<T>();
+
+            while (reader.Read()) result.Add(map(reader));
+
+            return result;
         }
         finally
         {
-            conn.Close();
             File.Delete(tmpName);
         }
-
-        return meshDevicesList;
     }
     public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices()
     {

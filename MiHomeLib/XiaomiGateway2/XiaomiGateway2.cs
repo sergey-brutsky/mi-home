@@ -4,6 +4,7 @@ using System.Linq;
 
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,8 +24,14 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     public const string MARKET_MODEL = "DGNWG02LM";
     public const string MODEL = "lumi.gateway.v3";
     private readonly string _gatewaySid;
+    // Default for gateways created without a factory of their own, set by SetLoggerFactory
     private static ILoggerFactory _loggerFactory = new NullLoggerFactory();
-    private static ILogger<XiaomiGateway2> _logger = _loggerFactory.CreateLogger<XiaomiGateway2>();
+    private readonly ILoggerFactory _gatewayLoggerFactory;
+    private readonly ILogger _logger;
+    private bool _subscribed;
+    // Set while DiscoverDevicesAsync waits for the gateway to answer, null otherwise
+    private TaskCompletionSource<bool> _asyncDiscovery;
+    internal TimeSpan DiscoveryTimeout { get; set; } = TimeSpan.FromSeconds(10);
     private readonly IMessageTransport _messageTransport;
     private readonly Dictionary<string, XiaomiGateway2SubDevice> _devicesList = [];
     private const int ReadDeviceInterval = 100;
@@ -70,8 +77,14 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
     public XiaomiGateway2(string ip, string token, string gatewaySid = null)
         : this(new MiioTransport(ip, token), new UdpTransport(), gatewaySid) { }
 
-    internal XiaomiGateway2(IMiioTransport miioTransport, IMessageTransport messageTransport, string gatewaySid, int externalId = 0) : base(miioTransport, externalId)
+    /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    public XiaomiGateway2(string ip, string token, string gatewaySid, ILoggerFactory loggerFactory)
+        : this(new MiioTransport(ip, token), new UdpTransport(), gatewaySid, 0, loggerFactory) { }
+
+    internal XiaomiGateway2(IMiioTransport miioTransport, IMessageTransport messageTransport, string gatewaySid, int externalId = 0, ILoggerFactory loggerFactory = null) : base(miioTransport, externalId)
     {
+        _gatewayLoggerFactory = loggerFactory ?? _loggerFactory;
+        _logger = _gatewayLoggerFactory.CreateLogger(GetType());
         _messageTransport = messageTransport;
         _gatewaySid = gatewaySid;
 
@@ -82,87 +95,135 @@ public class XiaomiGateway2 : MiioDevice, IDisposable
         {
             XiaomiGateway2SubDevice addDevice(string sid, int shortId) =>
                 type.IsSubclassOf(typeof(ManageableXiaomiGateway2SubDevice)) ?
-                    Activator.CreateInstance(type, sid, shortId, _messageTransport, gwPassword, _loggerFactory) as ManageableXiaomiGateway2SubDevice :
-                    Activator.CreateInstance(type, sid, shortId, _loggerFactory) as XiaomiGateway2SubDevice;
+                    Activator.CreateInstance(type, sid, shortId, _messageTransport, gwPassword, _gatewayLoggerFactory) as ManageableXiaomiGateway2SubDevice :
+                    Activator.CreateInstance(type, sid, shortId, _gatewayLoggerFactory) as XiaomiGateway2SubDevice;
 
             _supportedModels.Add(model, (sid, shortId) => addDevice(sid, shortId));
         }
     }
 
+    /// <summary>
+    /// Sets the logger factory for gateways created afterwards without a factory of their own
+    /// </summary>
     public static void SetLoggerFactory(ILoggerFactory loggerFactory)
     {
         if (loggerFactory is null) return;
 
         _loggerFactory = loggerFactory;
-        _logger = _loggerFactory.CreateLogger<XiaomiGateway2>();
     }
 
     public void DiscoverDevices()
     {
-        _messageTransport.OnMessageReceived += async str =>
+        SubscribeOnce();
+        _messageTransport.SendCommand(new DiscoverGatewayCommand());
+    }
+
+    /// <summary>
+    /// Completes when the gateway has answered and read requests for all its sub-devices are sent.
+    /// Sub-devices are reported through OnDeviceDiscoveredAsync as their answers arrive.
+    /// Throws TimeoutException if the gateway does not answer within 10 seconds
+    /// </summary>
+    public async Task DiscoverDevicesAsync()
+    {
+        var discovery = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Volatile.Write(ref _asyncDiscovery, discovery);
+
+        SubscribeOnce();
+        _messageTransport.SendCommand(new DiscoverGatewayCommand());
+
+        if (await Task.WhenAny(discovery.Task, Task.Delay(DiscoveryTimeout)).ConfigureAwait(false) != discovery.Task)
         {
-            try
+            Interlocked.CompareExchange(ref _asyncDiscovery, null, discovery);
+            throw new TimeoutException($"Gateway did not answer the discovery request within {DiscoveryTimeout.TotalSeconds} seconds");
+        }
+
+        await discovery.Task.ConfigureAwait(false);
+    }
+
+    // Subscribed once: a repeated discovery must not process every message twice
+    private void SubscribeOnce()
+    {
+        if (_subscribed) return;
+
+        _messageTransport.OnMessageReceived += OnMessageReceived;
+        _subscribed = true;
+    }
+
+    private async void OnMessageReceived(string str)
+    {
+        try
+        {
+            _logger.LogDebug("{Message}", str);
+
+            var cmd = ResponseCommand.FromString(str);
+
+            if (!_supportedCommands.Contains(cmd.Command))
             {
-                _logger?.LogDebug(str);
+                _logger.LogWarning("Command '{Command}' is not a response command, skipping it", cmd.RawCommand);
+                return;
+            }
 
-                var cmd = ResponseCommand.FromString(str);
-
-                if (!_supportedCommands.Contains(cmd.Command))
+            if (cmd.Command == ResponseCommandType.GetIdListAck)
+            {
+                if (_gatewaySid != null && _gatewaySid != cmd.Sid)
                 {
-                    _logger?.LogWarning($"Command '{cmd.RawCommand}' is not a response command, skipping it");
+                    _logger.LogWarning("Discovered gateway with sid '{Sid}', but expected gateway must be with sid '{ExpectedSid}'. Skipping it...", cmd.Sid, _gatewaySid);
                     return;
                 }
 
-                if (cmd.Command == ResponseCommandType.GetIdListAck)
-                {
-                    if (_gatewaySid != null && _gatewaySid != cmd.Sid)
-                    {
-                        _logger?.LogWarning($"Discovered gateway with sid '{cmd.Sid}', but expected gateway must be with sid '{_gatewaySid}'. Skipping it...");
-                        return;
-                    }
+                var asyncDiscovery = Interlocked.Exchange(ref _asyncDiscovery, null);
 
+                try
+                {
                     _messageTransport.Token = cmd.Token;
                     _messageTransport.SendCommand(new ReadDeviceCommand(cmd.Sid)); // read props of gateway itself
 
                     foreach (var sid in JsonNode.Parse(cmd.Data).AsArray())
                     {
-                        Task.Delay(ReadDeviceInterval).Wait(); // need some time in order not to loose messages
+                        // need some time in order not to loose messages; DiscoverDevices keeps its blocking pause
+                        if (asyncDiscovery is null) Task.Delay(ReadDeviceInterval).Wait();
+                        else await Task.Delay(ReadDeviceInterval).ConfigureAwait(false);
+
                         _messageTransport.SendCommand(new ReadDeviceCommand(sid.ToString()));
                     }
-
-                    return;
                 }
-
-                if (!_supportedModels.TryGetValue(cmd.Model, out var factory))
+                catch (Exception e) when (asyncDiscovery is not null)
                 {
-                    _logger?.LogWarning($"Model '{cmd.Model}' is not supported, please contribute to support");
-                    return;
+                    asyncDiscovery.TrySetException(e);
+                    throw;
                 }
 
-                if (!_devicesList.TryGetValue(cmd.Sid, out var gw2SubDevice))
-                {
-                    var supportedDevice = factory(cmd.Sid, cmd.ShortId);
-                    _devicesList.Add(cmd.Sid, supportedDevice);
-                    supportedDevice.ParseData(cmd.Data);
-
-                    await OnDeviceDiscoveredAsync(supportedDevice);
-                    return;
-                }
-
-                if (gw2SubDevice is XiaomiMultifunctionalGateway2 && cmd.Token is not null)
-                {
-                    _messageTransport.Token = cmd.Token;
-                }
-
-                gw2SubDevice.ParseData(cmd.Data);
+                asyncDiscovery?.TrySetResult(true);
+                return;
             }
-            catch (Exception e)
+
+            if (!_supportedModels.TryGetValue(cmd.Model, out var factory))
             {
-                _logger?.LogError(e, "Unexpected error");
+                _logger.LogWarning("Model '{Model}' is not supported, please contribute to support", cmd.Model);
+                return;
             }
-        };
 
-        _messageTransport.SendCommand(new DiscoverGatewayCommand());
+            if (!_devicesList.TryGetValue(cmd.Sid, out var gw2SubDevice))
+            {
+                var supportedDevice = factory(cmd.Sid, cmd.ShortId);
+                _devicesList.Add(cmd.Sid, supportedDevice);
+                supportedDevice.ParseData(cmd.Data);
+
+                await OnDeviceDiscoveredAsync(supportedDevice);
+                return;
+            }
+
+            if (gw2SubDevice is XiaomiMultifunctionalGateway2 && cmd.Token is not null)
+            {
+                _messageTransport.Token = cmd.Token;
+            }
+
+            gw2SubDevice.ParseData(cmd.Data);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unexpected error");
+        }
     }
 
     public void SetDeveloperKey(string key) => RunSync(() => SetDeveloperKeyAsync(key));

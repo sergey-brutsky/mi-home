@@ -63,48 +63,48 @@ public class AqaraDualWirelessRelayCN : LumiZigBeeManageableDevice
     public event Func<float, Task> OnCurrentChangeAsync = (_) => Task.CompletedTask;
     public AqaraDualWirelessRelayCN(string did, IMqttTransport mqttTransport, ILoggerFactory loggerFactory) : base(did, mqttTransport, loggerFactory)
     {
-        Actions.Add(CHANNEL1_RES_NAME, async x =>
+        Actions.Add(CHANNEL1_RES_NAME, x =>
         {
             var state = x.GetInt32();
 
             if(state == (int)Channel1) return; // No need to emit event when state is already actual
 
             Channel1 = state == 1 ? ChannelState.On : state == 0 ? ChannelState.Off : ChannelState.Unknown;
-            await OnChannel1StateChangeAsync();
+            RaiseEvent(() => OnChannel1StateChangeAsync());
         });
 
-        Actions.Add(CHANNEL2_RES_NAME, async x =>
+        Actions.Add(CHANNEL2_RES_NAME, x =>
         {
             var state = x.GetInt32();
 
             if(state == (int)Channel2) return; // No need to emit event when state is already actual
 
             Channel2 = state == 1 ? ChannelState.On : state == 0 ? ChannelState.Off : ChannelState.Unknown;
-            await OnChannel2StateChangeAsync();
+            RaiseEvent(() => OnChannel2StateChangeAsync());
         });
 
-        Actions.Add(VOLTAGE_RES_NAME, async x =>
+        Actions.Add(VOLTAGE_RES_NAME, x =>
         {
             (var oldValue, Voltage) = (Voltage, x.GetInt32()/1000f);
-            await OnVoltageChangeAsync(oldValue);
+            RaiseEvent(() => OnVoltageChangeAsync(oldValue));
         });
 
-        Actions.Add(LOAD_POWER_RES_NAME, async x =>
+        Actions.Add(LOAD_POWER_RES_NAME, x =>
         {
             (var oldValue, LoadPower) = (LoadPower, (float)x.GetDouble());
-            await OnLoadPowerChangeAsync(oldValue);
+            RaiseEvent(() => OnLoadPowerChangeAsync(oldValue));
         });
 
-        Actions.Add(ENERGY_RES_NAME, async x =>
+        Actions.Add(ENERGY_RES_NAME, x =>
         {
             (var oldValue, Energy) = (Energy, (float)x.GetDouble());
-            await OnEnergyChangeAsync(oldValue);
+            RaiseEvent(() => OnEnergyChangeAsync(oldValue));
         });
 
-        Actions.Add(LOAD_CURRENT_RES_NAME, async x =>
+        Actions.Add(LOAD_CURRENT_RES_NAME, x =>
         {
             (var oldValue, Current) = (Current, (float)x.GetDouble());
-            await OnCurrentChangeAsync(oldValue);
+            RaiseEvent(() => OnCurrentChangeAsync(oldValue));
         });
     }
     protected internal override string[] GetProps()

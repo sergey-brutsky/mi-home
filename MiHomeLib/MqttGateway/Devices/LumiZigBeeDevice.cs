@@ -27,18 +27,18 @@ public abstract class LumiZigBeeDevice : MqttGatewaySubDevice
     public LumiZigBeeDevice(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
         Actions = new() {
-            {LQI_RES_NAME, async x =>
+            {LQI_RES_NAME, x =>
                 {
                    var oldVal = LinqQuality;
                     LinqQuality = (byte)x.GetInt32();
-                    await OnLinkQualityChangeAsync(oldVal);
+                    RaiseEvent(() => OnLinkQualityChangeAsync(oldVal));
                 }
             },
-            {CHIP_TEMPERATURE_RES_NAME, async x =>
+            {CHIP_TEMPERATURE_RES_NAME, x =>
                 {
                    var oldVal = ChipTemperature;
                     ChipTemperature = (byte)x.GetInt32();
-                    await OnChipTemperatureChangeAsync(oldVal);
+                    RaiseEvent(() => OnChipTemperatureChangeAsync(oldVal));
                 }
             },
         };
@@ -65,7 +65,7 @@ public abstract class LumiZigBeeDevice : MqttGatewaySubDevice
             }
             else
             {
-                _logger.LogWarning($"Property '{(prop.ContainsKey(RES_NAME) ? prop[RES_NAME].GetString() : "unknown")}' is not supported for this device yet. Please contribute to support.");
+                _logger.LogWarning("Property '{Property}' is not supported for this device yet. Please contribute to support.", prop.ContainsKey(RES_NAME) ? prop[RES_NAME].GetString() : "unknown");
             }
         }
     }

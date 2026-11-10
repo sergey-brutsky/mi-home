@@ -21,13 +21,13 @@ public class XiaomiWindowDoorSensor : LumiZigBeeBatteryDevice
     private readonly IEnumerable<int> _validContactValues = Helpers.EnumToIntegers<DoorWindowContactState>();
     public XiaomiWindowDoorSensor(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Actions.Add(CONTACT_RES_NAME, async x =>
+        Actions.Add(CONTACT_RES_NAME, x =>
         {
             var val = x.GetInt32();
             if(!_validContactValues.Contains(val)) return;
 
             Contact = (DoorWindowContactState)val;
-            await OnContactChangedAsync();
+            RaiseEvent(() => OnContactChangedAsync());
         });
     }
 

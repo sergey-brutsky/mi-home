@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using AutoFixture;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib;
 using MiHomeLib.Contracts;
 using MiHomeLib.MqttGateway.JsonResponses;
@@ -15,51 +14,25 @@ using static MiHomeLib.MqttGateway.JsonResponses.BleAsyncEventResponse.BleAsyncE
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
-public class MqttGatewayDeviceTests: MiioDeviceBase
+public class MqttGatewayDeviceTests: MiioDeviceBase, IDisposable
 {
     protected Mock<IDevicesDiscoverer> _devicesDiscoverer;
     protected readonly Mock<IMqttTransport> _mqttTransport;
-    protected readonly NullLoggerFactory _loggerFactory;
+    protected readonly ErrorRecordingLoggerFactory _loggerFactory = new();
     protected readonly Fixture _fixture = new();
     private readonly JsonSerializerOptions _opts = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
 
     public MqttGatewayDeviceTests()
     {
-        _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => new NullLoggerFactory()));
+        _fixture.Customize<ILoggerFactory>(x => x.FromFactory(() => _loggerFactory));
         _mqttTransport = new Mock<IMqttTransport>();
         _miioTransport = new Mock<IMiioTransport>();
         _devicesDiscoverer = new Mock<IDevicesDiscoverer>();
-        _loggerFactory = new NullLoggerFactory();
 
-        _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(new
-            {
-                id = 1,
-                result = new
-                {
-                    uptime = 502175,
-                    life = 502175,
-                    miio_ver = "0.0.9",
-                    mac = "34:EF:44:49:BC:63",
-                    fw_ver = "1.0.5_0008",
-                    hw_ver = "Linux",
-                    ap = new
-                    {
-                        ssid = "ssid1",
-                        bssid = "bssid1",
-                        rssi = -35,
-                        freq = 2437,
-                    },
-                    netif = new
-                    {
-                        localIp = "192.168.1.100",
-                        mask = "255.255.255.0",
-                        gw = "192.168.1.1",
-                    }
-                }
-            }.ToJson());
+        SetupMiioInfo();
     }
+
+    public void Dispose() => _loggerFactory.ThrowIfAnyErrors();
 
     protected List<ZigbeeReportResponse.ZigbeeReportResource> DataToZigbeeResource(string data)
     {

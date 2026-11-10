@@ -11,11 +11,11 @@ public class AqaraTemperatureHumiditySensor : XiaomiTemperatureHumiditySensor
 
     public AqaraTemperatureHumiditySensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("pressure", async x => 
+        Actions.Add("pressure", x => 
         {
             Pressure = int.Parse(x.GetString())/100f;
             
-            await OnPressureChangeAsync(Pressure);
+            RaiseEvent(() => OnPressureChangeAsync(Pressure));
         });
     }
 

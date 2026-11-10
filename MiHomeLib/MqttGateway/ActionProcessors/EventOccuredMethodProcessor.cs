@@ -10,13 +10,13 @@ public class EventOccuredMethodProcessor(Dictionary<string, MqttGatewaySubDevice
 {
     public const string ACTION = "event_occured";
     private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<AsyncBleEventMethodProcessor>();
+    private readonly ILogger _logger = loggerFactory.CreateLogger<EventOccuredMethodProcessor>();
 
     public void ProcessMessage(JsonNode json)
     {
         if (!json.AsObject().ContainsKey("params"))
         {
-            _logger.LogWarning($"Json string --> '{json}' is not valid for ble parsing");
+            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
             return;
         }
         
@@ -24,7 +24,7 @@ public class EventOccuredMethodProcessor(Dictionary<string, MqttGatewaySubDevice
         
         if (!parms.ContainsKey("did"))
         {
-            _logger.LogWarning($"json --> {json} has no 'did' property. Futher processing is impossible");
+            _logger.LogWarning("json --> {Message} has no 'did' property. Futher processing is impossible", json);
             return;
         }
 
@@ -32,7 +32,7 @@ public class EventOccuredMethodProcessor(Dictionary<string, MqttGatewaySubDevice
         
         if (!_devices.TryGetValue(did, out var device))
         {
-            _logger.LogWarning($"Device with did '{did}' is unknown. Processing is skipped");
+            _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
             return;
         }
         

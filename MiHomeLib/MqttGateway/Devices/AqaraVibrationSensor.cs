@@ -47,9 +47,9 @@ public class AqaraVirationSensor : LumiZigBeeManageableBatteryDevice
     {
         _stateActions = new Dictionary<AqaraVirationSensorState, Action>
         {
-            {AqaraVirationSensorState.Vibration, async () => await OnVibrationAsync()},
-            {AqaraVirationSensorState.Tilt, async () => await OnTiltAsync()},
-            {AqaraVirationSensorState.FreeFall, async () => await OnFreeFallAsync()},
+            {AqaraVirationSensorState.Vibration, () => RaiseEvent(() => OnVibrationAsync())},
+            {AqaraVirationSensorState.Tilt, () => RaiseEvent(() => OnTiltAsync())},
+            {AqaraVirationSensorState.FreeFall, () => RaiseEvent(() => OnFreeFallAsync())},
         };
 
         Actions.Add(STATUS_RES_NAME, x =>
@@ -58,16 +58,16 @@ public class AqaraVirationSensor : LumiZigBeeManageableBatteryDevice
             _stateActions[(AqaraVirationSensorState)x.GetByte()]();
         });
 
-        Actions.Add(FINAL_TILT_RES_NAME, async x =>
+        Actions.Add(FINAL_TILT_RES_NAME, x =>
         {
             (var oldVal, FinalTiltAngle) = (FinalTiltAngle, x.GetInt32());
-            await OnFinalTiltAngleAsync(oldVal);
+            RaiseEvent(() => OnFinalTiltAngleAsync(oldVal));
         });
 
-        Actions.Add(BED_ACTIVITY_RES_NAME, async x =>
+        Actions.Add(BED_ACTIVITY_RES_NAME, x =>
         {
             (var oldVal, BedActivity) = (BedActivity, x.GetInt32());
-            await OnBedActivityAsync(oldVal);
+            RaiseEvent(() => OnBedActivityAsync(oldVal));
         });
     }
     public void SetSensivity(SensivityState state) => SendWriteCommand(SENSIVITY_RES_NAME, (int)state);

@@ -44,21 +44,21 @@ public class XiaomiMiSmartPowerPlugCN: LumiZigBeeManageableDevice
     public event Func<float, Task> OnLoadPowerChangeAsync = (_) => Task.CompletedTask;
     public XiaomiMiSmartPowerPlugCN(string did, IMqttTransport mqttTransport, ILoggerFactory loggerFactory) : base(did, mqttTransport, loggerFactory)
     {
-        Actions.Add(STATE_RES_NAME, async x =>
+        Actions.Add(STATE_RES_NAME, x =>
         {
             var state = x.GetInt32() == 1 ? PlugState.On : PlugState.Off;
 
             if(state == State) return; // No need to emit event when state is already actual
 
             State = state;
-            await OnStateChangeAsync();
+            RaiseEvent(() => OnStateChangeAsync());
         });
 
-        Actions.Add(LOAD_POWER_RES_NAME, async x =>
+        Actions.Add(LOAD_POWER_RES_NAME, x =>
         {
             var oldValue = LoadPower;
             LoadPower = (float)x.GetDouble();
-            await OnLoadPowerChangeAsync(oldValue);
+            RaiseEvent(() => OnLoadPowerChangeAsync(oldValue));
         });
     }
     protected internal override string[] GetProps()

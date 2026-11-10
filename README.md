@@ -1,8 +1,8 @@
 # C# Library for using xiaomi/aqara gateways in your automation scenarious
 
-[![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/test_results.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
-[![Code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/code_cov.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/main.yml)
+[![Build project](https://github.com/sergey-brutsky/mi-home/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/build-and-test.yml)
+[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/test_results.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/build-and-test.yml)
+[![Code coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/sergey-brutsky/d70d7e06eb53484b7514bfd63cec6885/raw/code_cov.json)](https://github.com/sergey-brutsky/mi-home/actions/workflows/build-and-test.yml)
 [![CodeQL](https://github.com/sergey-brutsky/mi-home/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/sergey-brutsky/mi-home/actions/workflows/github-code-scanning/codeql)
 [![Nuget](https://img.shields.io/nuget/v/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
 [![Nuget](https://img.shields.io/nuget/dt/mihomelib)](https://www.nuget.org/packages/MiHomeLib)
@@ -222,6 +222,23 @@ public static void Main()
     Console.ReadLine();
 }
 ```
+
+## <a name="logging">Logging</a>
+
+The library is silent by default. To see what happens inside, pass any `ILoggerFactory` to a gateway constructor. The gateway and all its devices log through it:
+
+```csharp
+using var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Debug));
+using var gw = new MultimodeGateway("<gateway ip>", "<gateway token>", "<did>", 1883, loggerFactory);
+```
+
+Or set one factory for all gateways created afterwards:
+
+```csharp
+MiHomeLogging.SetLoggerFactory(loggerFactory);
+```
+
+Levels: `Debug` shows every message received from the gateway, `Information` discovery and connection events, `Warning` messages or devices the library does not support yet. Each device logs under its own type name, e.g. `MiHomeLib.MqttGateway.Devices.XiaomiSmartWirelessSwitch`, so logging can be enabled for one device only.
 
 ## <a name="documentation">Documentation</a>
 

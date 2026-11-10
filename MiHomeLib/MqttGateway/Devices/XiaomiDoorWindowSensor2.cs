@@ -28,7 +28,7 @@ public class XiaomiDoorWindowSensor2 : BleBatteryDevice
     private const int LIGHT_EID = 4120;
     public XiaomiDoorWindowSensor2(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(CONTACT_EID, async x => 
+        EidToActions.Add(CONTACT_EID, x => 
         {
             var value = (ContactState)int.Parse(x);
 
@@ -36,10 +36,10 @@ public class XiaomiDoorWindowSensor2 : BleBatteryDevice
 
             var oldContact = Contact;            
             Contact = (ContactState)int.Parse(x);
-            await OnContactChangeAsync(oldContact);
+            RaiseEvent(() => OnContactChangeAsync(oldContact));
         });
 
-        EidToActions.Add(LIGHT_EID, async x => 
+        EidToActions.Add(LIGHT_EID, x => 
         {
             var value = (LightState)int.Parse(x);
 
@@ -47,7 +47,7 @@ public class XiaomiDoorWindowSensor2 : BleBatteryDevice
 
             var oldLight = Light;
             Light = (LightState)int.Parse(x);
-            await OnLightChangeAsync(oldLight);
+            RaiseEvent(() => OnLightChangeAsync(oldLight));
         });
     }
     public ContactState Contact { get; set; } = ContactState.Unknown;  

@@ -14,7 +14,7 @@ public class XiaomiMultimodeGatewayTests : MqttGatewayDeviceTests
 
     public XiaomiMultimodeGatewayTests()
     {
-        _gw = new MultimodeGateway(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object);
+        _gw = new MultimodeGateway(GW_DID, _miioTransport.Object, _mqttTransport.Object, _devicesDiscoverer.Object, _loggerFactory);
     }
 
     [Fact]

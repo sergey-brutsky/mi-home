@@ -33,23 +33,25 @@ public class XiaomiSmartHumanBodySensor : LumiZigBeeBatteryDevice
         _oneMinuteTimer = oneMinuteTimer;
         _twoMinutesTimer = twoMinutesTimer;
 
+        // async void is unavoidable for timer callbacks, RaiseEventAsync keeps handler exceptions inside
         _oneMinuteTimer.Elapsed += async (_, __) => 
         {
-            await OnNoMotionDetectedAsync(NoMotionInterval.NoMotionForOneMinute);
+            await RaiseEventAsync(() => OnNoMotionDetectedAsync(NoMotionInterval.NoMotionForOneMinute));
             _oneMinuteTimer.Stop();
         };
 
         _twoMinutesTimer.Elapsed += async (_, __) => 
         {
-            await OnNoMotionDetectedAsync(NoMotionInterval.NoMotionForTwoMinutes);
+            await RaiseEventAsync(() => OnNoMotionDetectedAsync(NoMotionInterval.NoMotionForTwoMinutes));
             _twoMinutesTimer.Stop();
         };
 
+        // Timers restart only after the motion handler has finished, as before
         Actions.Add(MOTION_RES_NAME, async x =>
         {
             _oneMinuteTimer.Stop();
             _twoMinutesTimer.Stop();
-            await OnMotionDetectedAsync();
+            await RaiseEventAsync(() => OnMotionDetectedAsync());
             _oneMinuteTimer.Start();
             _twoMinutesTimer.Start();
         });

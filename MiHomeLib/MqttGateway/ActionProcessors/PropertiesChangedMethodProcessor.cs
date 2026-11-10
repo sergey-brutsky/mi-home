@@ -10,13 +10,13 @@ public class PropertiesChangedMethodProcessor(Dictionary<string, MqttGatewaySubD
 {
     public const string ACTION = "properties_changed";
     private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<AsyncBleEventMethodProcessor>();
+    private readonly ILogger _logger = loggerFactory.CreateLogger<PropertiesChangedMethodProcessor>();
 
     public void ProcessMessage(JsonNode json)
     {
         if (!json.AsObject().ContainsKey("params"))
         {
-            _logger.LogWarning($"Json string --> '{json}' is not valid for ble parsing");
+            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
             return;
         }
         
@@ -28,8 +28,8 @@ public class PropertiesChangedMethodProcessor(Dictionary<string, MqttGatewaySubD
 
             if (!_devices.TryGetValue(did, out var device))
             {
-                _logger.LogWarning($"Device with did '{did}' is unknown. Processing is skipped");
-                return;
+                _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
+                continue;
             }
 
             device.LastTimeMessageReceived = DateTime.Now;

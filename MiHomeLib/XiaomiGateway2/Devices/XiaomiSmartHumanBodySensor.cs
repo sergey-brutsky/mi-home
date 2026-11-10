@@ -11,14 +11,14 @@ public class XiaomiSmartHumanBodySensor : BatteryXiaomiGateway2SubDevice
 
     public XiaomiSmartHumanBodySensor(string sid, int shortId, ILoggerFactory loggerFactory) : base(sid, shortId, loggerFactory)
     {
-        Actions.Add("status", async x => 
+        Actions.Add("status", x => 
         {
-            await OnMotionAsync();
+            RaiseEvent(() => OnMotionAsync());
         });
 
-        Actions.Add("no_motion", async x => 
+        Actions.Add("no_motion", x => 
         {
-            await OnNoMotionAsync(int.Parse(x.GetString()));
+            RaiseEvent(() => OnNoMotionAsync(int.Parse(x.GetString())));
         });
     }
 

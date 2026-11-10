@@ -11,9 +11,9 @@ namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 public class BleBatteryDeviceTests: MqttGatewayDeviceTests
 {
     [Theory]
-    [InlineData(4106, "63", 95)]
-    [InlineData(4106, "62", 41)]
-    public void Check_OnBatteryPercentChange_Event(int eid, string edata, byte oldBatteryPercent)
+    [InlineData(4106, "63", 95, 99)]
+    [InlineData(4106, "62", 41, 98)]
+    public void Check_OnBatteryPercentChange_Event(int eid, string edata, byte oldBatteryPercent, byte expectedBatteryPercent)
     {
         // Arrange       
         var thMonitor2 = _fixture.Build<XiaomiBluetoothHygrothermograph2>().Create();
@@ -25,8 +25,6 @@ public class BleBatteryDeviceTests: MqttGatewayDeviceTests
         thMonitor2.OnBatteryPercentChangeAsync += (oldValue) =>
          { 
             eventRaised = oldValue == oldBatteryPercent;
-            thMonitor2.BatteryPercent.Should().Be(thMonitor2.ToBleByte(edata));
-            thMonitor2.LastTimeMessageReceived = time.UnixSecondsToDateTime();
             return Task.CompletedTask;
         };
         
@@ -35,5 +33,6 @@ public class BleBatteryDeviceTests: MqttGatewayDeviceTests
 
         // Assert
         eventRaised.Should().BeTrue();
+        thMonitor2.BatteryPercent.Should().Be(expectedBatteryPercent);
     }
 }

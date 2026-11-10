@@ -24,7 +24,7 @@ public class XiaomiSmokeSensorGuard : BleBatteryDevice
 
     public XiaomiSmokeSensorGuard(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        EidToActions.Add(SMOKE_DETECTED_EID, async x => 
+        EidToActions.Add(SMOKE_DETECTED_EID, x => 
         {
             var val = (SmokeState)int.Parse(x);
 
@@ -32,7 +32,7 @@ public class XiaomiSmokeSensorGuard : BleBatteryDevice
 
             (var oldValue, Smoke) = (Smoke, val);
             
-            await OnSmokeChangeAsync(oldValue);
+            RaiseEvent(() => OnSmokeChangeAsync(oldValue));
         });
     }
 

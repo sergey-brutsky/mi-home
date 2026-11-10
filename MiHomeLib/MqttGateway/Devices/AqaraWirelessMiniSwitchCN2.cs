@@ -31,12 +31,12 @@ public class AqaraWirelessMiniSwitchCN2 : MiSpecZigBeeDevice
 
     public AqaraWirelessMiniSwitchCN2(string did, ILoggerFactory loggerFactory) : base(did, loggerFactory)
     {
-        Events.Add((CLICK_SIID, (int)ClickArg.SingleClick), async _ => await OnClickAsync(ClickArg.SingleClick));
-        Events.Add((CLICK_SIID, (int)ClickArg.DoubleClick), async _ => await OnClickAsync(ClickArg.DoubleClick));
-        Events.Add((CLICK_SIID, (int)ClickArg.LongPressClick), async _ => await OnClickAsync(ClickArg.LongPressClick));
+        Events.Add((CLICK_SIID, (int)ClickArg.SingleClick), _ => RaiseEvent(() => OnClickAsync(ClickArg.SingleClick)));
+        Events.Add((CLICK_SIID, (int)ClickArg.DoubleClick), _ => RaiseEvent(() => OnClickAsync(ClickArg.DoubleClick)));
+        Events.Add((CLICK_SIID, (int)ClickArg.LongPressClick), _ => RaiseEvent(() => OnClickAsync(ClickArg.LongPressClick)));
         
-        Properties.Add((BATTERY_SIID, BATTERY_VOLTAGE_PIID), async x => await OnBatteryVoltageAsync(x.GetValue<int>()/1000f));
-        Properties.Add((BATTERY_SIID, BATTERY_STATUS_PIID), async x => await OnBatteryStatusAsync((BatteryStatusType)x.GetValue<int>()));
+        Properties.Add((BATTERY_SIID, BATTERY_VOLTAGE_PIID), x => RaiseEvent(() => OnBatteryVoltageAsync(x.GetValue<int>()/1000f)));
+        Properties.Add((BATTERY_SIID, BATTERY_STATUS_PIID), x => RaiseEvent(() => OnBatteryStatusAsync((BatteryStatusType)x.GetValue<int>())));
     }
     
     /// <summary>

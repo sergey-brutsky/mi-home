@@ -13,34 +13,7 @@ public class XiaomiSmartAirPurifier4LiteTests : MiioDeviceBase
 
     public XiaomiSmartAirPurifier4LiteTests()
     {
-        _miioTransport
-            .Setup(x => x.SendMessage(It.Is<string>(s => s.Contains("miIO.info"))))
-            .Returns(new
-            {
-                id = 1,
-                result = new
-                {
-                    life = 8172,
-                    miio_ver = "0.1.0",
-                    mac = "E8:2A:14:3A:26:1F",
-                    fw_ver = "1.0.6",
-                    hw_ver = "ESP32C3",
-                    ap = new
-                    {
-                        ssid = "ssid1",
-                        bssid = "bssid1",
-                        rssi = -35,
-                        primary = 2,
-                        freq = 2410,
-                    },
-                    netif = new
-                    {
-                        localIp = "192.168.1.100",
-                        mask = "255.255.255.0",
-                        gw = "192.168.1.1",
-                    }
-                }
-            }.ToJson());
+        SetupMiioInfo();
 
         _purifier = new XiaomiSmartAirPurifier4Lite(_miioTransport.Object);
     }

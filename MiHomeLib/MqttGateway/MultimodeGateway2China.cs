@@ -16,9 +16,10 @@ public class MultimodeGateway2China : MultimodeGateway2Base
     public const string MODEL = "lumi.gateway.mcn001";
 
     public MultimodeGateway2China(string ip, string token, string did, int port = 1883): base(ip, token, did, port, "~ # ")
-    {
-        _logger = _loggerFactory.CreateLogger<MultimodeGateway2China>();
-    }
+    { }
+
+    /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    public MultimodeGateway2China(string ip, string token, string did, int port, ILoggerFactory loggerFactory): base(ip, token, did, port, "~ # ", loggerFactory) { }
     
     public override string ToString() => $"Model: {MARKET_MODEL} {MODEL}";
 }

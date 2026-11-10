@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 
@@ -17,15 +18,21 @@ public class AqaraHubE1China : MqttGatewayBase, IDisposable
 {
     public const string MARKET_MODEL = "ZHWG16LM";
     public const string MODEL = "lumi.gateway.aqcn02";
-    public AqaraHubE1China(string ip, string token, string did, int port = 1883) :
+    public AqaraHubE1China(string ip, string token, string did, int port = 1883) : this(ip, token, did, port, null) { }
+
+    /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    public AqaraHubE1China(string ip, string token, string did, int port, ILoggerFactory loggerFactory) :
         this(
                 did,
                 new MiioTransport(ip, token),
-                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics], _zigbeeCommandsTopic, _loggerFactory),
-                new CommonDevicesDiscoverer(ip, 23, "root", "/ # ", "/data/zigbee/device.info", "")
+                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory)),
+                new CommonDevicesDiscoverer(ip, 23, "root", "/ # ", "/data/zigbee/device.info", ""),
+                loggerFactory
         )
     { }
-    internal AqaraHubE1China(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(did, miioTransport, mqttTransport, devicesDiscoverer)
+
+    internal AqaraHubE1China(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory = null)
+        : base(did, miioTransport, mqttTransport, devicesDiscoverer, loggerFactory)
     {        
     }
 

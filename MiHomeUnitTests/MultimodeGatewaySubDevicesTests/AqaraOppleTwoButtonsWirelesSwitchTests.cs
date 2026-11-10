@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoFixture;
 using Xunit;
 using FluentAssertions;
@@ -7,55 +10,62 @@ using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeUnitTests.MultimodeGatewaySubDevicesTests;
 
+/// <summary>
+/// Covers both Opple switches: the four-button model inherits buttons 1 and 2 and adds 3 and 4
+/// </summary>
 public class AqaraOppleTwoButtonsWirelesSwitchTests: MqttGatewayDeviceTests
 {
-    [Theory]
-    [InlineData("[{\"res_name\":\"13.1.85\",\"value\":1}]", ClickArg.SingleClick)]
-    [InlineData("[{\"res_name\":\"13.1.85\",\"value\":2}]", ClickArg.DoubleClick)]
-    [InlineData("[{\"res_name\":\"13.1.85\",\"value\":3}]", ClickArg.TripleClick)]
-    [InlineData("[{\"res_name\":\"13.1.85\",\"value\":16}]", ClickArg.LongPressHold)]
-    [InlineData("[{\"res_name\":\"13.1.85\",\"value\":17}]", ClickArg.LongPressRelease)]
-    public void Check_Switch_OnButton1Click_Event(string data, ClickArg evt)
+    private static readonly Dictionary<int, Action<AqaraOppleFourButtonsWirelesSwitch, Func<ClickArg, Task>>> Subscribe = new()
     {
-        // Arrange            
-        var sw = _fixture.Create<AqaraOppleTwoButtonsWirelesSwitch>();
-        var eventRaised = false;
+        [1] = (sw, h) => sw.OnButton1ClickAsync += h,
+        [2] = (sw, h) => sw.OnButton2ClickAsync += h,
+        [3] = (sw, h) => sw.OnButton3ClickAsync += h,
+        [4] = (sw, h) => sw.OnButton4ClickAsync += h,
+    };
 
-        sw.OnButton1ClickAsync += (clickArgs) => 
-        {
-            eventRaised = clickArgs == evt;
-            return Task.CompletedTask;
-        };
+    private static readonly (int value, ClickArg arg)[] Clicks =
+    [
+        (1, ClickArg.SingleClick),
+        (2, ClickArg.DoubleClick),
+        (3, ClickArg.TripleClick),
+        (16, ClickArg.LongPressHold),
+        (17, ClickArg.LongPressRelease),
+    ];
+
+    public static IEnumerable<object[]> ButtonClicks =>
+        from button in Subscribe.Keys
+        from click in Clicks
+        select new object[] { button, click.value, click.arg };
+
+    [Theory]
+    [MemberData(nameof(ButtonClicks))]
+    public void Button_Click_Raises_Event_With_ClickArg(int button, int value, ClickArg expected)
+    {
+        // Arrange
+        var sw = _fixture.Create<AqaraOppleFourButtonsWirelesSwitch>();
+        ClickArg? actual = null;
+        Subscribe[button](sw, clickArgs => { actual = clickArgs; return Task.CompletedTask; });
 
         // Act
-        sw.ParseData(data);
+        sw.ParseData($"[{{\"res_name\":\"13.{button}.85\",\"value\":{value}}}]");
 
         // Assert
-        eventRaised.Should().BeTrue();
+        actual.Should().Be(expected);
     }
 
     [Theory]
-    [InlineData("[{\"res_name\":\"13.2.85\",\"value\":1}]", ClickArg.SingleClick)]
-    [InlineData("[{\"res_name\":\"13.2.85\",\"value\":2}]", ClickArg.DoubleClick)]
-    [InlineData("[{\"res_name\":\"13.2.85\",\"value\":3}]", ClickArg.TripleClick)]
-    [InlineData("[{\"res_name\":\"13.2.85\",\"value\":16}]", ClickArg.LongPressHold)]
-    [InlineData("[{\"res_name\":\"13.2.85\",\"value\":17}]", ClickArg.LongPressRelease)]
-    public void Check_Switch_OnButton2Click_Event(string data, ClickArg evt)
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Two_Buttons_Switch_Raises_Its_Buttons(int button)
     {
-        // Arrange            
         var sw = _fixture.Create<AqaraOppleTwoButtonsWirelesSwitch>();
-        var eventRaised = false;
+        ClickArg? actual = null;
 
-        sw.OnButton2ClickAsync += (clickArgs) => 
-        { 
-            eventRaised = clickArgs == evt;
-            return Task.CompletedTask;
-        };
+        if (button == 1) sw.OnButton1ClickAsync += a => { actual = a; return Task.CompletedTask; };
+        else sw.OnButton2ClickAsync += a => { actual = a; return Task.CompletedTask; };
 
-        // Act
-        sw.ParseData(data);
+        sw.ParseData($"[{{\"res_name\":\"13.{button}.85\",\"value\":1}}]");
 
-        // Assert
-        eventRaised.Should().BeTrue();
-    } 
+        actual.Should().Be(ClickArg.SingleClick);
+    }
 }

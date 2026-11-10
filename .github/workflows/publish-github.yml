@@ -1,0 +1,29 @@
+name: publish github
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    permissions:
+      contents: read
+      packages: write
+    name: 'Publish to GitHub Packages'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup dotnet core
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - name: Read package version
+      id: version
+      run: echo "value=$(dotnet msbuild MiHomeLib -getProperty:Version -nologo)" >> "$GITHUB_OUTPUT"
+    - name: Restore dependencies
+      run: dotnet restore -s https://api.nuget.org/v3/index.json
+    - name: Test
+      run: dotnet test --no-restore MiHomeUnitTests
+    - name: Pack
+      run: dotnet pack MiHomeLib --no-restore -c Release -o artifacts
+    - name: Push MiHomeLib ${{ steps.version.outputs.value }}
+      run: dotnet nuget push artifacts/MiHomeLib.${{ steps.version.outputs.value }}.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
