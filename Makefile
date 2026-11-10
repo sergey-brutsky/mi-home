@@ -18,7 +18,7 @@ clean:
 	dotnet clean
 
 release:
-	dotnet build MiHomeLib -c Release
+	dotnet pack MiHomeLib -c Release -o MiHomeLib/bin/Release
 
 publish-nuget: check-version check-secrets release
 	dotnet nuget push MiHomeLib/bin/Release/MiHomeLib.${v}.nupkg --api-key $(NUGET_SECRET) --source https://api.nuget.org/v3/index.json
