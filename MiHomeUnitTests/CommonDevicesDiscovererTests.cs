@@ -47,6 +47,42 @@ public class CommonDevicesDiscovererTests
         }
     }
 
+    private static byte[] BuildMibleDbWithManyBleDevices(int deviceCount)
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            using (var conn = new SqliteConnection($"Data Source={path};Pooling=False"))
+            {
+                conn.Open();
+                using (var create = conn.CreateCommand())
+                {
+                    create.CommandText =
+                        "CREATE TABLE gateway_authed_table(macpid CHAR(16) PRIMARY KEY NOT NULL, mac CHAR(12) NOT NULL, pid INTEGER NOT NULL, token CHAR(24) NOT NULL, did CHAR(20) NOT NULL, beaconkey CHAR(40) NOT NULL);";
+                    create.ExecuteNonQuery();
+                }
+
+                for (var i = 0; i < deviceCount; i++)
+                {
+                    using var insert = conn.CreateCommand();
+                    insert.CommandText = "INSERT INTO gateway_authed_table VALUES($macpid, $mac, 1371, $token, $did, 'b');";
+                    insert.Parameters.AddWithValue("$macpid", $"key-{i:D4}");
+                    insert.Parameters.AddWithValue("$mac", "79e0fe38c1a4");
+                    insert.Parameters.AddWithValue("$token", i == 0 ? new string('x', 10_000) : "t");
+                    insert.Parameters.AddWithValue("$did", $"blt.3.device{i:D4}");
+                    insert.ExecuteNonQuery();
+                }
+            }
+
+            return File.ReadAllBytes(path);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     [Fact]
     public void Ble_And_Mesh_Discovery_Download_Database_Once()
     {
@@ -82,6 +118,19 @@ public class CommonDevicesDiscovererTests
         // Act & Assert
         discoverer.DiscoverMeshDevices().Should().BeEmpty();
         discoverer.DiscoverBleDevices().Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Ble_Discovery_Reads_Multiple_Btree_Pages_And_Overflow_Payloads()
+    {
+        using var server = new FakeTelnetServer(new() { [BLE_PATH] = BuildMibleDbWithManyBleDevices(300) });
+        var discoverer = new CommonDevicesDiscoverer("127.0.0.1", server.Port, "admin", "# ", ZIGBEE_PATH, BLE_PATH);
+
+        var devices = discoverer.DiscoverBleDevices();
+
+        devices.Should().HaveCount(300);
+        devices[0].Did.Should().Be("blt.3.device0000");
+        devices[^1].Did.Should().Be("blt.3.device0299");
     }
 
     [Fact]
