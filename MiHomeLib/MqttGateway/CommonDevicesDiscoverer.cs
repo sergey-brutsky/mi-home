@@ -6,7 +6,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
-using Microsoft.Data.Sqlite;
 using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MqttGateway;
@@ -98,8 +97,13 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
         var db = ReadFileByPath(blePath);
         _bleDbForMesh = db;
 
-        return QueryBleDb(db, "SELECT mac, pid, did FROM gateway_authed_table",
-            reader => new BleDeviceInfo(reader.GetString(2), reader.GetInt32(1), reader.GetString(0)));
+        if (!SqliteTableReader.TryReadTable(db, "gateway_authed_table", ["mac", "pid", "did"], out var rows))
+            throw new InvalidDataException("The SQLite database does not contain the 'gateway_authed_table' table.");
+
+        return rows.ConvertAll(row => new BleDeviceInfo(
+            GetString(row[2], "did"),
+            GetInt32(row[1], "pid"),
+            GetString(row[0], "mac")));
     }
     public List<MeshDeviceInfo> DiscoverMeshDevices()
     {
@@ -107,42 +111,23 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
         _bleDbForMesh = null;
 
         // Older firmware has no mesh table, which just means there are no mesh devices
-        try
-        {
-            return QueryBleDb(db, "SELECT did, pdid, mac FROM mesh_device_v3",
-                reader => new MeshDeviceInfo(reader.GetString(0), reader.GetInt32(1), reader.GetString(2)));
-        }
-        catch (SqliteException e) when (e.Message.Contains("no such table"))
-        {
+        if (!SqliteTableReader.TryReadTable(db, "mesh_device_v3", ["did", "pdid", "mac"], out var rows))
             return [];
-        }
+
+        return rows.ConvertAll(row => new MeshDeviceInfo(
+            GetString(row[0], "did"),
+            GetInt32(row[1], "pdid"),
+            GetString(row[2], "mac")));
     }
-    private static List<T> QueryBleDb<T>(byte[] db, string sql, Func<SqliteDataReader, T> map)
+
+    private static string GetString(object value, string columnName) =>
+        value as string ?? throw new InvalidDataException($"SQLite column '{columnName}' is not text.");
+
+    private static int GetInt32(object value, string columnName)
     {
-        var tmpName = Path.GetTempFileName();
-
-        try
-        {
-            File.WriteAllBytes(tmpName, db);
-
-            // Pooling=False releases the file handle on dispose, otherwise the temp file can't be deleted on Windows
-            using var conn = new SqliteConnection($"Data Source={tmpName};Pooling=False");
-            conn.Open();
-
-            using var command = conn.CreateCommand();
-            command.CommandText = sql;
-
-            using var reader = command.ExecuteReader();
-            var result = new List<T>();
-
-            while (reader.Read()) result.Add(map(reader));
-
-            return result;
-        }
-        finally
-        {
-            File.Delete(tmpName);
-        }
+        if (value is not long number || number < int.MinValue || number > int.MaxValue)
+            throw new InvalidDataException($"SQLite column '{columnName}' is not a valid 32-bit integer.");
+        return (int)number;
     }
     public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices()
     {
