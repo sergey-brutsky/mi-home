@@ -1,42 +1,35 @@
+using MiHomeLib.Devices;
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public class EventOccuredMethodProcessor(Dictionary<string, MqttGatewaySubDevice> devices, ILoggerFactory loggerFactory) : IActionProcessor
+internal sealed class EventOccuredMethodProcessor : IActionProcessor
 {
     public const string ACTION = "event_occured";
-    private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<EventOccuredMethodProcessor>();
+    private readonly ILogger _logger;
+    private readonly MqttDeviceDispatcher _dispatcher;
 
-    public void ProcessMessage(JsonNode json)
+    public EventOccuredMethodProcessor(GatewayDevices devices, ILoggerFactory loggerFactory)
     {
-        if (!json.AsObject().ContainsKey("params"))
-        {
-            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
-            return;
-        }
-        
-        var parms = json["params"].AsObject();
-        
-        if (!parms.ContainsKey("did"))
-        {
-            _logger.LogWarning("json --> {Message} has no 'did' property. Futher processing is impossible", json);
-            return;
-        }
+        _logger = loggerFactory.CreateLogger<EventOccuredMethodProcessor>();
+        _dispatcher = new MqttDeviceDispatcher(devices, _logger, ACTION);
+    }
 
-        var did = parms["did"].ToString();
-        
-        if (!_devices.TryGetValue(did, out var device))
-        {
-            _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
-            return;
-        }
-        
-        device.LastTimeMessageReceived = DateTime.Now;
-        device.ParseData(parms.ToString());
+    public void ProcessMessage(JsonElement json)
+    {
+        if (MqttJson.TryRead(() => ReadMessage(json), _logger, ACTION, out var message))
+            _dispatcher.Dispatch(message.Did, message.Payload, message.Time);
+    }
+
+    private static (string Did, JsonElement Payload, DateTime? Time) ReadMessage(JsonElement json)
+    {
+        var parameters = MqttJson.Object(MqttJson.Object(json).GetProperty("params"));
+        var did = MqttJson.String(parameters.GetProperty("did"));
+        MqttJson.Number(parameters.GetProperty("siid"));
+        MqttJson.Number(parameters.GetProperty("eiid"));
+        return (did, parameters, null);
     }
 }

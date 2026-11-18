@@ -1,39 +1,43 @@
+using MiHomeLib.Devices;
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public class PropertiesChangedMethodProcessor(Dictionary<string, MqttGatewaySubDevice> devices, ILoggerFactory loggerFactory) : IActionProcessor
+internal sealed class PropertiesChangedMethodProcessor : IActionProcessor
 {
     public const string ACTION = "properties_changed";
-    private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<PropertiesChangedMethodProcessor>();
+    private readonly ILogger _logger;
+    private readonly MqttDeviceDispatcher _dispatcher;
 
-    public void ProcessMessage(JsonNode json)
+    public PropertiesChangedMethodProcessor(GatewayDevices devices, ILoggerFactory loggerFactory)
     {
-        if (!json.AsObject().ContainsKey("params"))
+        _logger = loggerFactory.CreateLogger<PropertiesChangedMethodProcessor>();
+        _dispatcher = new MqttDeviceDispatcher(devices, _logger, ACTION);
+    }
+
+    public void ProcessMessage(JsonElement json)
+    {
+        if (!MqttJson.TryRead(() => MqttJson.Array(MqttJson.Object(json).GetProperty("params")),
+                _logger, ACTION, out var items)) return;
+        foreach (var item in items.EnumerateArray())
         {
-            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
-            return;
+            // One malformed property must not discard the rest of the batch.
+            if (MqttJson.TryRead(() => ReadProperty(item), _logger, ACTION, out var did))
+                _dispatcher.Dispatch(did, item, null);
         }
-        
-        var @params = json["params"].AsArray();
+    }
 
-        foreach(var obj in @params)
-        {
-            var did = obj["did"].ToString();
-
-            if (!_devices.TryGetValue(did, out var device))
-            {
-                _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
-                continue;
-            }
-
-            device.LastTimeMessageReceived = DateTime.Now;
-            device.ParseData(obj.ToString());
-        }
+    private static string ReadProperty(JsonElement item)
+    {
+        var property = MqttJson.Object(item);
+        var did = MqttJson.String(property.GetProperty("did"));
+        MqttJson.Number(property.GetProperty("siid"));
+        MqttJson.Number(property.GetProperty("piid"));
+        if (!MqttJson.HasValue(MqttJson.Optional(property, "value")))
+            throw new FormatException("Property has no value.");
+        return did;
     }
 }

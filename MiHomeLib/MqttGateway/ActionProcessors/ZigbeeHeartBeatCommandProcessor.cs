@@ -1,43 +1,38 @@
+using MiHomeLib.Devices;
+using MiHomeLib.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public class ZigbeeHeartBeatCommandProcessor(Dictionary<string, MqttGatewaySubDevice> devices, ILoggerFactory loggerFactory) : IActionProcessor
+internal sealed class ZigbeeHeartBeatCommandProcessor : IActionProcessor
 {
     public const string ACTION = "heartbeat";
-    private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<ZigbeeHeartBeatCommandProcessor>();
+    private readonly ILogger _logger;
+    private readonly MqttDeviceDispatcher _dispatcher;
 
-    public void ProcessMessage(JsonNode json)
+    public ZigbeeHeartBeatCommandProcessor(GatewayDevices devices, ILoggerFactory loggerFactory)
     {
-        var data = json["params"].Deserialize<List<Dictionary<string, JsonElement>>>();
+        _logger = loggerFactory.CreateLogger<ZigbeeHeartBeatCommandProcessor>();
+        _dispatcher = new MqttDeviceDispatcher(devices, _logger, ACTION);
+    }
 
-        if (data.Count != 1)
-        {
-            _logger.LogWarning("Wrong structure of heartbeat message --> '{Message}'. Processing of such structure is not supported", json);
-            return;
-        }
+    public void ProcessMessage(JsonElement json)
+    {
+        if (MqttJson.TryRead(() => ReadMessage(json), _logger, ACTION, out var message))
+            _dispatcher.Dispatch(message.Did, message.Payload, message.Time);
+    }
 
-        if (!data[0].ContainsKey("did"))
-        {
-            _logger.LogWarning("Heartbeat message doesn't contain 'did'. Processing of such structure is not supported");
-            return;
-        }
-
-        var did = data[0]["did"].GetString();
-
-        if (_devices.TryGetValue(did, out var device))
-        {
-            device.LastTimeMessageReceived = data[0]["time"].GetDouble().UnixMilliSecondsToDateTime();
-            device.ParseData(data[0]["res_list"].ToString());
-        }
-        else
-        {
-            _logger.LogWarning("Did '{Did}' is unknown. Cannot process '{Action}' command for this device.", did, ACTION);
-        }
+    private static (string Did, JsonElement Payload, DateTime Time) ReadMessage(JsonElement json)
+    {
+        var items = MqttJson.Array(MqttJson.Object(json).GetProperty("params"));
+        if (items.GetArrayLength() != 1)
+            throw new FormatException("Expected exactly one heartbeat item.");
+        var item = MqttJson.Object(items[0]);
+        var did = MqttJson.String(item.GetProperty("did"));
+        var time = MqttJson.Number(item.GetProperty("time")).UnixMilliSecondsToDateTime();
+        return (did, MqttJson.Array(item.GetProperty("res_list")), time);
     }
 }

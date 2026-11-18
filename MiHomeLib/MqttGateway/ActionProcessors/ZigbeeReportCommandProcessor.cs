@@ -1,34 +1,37 @@
+using MiHomeLib.Devices;
+using MiHomeLib.Helpers;
+using System;
 using System.Collections.Generic;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public class ZigbeeReportCommandProcessor: IActionProcessor
+internal sealed class ZigbeeReportCommandProcessor : IActionProcessor
 {
     public const string ACTION = "report";
-    private readonly Dictionary<string, MqttGatewaySubDevice> _devices;
     private readonly ILogger _logger;
+    private readonly MqttDeviceDispatcher _dispatcher;
 
-    public ZigbeeReportCommandProcessor(Dictionary<string, MqttGatewaySubDevice> devices, ILoggerFactory loggerFactory)
+    public ZigbeeReportCommandProcessor(GatewayDevices devices, ILoggerFactory loggerFactory)
     {
-        _devices = devices;
-        _logger = loggerFactory.CreateLogger(GetType());
+        _logger = loggerFactory.CreateLogger<ZigbeeReportCommandProcessor>();
+        _dispatcher = new MqttDeviceDispatcher(devices, _logger, ACTION);
     }
 
-    public void ProcessMessage(JsonNode json)
+    public void ProcessMessage(JsonElement json)
     {
-        var did = json["did"].ToString();
+        if (MqttJson.TryRead(() => ReadMessage(json), _logger, ACTION, out var message))
+            _dispatcher.Dispatch(message.Did, message.Payload, message.Time);
+    }
 
-        if (_devices.TryGetValue(did, out var device))
-        {
-            device.LastTimeMessageReceived = json["time"].GetValue<double>().UnixMilliSecondsToDateTime();            
-            device.ParseData((json["mi_spec"] is not null ? json["mi_spec"] : json["params"]).ToString());
-        }
-        else
-        {
-            _logger.LogWarning("Did '{Did}' is unknown. Cannot process '{Action}' command for this device.", did, ACTION);
-        }
+    private static (string Did, JsonElement Payload, DateTime Time) ReadMessage(JsonElement json)
+    {
+        var message = MqttJson.Object(json);
+        var did = MqttJson.String(message.GetProperty("did"));
+        var time = MqttJson.Number(message.GetProperty("time")).UnixMilliSecondsToDateTime();
+        var miSpec = MqttJson.Optional(message, "mi_spec");
+        var values = MqttJson.Array(MqttJson.HasValue(miSpec) ? miSpec : message.GetProperty("params"));
+        return (did, values, time);
     }
 }

@@ -1,42 +1,36 @@
+using MiHomeLib.Devices;
+using MiHomeLib.Helpers;
+using System;
 using System.Collections.Generic;
-using System.Text.Json.Nodes;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway.Devices;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public class AsyncBleEventMethodProcessor(Dictionary<string, MqttGatewaySubDevice> devices, ILoggerFactory loggerFactory) : IActionProcessor
+internal sealed class AsyncBleEventMethodProcessor : IActionProcessor
 {
     public const string ACTION = "_async.ble_event";
-    private readonly Dictionary<string, MqttGatewaySubDevice> _devices = devices;
-    private readonly ILogger _logger = loggerFactory.CreateLogger<AsyncBleEventMethodProcessor>();
+    private readonly ILogger _logger;
+    private readonly MqttDeviceDispatcher _dispatcher;
 
-    public void ProcessMessage(JsonNode json)
+    public AsyncBleEventMethodProcessor(GatewayDevices devices, ILoggerFactory loggerFactory)
     {
-        if (!json.AsObject().ContainsKey("params") || !json["params"].AsObject().ContainsKey("dev"))
-        {
-            _logger.LogWarning("Json string --> '{Message}' is not valid for ble parsing", json);
-            return;
-        }
+        _logger = loggerFactory.CreateLogger<AsyncBleEventMethodProcessor>();
+        _dispatcher = new MqttDeviceDispatcher(devices, _logger, ACTION);
+    }
 
-        var parms = json["params"].AsObject();
-        var dev = parms["dev"].AsObject();
+    public void ProcessMessage(JsonElement json)
+    {
+        if (MqttJson.TryRead(() => ReadMessage(json), _logger, ACTION, out var message))
+            _dispatcher.Dispatch(message.Did, message.Payload, message.Time);
+    }
 
-        if (!dev.ContainsKey("did"))
-        {
-            _logger.LogWarning("json --> {Message} has no 'did' property. Futher processing is impossible", json);
-            return;
-        }
-
-        var did = dev["did"].ToString();
-
-        if (!_devices.TryGetValue(did, out var device))
-        {
-            _logger.LogWarning("Device with did '{Did}' is unknown. Processing is skipped", did);
-            return;
-        }
-
-        device.LastTimeMessageReceived = parms["gwts"].GetValue<double>().UnixSecondsToDateTime();
-        device.ParseData(parms.ToString());
+    private static (string Did, JsonElement Payload, DateTime Time) ReadMessage(JsonElement json)
+    {
+        var parameters = MqttJson.Object(MqttJson.Object(json).GetProperty("params"));
+        var did = MqttJson.String(MqttJson.Object(parameters.GetProperty("dev")).GetProperty("did"));
+        var time = MqttJson.Number(parameters.GetProperty("gwts")).UnixSecondsToDateTime();
+        // ProtocolMessageReader validates individual events without discarding the rest of the batch.
+        return (did, parameters, time);
     }
 }

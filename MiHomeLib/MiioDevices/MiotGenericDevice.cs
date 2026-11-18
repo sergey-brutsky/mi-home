@@ -1,9 +1,11 @@
+using MiHomeLib.MiioDevices.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using MiHomeLib.Contracts;
+using System.Threading.Tasks;
+using MiHomeLib.Helpers;
 
 namespace MiHomeLib.MiioDevices;
 
@@ -18,47 +20,68 @@ public class MiotGenericDevice: MiioDevice
     public WifiSettings Wifi { get; private set; }
     public NetifSettings Network { get; private set; }
 
-    public MiotGenericDevice(string did, IMiioTransport miioTransport, int initialIdExternal) : base(miioTransport, initialIdExternal)
+    public MiotGenericDevice(string did, IMiioTransport miioTransport, int initialIdExternal)
+        : this(did, miioTransport, initialIdExternal, null) { }
+
+    private protected MiotGenericDevice(string did, IMiioTransport miioTransport, int initialIdExternal, Action initializationFailed)
+        : base(miioTransport, initialIdExternal)
     {
-        _did = did;
-
-        var response = _miioTransport.SendMessage(BuildParamsArray("miIO.info", string.Empty));
-
-        var values = JsonNode
-            .Parse(response)["result"]
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        UptimeSeconds = uint.Parse(values["life"]);
-        MiioVersion = values["miio_ver"].ToString();
-        Mac = values["mac"].ToString();
-        FirmwareVersion = values["fw_ver"].ToString();
-        Hardware = values["hw_ver"].ToString();
-
-        var apValues = JsonNode
-            .Parse(values["ap"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        Wifi = new WifiSettings()
+        try
         {
-            Ssid = apValues["ssid"].ToString(),
-            Bssid = apValues["bssid"].ToString(),
-            Rssi = int.Parse(apValues["rssi"]),
-            // Freq = int.Parse(apValues["freq"]),
-        };
+            _did = did;
 
-        var netifValues = JsonNode
-            .Parse(values["netif"].ToString())
-            .Deserialize<Dictionary<string, object>>()
-            .ToDictionary(x => x.Key, x => x.Value.ToString());
+            var response = RunSync(() => RequestArrayAsync("miIO.info", string.Empty));
 
-        Network = new NetifSettings()
+            using var document = MiioResponseReader.Parse(response, "Unable to read miIO.info");
+            var info = MiioResponseReader.Object(document.RootElement.GetProperty("result"), "Unable to read miIO.info");
+            const string operation = "Unable to read miIO.info";
+            string Text(JsonElement parent, string name, string path) => MiioResponseReader.StringProperty(parent, name, $"{operation} {path}");
+            int Number(JsonElement parent, string name, string path) => MiioResponseReader.ConvertValue(
+                () => int.Parse(MiioResponseReader.Property(parent, name, $"{operation} {path}").ToString(), System.Globalization.CultureInfo.InvariantCulture), $"{operation} {path}");
+            UptimeSeconds = MiioResponseReader.ConvertValue(() => uint.Parse(
+                MiioResponseReader.Property(info, "life", $"{operation} life").ToString(), System.Globalization.CultureInfo.InvariantCulture), $"{operation} life");
+            MiioVersion = Text(info, "miio_ver", "miio_ver");
+            Mac = Text(info, "mac", "mac");
+            FirmwareVersion = Text(info, "fw_ver", "fw_ver");
+            Hardware = Text(info, "hw_ver", "hw_ver");
+            var ap = MiioResponseReader.Object(MiioResponseReader.Property(info, "ap", $"{operation} ap"), $"{operation} ap");
+            Wifi = new WifiSettings
+            {
+                Ssid = Text(ap, "ssid", "ap.ssid"),
+                Bssid = Text(ap, "bssid", "ap.bssid"),
+                Rssi = Number(ap, "rssi", "ap.rssi"),
+                Freq = ap.TryGetProperty("freq", out _) ? Number(ap, "freq", "ap.freq") : 0
+            };
+            var network = MiioResponseReader.Object(MiioResponseReader.Property(info, "netif", $"{operation} netif"), $"{operation} netif");
+            Network = new NetifSettings
+            {
+                Ip = Text(network, "localIp", "netif.localIp"),
+                Mask = Text(network, "mask", "netif.mask"),
+                Gateway = Text(network, "gw", "netif.gw")
+            };
+        }
+        catch (Exception failure)
         {
-            Ip = netifValues["localIp"].ToString(),
-            Mask = netifValues["mask"].ToString(),
-            Gateway = netifValues["gw"].ToString(),
-        };
+            ResourceCleanup.PreserveFailure(failure, initializationFailed ?? miioTransport.Dispose);
+            throw;
+        }
+    }
+
+    protected string GetDeviceInfo(string marketModel, string model)
+    {
+        return $"Model: {marketModel} {model}," +
+                $" Uptime: {UptimeSeconds} seconds," +
+                $" Miio Version: {MiioVersion}," +
+                $" Mac: {Mac}," +
+                $" Firmware Version: {FirmwareVersion}," +
+                $" Hardware: {Hardware}," +
+                $" SSID: {Wifi.Ssid}," +
+                $" BSSID: {Wifi.Bssid}," +
+                $" RSSI: {Wifi.Rssi}," +
+                $" Freq: {Wifi.Freq}," +
+                $" Ip: {Network.Ip}," +
+                $" Mask: {Network.Mask}," +
+                $" Gateway: {Network.Gateway}";
     }
 
     public class WifiSettings
@@ -79,49 +102,91 @@ public class MiotGenericDevice: MiioDevice
     {
         return GetMiotProperties(arr.Select(x => (x.siid, x.piid, $"{x.siid}-{x.piid}")).ToArray());
     }
-    protected string[] GetMiotProperties((int siid, int piid, string did)[] arr)
+    protected string[] GetMiotProperties((int siid, int piid, string did)[] arr) => RunSync(() => GetMiotPropertiesAsync(arr));
+
+    private protected async Task<string> GetMiotPropertyAsync(int siid, int piid, string did = null) =>
+        (await GetMiotPropertiesAsync([(siid, piid, did ?? $"{siid}-{piid}")]).ConfigureAwait(false))[0];
+
+    private protected async Task<T> ReadMiotValueAsync<T>(int siid, int piid, Func<string, T> parse)
     {
-        var msg = BuildParamsArray("get_properties", [.. arr.Select(x => new {
+        var value = await GetMiotPropertyAsync(siid, piid).ConfigureAwait(false);
+        return MiioResponseReader.ConvertValue(() => parse(value), $"Unable to read MI-spec property {siid}/{piid}");
+    }
+
+    private protected Task<string[]> GetMiotPropertiesAsync((int siid, int piid)[] arr) =>
+        GetMiotPropertiesAsync(arr.Select(x => (x.siid, x.piid, $"{x.siid}-{x.piid}")).ToArray());
+
+    private protected async Task<string[]> GetMiotPropertiesAsync((int siid, int piid, string did)[] arr)
+    {
+        object[] properties = [.. arr.Select(x => new {
             x.did,
             x.siid,
             x.piid
-        })]);
+        })];
 
-        var response = RepeatMessageIfTimeout(_miioTransport.SendMessage, msg);
+        var requested = string.Join(", ", arr.Select(x => $"{x.siid}/{x.piid} ({x.did})"));
+        var response = await RequestArrayAsync("get_properties", properties).ConfigureAwait(false);
+        using var document = MiioResponseReader.Parse(response, $"Cannot read MI-spec properties {requested}");
+        var root = document.RootElement;
+        if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array)
+            throw new InvalidOperationException($"Cannot read MI-spec properties {requested}: gateway returned no result array.");
 
-        var values = JsonNode.Parse(response)["result"]
-            .AsArray()
-            .ToDictionary(x => x["did"].ToString(), x => x["value"].ToString());
-
-        return [.. arr.Select(x => values[x.did])];
+        var byDid = result.EnumerateArray()
+            .Where(item => item.ValueKind == JsonValueKind.Object && item.TryGetProperty("did", out var did) && did.ValueKind == JsonValueKind.String)
+            .ToLookup(item => item.GetProperty("did").GetString(), StringComparer.Ordinal);
+        return arr.Select(property =>
+        {
+            var matches = byDid[property.did].Where(item =>
+                (!item.TryGetProperty("siid", out var siid) || siid.ValueKind == JsonValueKind.Number && siid.TryGetInt32(out var service) && service == property.siid) &&
+                (!item.TryGetProperty("piid", out var piid) || piid.ValueKind == JsonValueKind.Number && piid.TryGetInt32(out var identifier) && identifier == property.piid)).ToArray();
+            var description = $"{property.siid}/{property.piid} ({property.did})";
+            if (matches.Length != 1)
+                throw new InvalidOperationException($"Cannot read MI-spec property {description}: expected one matching result.");
+            var item = matches[0];
+            if (!item.TryGetProperty("code", out var code) || code.ValueKind != JsonValueKind.Number || !code.TryGetInt32(out var status))
+                throw new InvalidOperationException($"Cannot read MI-spec property {description}: missing result code.");
+            if (status != 0)
+                throw new InvalidOperationException($"Cannot read MI-spec property {description}: gateway returned code {status}.");
+            if (!item.TryGetProperty("value", out var value) || value.ValueKind is JsonValueKind.Null or JsonValueKind.Undefined)
+                throw new InvalidOperationException($"Cannot read MI-spec property {description}: missing value.");
+            return value.ToString();
+        }).ToArray();
     }
 
     protected void SetMiotProperty(int siid, int piid, object value = null)
     {
         SetMiotProperty(siid, piid, $"set-{siid}-{piid}", value);
     }
-    protected void SetMiotProperty(int siid, int piid, string did, object value = null)
+    protected void SetMiotProperty(int siid, int piid, string did, object value = null) =>
+        RunSync(() => SetMiotPropertyAsync(siid, piid, did, value));
+
+    private protected Task SetMiotPropertyAsync(int siid, int piid, object value = null) =>
+        SetMiotPropertyAsync(siid, piid, $"set-{siid}-{piid}", value);
+
+    private protected Task SetMiotPropertyAsync(int siid, int piid, string did, object value = null) =>
+        SetMiotPropertyCoreAsync(siid, piid, did, value, MiioRetryPolicy.SafeToRepeat);
+
+    private protected Task SetMiotPropertyOnceAsync(int siid, int piid, object value = null) =>
+        SetMiotPropertyCoreAsync(siid, piid, $"set-{siid}-{piid}", value, MiioRetryPolicy.DoNotRepeat);
+
+    private async Task SetMiotPropertyCoreAsync(int siid, int piid, string did, object value, MiioRetryPolicy retryPolicy)
     {
-        var msg = BuildParamsArray("set_properties", [new { did, siid, piid, value }]);
+        if (value is Enum enumeration && !Enum.IsDefined(enumeration.GetType(), enumeration))
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown enum value.");
+        var response = await RequestObjectAsync("set_properties", new object[] { new { did, siid, piid, value } }, retryPolicy).ConfigureAwait(false);
 
-        var response = RepeatMessageIfTimeout(_miioTransport.SendMessage, msg);
-
-        var values = JsonNode.Parse(response)["result"].AsArray()[0];
-
-        if (int.Parse(values["code"].ToString()) != 0)
-            throw new Exception($"Cannot get property {siid}/{piid} from devices");
-
-        return;
+        var operation = $"Unable to set property {siid}/{piid} for {did}";
+        using var document = MiioResponseReader.Parse(response, operation);
+        MiioResponseReader.CheckStatus(MiioResponseReader.First(document.RootElement.GetProperty("result"), operation), operation);
     }
-    protected void CallMiotAction(int siid, int aiid, params object[] args)
+    protected void CallMiotAction(int siid, int aiid, params object[] args) => RunSync(() => CallMiotActionAsync(siid, aiid, args));
+
+    private protected async Task CallMiotActionAsync(int siid, int aiid, params object[] args)
     {
-        var msg = BuildParamsObject("action", new { did = $"call-{siid}-{aiid}", siid, aiid, @in = args });
+        var response = await RequestObjectAsync("action", new { did = $"call-{siid}-{aiid}", siid, aiid, @in = args }).ConfigureAwait(false);
 
-        var response = RepeatMessageIfTimeout(_miioTransport.SendMessage, msg);
-
-        if (int.Parse(JsonNode.Parse(response)["result"]["code"].ToString()) != 0)
-            throw new Exception($"Cannot call action siid: {siid}, aiid: {aiid} for this device");
-
-        return;
+        var operation = $"Unable to call action siid: {siid}, aiid: {aiid} for {_did}";
+        using var document = MiioResponseReader.Parse(response, operation);
+        MiioResponseReader.CheckStatus(document.RootElement.GetProperty("result"), operation);
     }
 }

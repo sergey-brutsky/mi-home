@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
-public interface IActionProcessor
+internal interface IActionProcessor
 {
-    void ProcessMessage(JsonNode json);
+    void ProcessMessage(JsonElement json);
 }

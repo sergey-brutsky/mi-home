@@ -36,14 +36,27 @@ jobs:
         reporter: dotnet-trx
     - name: Get test report results with precise percentage
       run: |
-        PASSED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $4}' | awk -F= '{print $2}' | sed "s/\"//g")
-        FAILED=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $5}' | awk -F= '{print $2}' | sed "s/\"//g")
-        TOTAL=$(cat MiHomeUnitTests/TestResults/test-results.trx | grep Counters | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g")
-        COVERAGE_PERCENTAGE=$(cat MiHomeUnitTests/TestResults/coverage.cobertura.xml | grep 'coverage line-rate' | awk '{print $2}' | awk -F= '{print $2}' | sed "s/\"//g" | cut -c 3-6 | sed "s/./.&/3")
-        echo "PASSED=$PASSED" >> $GITHUB_ENV
-        echo "FAILED=$FAILED" >> $GITHUB_ENV
-        echo "TOTAL=$TOTAL" >> $GITHUB_ENV
-        echo "COVERAGE_PERCENTAGE=$COVERAGE_PERCENTAGE" >> $GITHUB_ENV
+        python3 <<'PY'
+        import os
+        import xml.etree.ElementTree as ET
+
+        results = ET.parse("MiHomeUnitTests/TestResults/test-results.trx")
+        namespace = {"t": "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"}
+        counters = results.find("t:ResultSummary/t:Counters", namespace)
+        if counters is None:
+            raise ValueError("The TRX report has no ResultSummary/Counters element.")
+
+        coverage = ET.parse("MiHomeUnitTests/TestResults/coverage.cobertura.xml").getroot()
+        values = {
+            "PASSED": int(counters.attrib["passed"]),
+            "FAILED": int(counters.attrib["failed"]),
+            "TOTAL": int(counters.attrib["total"]),
+            "COVERAGE_PERCENTAGE": f"{float(coverage.attrib['line-rate']) * 100:.2f}",
+        }
+        with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as environment:
+            for name, value in values.items():
+                environment.write(f"{name}={value}\n")
+        PY
     - name: Print test results
       run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed"
     - name: Create the tests badge

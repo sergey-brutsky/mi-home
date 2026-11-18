@@ -1,7 +1,6 @@
 // Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/lumi.gateway.mcn001
 // Your contributions are appreciated
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 
 
