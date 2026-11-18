@@ -57,7 +57,7 @@ jobs:
         name: release-package
         path: artifacts/package
     - name: Restore consumer from release package
-      run: dotnet restore PackageSmokeTests/PackageSmokeTests.csproj -p:MiHomePackageVersion=${{ needs.package.outputs.version }} --source artifacts/package --source https://api.nuget.org/v3/index.json
+      run: dotnet restore PackageSmokeTests/PackageSmokeTests.csproj -p:MiHomePackageVersion=${{ needs.package.outputs.version }} --configfile PackageSmokeTests/NuGet.Config
     - name: Run packaged library consumer
       run: dotnet run --project PackageSmokeTests/PackageSmokeTests.csproj -c Release -f ${{ matrix.framework }} -p:MiHomePackageVersion=${{ needs.package.outputs.version }} --no-restore
 
