@@ -10,6 +10,8 @@
 
 This library provides simple and flexible C# API for Xiaomi/Aqara gateways and smart devices.
 
+Version 3.0 includes breaking changes to device types, namespaces, network operations and event contracts. Review the migration guide before upgrading. [Migration to 3.0](https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0) · [Release summary](https://github.com/sergey-brutsky/mi-home/wiki/Release-Notes-3.0) · [Package usage](MiHomeLib/README.md)
+
 ![xiaomi-gateway-2](https://user-images.githubusercontent.com/5664637/118375593-46751980-b5cb-11eb-81f9-93b095401737.jpeg)
 
 ## Supported gateways
@@ -104,7 +106,7 @@ Because these adapters may prevent proper work of multicast traffic between your
 Before using this library:
 
 1. Open telnet on your gateway
-2. Expose MQTT broker to the world
+2. Enable MQTT broker access from your local network
 3. Extract token to work with your gateway
 
 The easisest way is to setup/configure [this HA integration](https://github.com/AlexxIT/XiaomiGateway3/) (it does all aforementioned things automatically).
@@ -114,7 +116,7 @@ The way of warrior:
 1. [Enable telnet on your gateway](https://gist.github.com/zvldz/1bd6b21539f84339c218f9427e022709)
 2. Download this [openmiio_agent](http://github.com/AlexxIT/openmiio_agent/releases/download/v1.2.1/openmiio_agent_mips) and upload it to your gateway (for example to /data/openmiio_agent) via telnet
 3. Login to your gateway via telnet `telnet <gateway ip> 23` (login: admin or root, pwd: empty)
-4. Kill embedded mosquitto mqtt broker and run openmiio_agent (it will expose mqtt port 1883 to the world) `kill -9 <pid of mosquitto> && /data/openmiio_agent mqtt &`
+4. Kill embedded mosquitto mqtt broker and run openmiio_agent (it enables local MQTT access on port 1883) `kill -9 <pid of mosquitto> && /data/openmiio_agent mqtt &`
 5. Check that mosquitto is binded to `0.0.0.0 1883` `netstat -ntlp | grep mosquitto`
 6. [Extract token instructions](https://github.com/jghaanstra/com.xiaomi-miio/blob/master/docs/obtain_token.md)
 
@@ -130,96 +132,120 @@ More details in the [project's WIKI](https://github.com/sergey-brutsky/mi-home/w
 
 ## <a name="basic-scenario">Basic scenarios</a>
 
-Get all devices in the network from the **Xiaomi Gateway 2**
+Subscribe during discovery and keep the gateway alive while listening. These console examples wait for Enter before disposing the gateway.
+
+Xiaomi Gateway 2
 
 ```csharp
-public static void Main(string[] args)
+using System;
+using System.Threading.Tasks;
+using MiHomeLib.XiaomiGateway2;
+
+public static class Gateway2Example
 {
-    // gateway sid is optional, use only when you have 2 or more gateways in your LAN
-    // using var gw2 = new XiaomiGateway2("ip", "token", "gateway sid");
-    using var gw2 = new XiaomiGateway2("<gateway ip>", "<gateway token>");
+    public static async Task RunAsync(string ip, string token)
     {
-        gw2.OnDeviceDiscoveredAsync += d =>
+        using var gateway = new XiaomiGateway2(ip, token);
+        gateway.OnDeviceDiscoveredAsync += device =>
         {
-            Console.WriteLine(d.ToString());
+            Console.WriteLine(device);
             return Task.CompletedTask;
         };
-
-        gw2.DiscoverDevices();
+        await gateway.DiscoverDevicesAsync();
+        Console.ReadLine();
     }
 }
 ```
 
-Get all devices in the network from the **Xiaomi Multimode Gateway**
+Xiaomi Multimode Gateway
 
 ```csharp
-public static void Main(string[] args)
+using System;
+using System.Threading.Tasks;
+using MiHomeLib.MqttGateway;
+
+public static class MultimodeExample
 {
-    using var multimodeGw = new MultimodeGateway("<gateway ip>", "<gateway token>", "<did>");
+    public static async Task RunAsync(string ip, string token, string did)
     {
-        multimodeGw.OnDeviceDiscoveredAsync += d =>
+        using var gateway = new MultimodeGateway(ip, token, did);
+        gateway.OnDeviceDiscoveredAsync += device =>
         {
-            Console.WriteLine(d.ToString());
+            Console.WriteLine(device);
             return Task.CompletedTask;
         };
-
-        multimodeGw.DiscoverDevices();
+        await gateway.DiscoverDevicesAsync();
+        Console.ReadLine();
     }
 }
 ```
 
-Get all devices in the network from the **Xiaomi Multimode Gateway 2 Global**
+Xiaomi Multimode Gateway 2 Global
 
 ```csharp
-public static void Main(string[] args)
+using System;
+using System.Threading.Tasks;
+using MiHomeLib.MqttGateway;
+
+public static class Multimode2GlobalExample
 {
-    using var multimodeGw2 = new MultimodeGateway2Global("<gateway ip>", "<gateway token>", "<did>");
+    public static async Task RunAsync(string ip, string token, string did)
     {
-        multimodeGw2.OnDeviceDiscoveredAsync += d =>
+        using var gateway = new MultimodeGateway2Global(ip, token, did);
+        gateway.OnDeviceDiscoveredAsync += device =>
         {
-            Console.WriteLine(d.ToString());
+            Console.WriteLine(device);
             return Task.CompletedTask;
         };
-
-        multimodeGw2.DiscoverDevices();
+        await gateway.DiscoverDevicesAsync();
+        Console.ReadLine();
     }
 }
 ```
 
-Get all devices in the network from the **Xiaomi Multimode Gateway 2 China**
+Xiaomi Multimode Gateway 2 China
 
 ```csharp
-public static void Main(string[] args)
+using System;
+using System.Threading.Tasks;
+using MiHomeLib.MqttGateway;
+
+public static class Multimode2ChinaExample
 {
-    using var multimodeGw2 = new MultimodeGateway2China("<gateway ip>", "<gateway token>", "<did>");
+    public static async Task RunAsync(string ip, string token, string did)
     {
-        multimodeGw2.OnDeviceDiscoveredAsync += d =>
+        using var gateway = new MultimodeGateway2China(ip, token, did);
+        gateway.OnDeviceDiscoveredAsync += device =>
         {
-            Console.WriteLine(d.ToString());
+            Console.WriteLine(device);
             return Task.CompletedTask;
         };
-
-        multimodeGw2.DiscoverDevices();
+        await gateway.DiscoverDevicesAsync();
+        Console.ReadLine();
     }
 }
 ```
 
-Get all devices in the network from the **Aqara Hub E1 Gateway**
+Aqara Hub E1 China
 
 ```csharp
-public static void Main()
-{       
-    using var gw = new AqaraHubE1China("ip", "token", "did");
+using System;
+using System.Threading.Tasks;
+using MiHomeLib.MqttGateway;
+
+public static class HubE1Example
+{
+    public static async Task RunAsync(string ip, string token, string did)
     {
-        gw.OnDeviceDiscoveredAsync += d =>
+        using var gateway = new AqaraHubE1China(ip, token, did);
+        gateway.OnDeviceDiscoveredAsync += device =>
         {
-            Console.WriteLine(d.ToString());
+            Console.WriteLine(device);
             return Task.CompletedTask;
         };
-
-        gw.DiscoverDevices();
+        await gateway.DiscoverDevicesAsync();
+        Console.ReadLine();
     }
-    Console.ReadLine();
 }
 ```
 
@@ -228,17 +254,24 @@ public static void Main()
 The library is silent by default. To see what happens inside, pass any `ILoggerFactory` to a gateway constructor. The gateway and all its devices log through it:
 
 ```csharp
-using var loggerFactory = LoggerFactory.Create(b => b.AddConsole().SetMinimumLevel(LogLevel.Debug));
-using var gw = new MultimodeGateway("<gateway ip>", "<gateway token>", "<did>", 1883, loggerFactory);
+using MiHomeLib.MqttGateway;
+using Microsoft.Extensions.Logging;
+
+public static class LoggingExample
+{
+    public static void Create(string ip, string token, string did)
+    {
+        using var loggerFactory = LoggerFactory.Create(builder =>
+            builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
+        using var gateway = new MultimodeGateway(ip, token, did, 1883, loggerFactory);
+        gateway.DiscoverDevices();
+    }
+}
 ```
 
-Or set one factory for all gateways created afterwards:
+Install `Microsoft.Extensions.Logging.Console` to use `AddConsole`. Set a process-wide default for subsequently created devices with `MiHomeLib.MiHomeLogging.SetLoggerFactory(loggerFactory)`.
 
-```csharp
-MiHomeLogging.SetLoggerFactory(loggerFactory);
-```
-
-Levels: `Debug` shows every message received from the gateway, `Information` discovery and connection events, `Warning` messages or devices the library does not support yet. Each device logs under its own type name, e.g. `MiHomeLib.MqttGateway.Devices.XiaomiSmartWirelessSwitch`, so logging can be enabled for one device only.
+Levels: `Debug` shows every message received from the gateway, `Information` discovery and connection events, `Warning` messages or devices the library does not support yet. Each device logs under its own type name, e.g. `MiHomeLib.Devices.XiaomiSmartWirelessSwitch`, so logging can be enabled for one device only.
 
 ## <a name="documentation">Documentation</a>
 

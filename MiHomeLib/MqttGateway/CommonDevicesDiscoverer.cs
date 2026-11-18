@@ -1,100 +1,35 @@
+using MiHomeLib.MqttGateway.Discovery;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
-using MiHomeLib.Contracts;
+using System.Threading.Tasks;
 
 namespace MiHomeLib.MqttGateway;
 
-internal class CommonDevicesDiscoverer(string host, int port, string login, string endMarker, string zigbeePath, string blePath) : IDevicesDiscoverer
+internal sealed class CommonDevicesDiscoverer(
+    string host,
+    int port,
+    string login,
+    string endMarker,
+    string zigbeePath,
+    string blePath,
+    TimeSpan? silenceTimeout = null) : IDevicesDiscoverer, IAsyncDevicesDiscoverer
 {
-    private const int READ_DELAY_MS = 100;
-    // Give up when the gateway sends nothing for this long; any received data restarts the wait
-    private static readonly TimeSpan SILENCE_TIMEOUT = TimeSpan.FromSeconds(10);
-    private const string END_LINE = "\r\n";
-    private const string PROMPT = ": ";
-    private string ReadUntil(NetworkStream stream, string endMarker, string failString = "Password: ")
-    {
-        var sb = new StringBuilder();
-        var deadline = DateTime.UtcNow + SILENCE_TIMEOUT;
-
-        do
-        {
-            while (stream.DataAvailable)
-            {
-                var resp = Encoding.ASCII.GetString(ReceiveBytes(stream));
-                sb.Append(resp);
-                deadline = DateTime.UtcNow + SILENCE_TIMEOUT;
-                if (resp.EndsWith(endMarker) || resp.EndsWith(failString))
-                    return sb
-                            .ToString()
-                            .TrimEnd(endMarker.ToCharArray())
-                            .TrimEnd(END_LINE.ToCharArray());
-            }
-            Thread.Sleep(READ_DELAY_MS);
-        } while (DateTime.UtcNow < deadline);
-
-        throw new Exception($"No data ending with marker '{endMarker}' detected within {SILENCE_TIMEOUT.TotalSeconds} seconds");
-    }
-    public byte[] ReceiveBytes(NetworkStream stream, int bufferSize = 4096)
-    {
-        var buffer = new byte[bufferSize];
-
-        var recevied = stream.Read(buffer, 0, buffer.Length);
-
-        if (recevied > bufferSize)
-        {
-            throw new Exception("Data received is greater than buffer size");
-        }
-
-        return new ArraySegment<byte>(buffer, 0, recevied).ToArray();
-    }
-    private void WriteStringToStream(NetworkStream stream, string s)
-    {
-        var bytes = Encoding.ASCII.GetBytes(s + END_LINE);
-        stream.Write(bytes, 0, bytes.Length);
-        stream.Flush();
-    }
-    public byte[] ReadFileByPath(string path)
-    {
-        using var stream = new TcpClient(host, port).GetStream();
-
-        ReadUntil(stream, PROMPT);
-        WriteStringToStream(stream, login);
-        var result = ReadUntil(stream, endMarker);
-        WriteStringToStream(stream, "\r\n");
-        ReadUntil(stream, endMarker);
-
-        WriteStringToStream(stream, $"ls {path}");
-
-        if (ReadUntil(stream, endMarker).EndsWith("No such file or directory"))
-        {
-            throw new Exception($"Looks like file '{path}' is not found on your device");
-        }
-
-        var cmd = $"cat {path} | base64";
-
-        WriteStringToStream(stream, cmd);
-
-        var data = ReadUntil(stream, endMarker)
-            .Replace(cmd + END_LINE, string.Empty)
-            .Replace(END_LINE, string.Empty);
-
-        stream.Close();
-
-        return Convert.FromBase64String(data);
-    }
+    private readonly GatewayFileReader _files = new(host, port, login, endMarker, silenceTimeout ?? TimeSpan.FromSeconds(10));
     // BLE and mesh devices live in the same database. The copy downloaded for BLE discovery is kept
     // only for the mesh discovery that follows it, so a later discovery run still sees a fresh database
     private byte[] _bleDbForMesh;
 
-    public List<BleDeviceInfo> DiscoverBleDevices()
+    public List<BleDeviceInfo> DiscoverBleDevices() => DiscoverBleDevicesAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+    public async Task<List<BleDeviceInfo>> DiscoverBleDevicesAsync(CancellationToken cancellationToken)
     {
-        var db = ReadFileByPath(blePath);
+        cancellationToken.ThrowIfCancellationRequested();
+        var db = await _files.ReadFileAsync(blePath, cancellationToken).ConfigureAwait(false);
         _bleDbForMesh = db;
 
         if (!SqliteTableReader.TryReadTable(db, "gateway_authed_table", ["mac", "pid", "did"], out var rows))
@@ -105,9 +40,12 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
             GetInt32(row[1], "pid"),
             GetString(row[0], "mac")));
     }
-    public List<MeshDeviceInfo> DiscoverMeshDevices()
+    public List<MeshDeviceInfo> DiscoverMeshDevices() => DiscoverMeshDevicesAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+    public async Task<List<MeshDeviceInfo>> DiscoverMeshDevicesAsync(CancellationToken cancellationToken)
     {
-        var db = _bleDbForMesh ?? ReadFileByPath(blePath);
+        cancellationToken.ThrowIfCancellationRequested();
+        var db = _bleDbForMesh ?? await _files.ReadFileAsync(blePath, cancellationToken).ConfigureAwait(false);
         _bleDbForMesh = null;
 
         // Older firmware has no mesh table, which just means there are no mesh devices
@@ -129,9 +67,12 @@ internal class CommonDevicesDiscoverer(string host, int port, string login, stri
             throw new InvalidDataException($"SQLite column '{columnName}' is not a valid 32-bit integer.");
         return (int)number;
     }
-    public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices()
+    public List<ZigBeeDeviceInfo> DiscoverZigBeeDevices() => DiscoverZigBeeDevicesAsync(CancellationToken.None).GetAwaiter().GetResult();
+
+    public async Task<List<ZigBeeDeviceInfo>> DiscoverZigBeeDevicesAsync(CancellationToken cancellationToken)
     {
-        var json = JsonNode.Parse(Encoding.ASCII.GetString(ReadFileByPath(zigbeePath)));
+        cancellationToken.ThrowIfCancellationRequested();
+        var json = JsonNode.Parse(Encoding.ASCII.GetString(await _files.ReadFileAsync(zigbeePath, cancellationToken).ConfigureAwait(false)));
 
         return [.. json["devInfo"]
                 .AsArray()

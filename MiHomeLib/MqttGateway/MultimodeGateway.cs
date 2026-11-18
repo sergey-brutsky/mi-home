@@ -1,9 +1,13 @@
+using MiHomeLib.MiioDevices.Internal;
+using MiHomeLib.Helpers;
+using MiHomeLib.MqttGateway.Discovery;
 // Partial support for this device has been implemented on top of https://home.miot-spec.com/spec/lumi.gateway.mgl03
 // Your contributions are appreciated
 using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 
 
@@ -55,9 +59,9 @@ public class MultimodeGateway : MqttGatewayBase
         NonSecurityAlarm = 2,
     }
 
-    public enum VolumeLeveValue
+    public enum VolumeLevelValue
     {
-        Silen = 0,
+        Silent = 0,
         Low = 1,
         Middle = 2,
         High = 3,
@@ -69,12 +73,17 @@ public class MultimodeGateway : MqttGatewayBase
     public MultimodeGateway(string ip, string token, string did, int port, ILoggerFactory loggerFactory) :
         this(
                 did,
-                new MiioTransport(ip, token),
-                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory)),
+                ResourceFactory.CreatePair<IMiioTransport, IMqttTransport>(
+                    () => new MiioTransport(ip, token),
+                    () => new MqttTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory))),
                 new CommonDevicesDiscoverer(ip, 23, "admin", "# ", "/data/zigbee/device.info", "/data/miio/mible_local.db"),
                 loggerFactory
         )
     { }
+
+    private MultimodeGateway(string did, (IMiioTransport First, IMqttTransport Second) transports,
+        IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory)
+        : this(did, transports.First, transports.Second, devicesDiscoverer, loggerFactory) { }
 
     internal MultimodeGateway(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory = null)
         : base(did, miioTransport, mqttTransport, devicesDiscoverer, loggerFactory)
@@ -84,29 +93,61 @@ public class MultimodeGateway : MqttGatewayBase
     /// <summary>
     /// Enable/disable led indicator light
     /// </summary>
-    public bool LedEnabled
-    {
-        get => int.Parse(GetMiotProperty(6, 6, _did)) == 1;
+    public bool GetLedEnabled() => RunSync(GetLedEnabledAsync);
 
-        set => SetMiotProperty(6, 6, _did, value == true ? 1 : 0);
+    /// <inheritdoc cref="GetLedEnabled"/>
+    public async Task<bool> GetLedEnabledAsync()
+    {
+        return int.Parse(await GetMiotPropertyAsync(6, 6, _did).ConfigureAwait(false), CultureInfo.InvariantCulture) == 1;
+    }
+
+    /// <summary>Sets LedEnabled on the gateway.</summary>
+    public void SetLedEnabled(bool value) => RunSync(() => SetLedEnabledAsync(value));
+
+    /// <inheritdoc cref="SetLedEnabled"/>
+    public Task SetLedEnabledAsync(bool value)
+    {
+        return SetMiotPropertyAsync(6, 6, _did, value ? 1 : 0);
     }
 
     /// <summary>
     /// Gateway arming mode: basic, home, away, sleep
     /// </summary>
-    public ArmingModeValue ArmingMode
+    public ArmingModeValue GetArmingMode() => RunSync(GetArmingModeAsync);
+
+    /// <inheritdoc cref="GetArmingMode"/>
+    public async Task<ArmingModeValue> GetArmingModeAsync()
     {
-        get => (ArmingModeValue)ushort.Parse(GetMiotProperty(3, 1, _did));
-        set => SetMiotProperty(3, 1, _did, value);
+        return (ArmingModeValue)ushort.Parse(await GetMiotPropertyAsync(3, 1, _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>Sets ArmingMode on the gateway.</summary>
+    public void SetArmingMode(ArmingModeValue value) => RunSync(() => SetArmingModeAsync(value));
+
+    /// <inheritdoc cref="SetArmingMode"/>
+    public Task SetArmingModeAsync(ArmingModeValue value)
+    {
+        return SetMiotPropertyAsync(3, 1, _did, value);
     }
 
     /// <summary>
     /// Gateway alarm state: no alarm, security alarm, non-security alarms
     /// </summary>
-    public AlarmStateValue AlarmState
+    public AlarmStateValue GetAlarmState() => RunSync(GetAlarmStateAsync);
+
+    /// <inheritdoc cref="GetAlarmState"/>
+    public async Task<AlarmStateValue> GetAlarmStateAsync()
     {
-        get => (AlarmStateValue)byte.Parse(GetMiotProperty(3, 22, _did));
-        set => SetMiotProperty(3, 22, _did, value);
+        return (AlarmStateValue)byte.Parse(await GetMiotPropertyAsync(3, 22, _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>Sets AlarmState on the gateway.</summary>
+    public void SetAlarmState(AlarmStateValue value) => RunSync(() => SetAlarmStateAsync(value));
+
+    /// <inheritdoc cref="SetAlarmState"/>
+    public Task SetAlarmStateAsync(AlarmStateValue value)
+    {
+        return SetMiotPropertyAsync(3, 22, _did, value);
     }
 
     /// <summary>
@@ -114,9 +155,12 @@ public class MultimodeGateway : MqttGatewayBase
     /// </summary>
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <returns>delay time in seconds (range 0-60)</returns>
-    public byte GetDelayTimeForArmingMode(ArmingModeValue armingMode)
+    public byte GetDelayTimeForArmingMode(ArmingModeValue armingMode) => RunSync(() => GetDelayTimeForArmingModeAsync(armingMode));
+
+    /// <inheritdoc cref="GetDelayTimeForArmingMode"/>
+    public async Task<byte> GetDelayTimeForArmingModeAsync(ArmingModeValue armingMode)
     {
-        return byte.Parse(GetMiotProperty(3, _delayTimeMap[armingMode], _did));
+        return byte.Parse(await GetMiotPropertyAsync(3, _delayTimeMap[armingMode], _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
     }
 
     /// <summary>
@@ -125,11 +169,15 @@ public class MultimodeGateway : MqttGatewayBase
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <param name="delayTime">seconds in range 0 - 60</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void SetDelayTimeForArmingMode(ArmingModeValue armingMode, byte delayTime)
-    {
-        if (delayTime > 60) throw new ArgumentOutOfRangeException("Delay time should be in range 0 - 60");
+    public void SetDelayTimeForArmingMode(ArmingModeValue armingMode, byte delayTime) =>
+        RunSync(() => SetDelayTimeForArmingModeAsync(armingMode, delayTime));
 
-        SetMiotProperty(3, _delayTimeMap[armingMode], _did, delayTime);
+    /// <inheritdoc cref="SetDelayTimeForArmingMode"/>
+    public Task SetDelayTimeForArmingModeAsync(ArmingModeValue armingMode, byte delayTime)
+    {
+        if (delayTime > 60) throw new ArgumentOutOfRangeException(nameof(delayTime), delayTime, "Delay time should be in range 0 - 60");
+
+        return SetMiotPropertyAsync(3, _delayTimeMap[armingMode], _did, delayTime);
     }
 
     /// <summary>
@@ -137,7 +185,11 @@ public class MultimodeGateway : MqttGatewayBase
     /// </summary>
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <returns>duration time in seconds (range 0-2147483647)</returns>
-    public uint GetAlarmDurationForArmingMode(ArmingModeValue armingMode) => uint.Parse(GetMiotProperty(3, _alarmDurationMap[armingMode], _did));
+    public uint GetAlarmDurationForArmingMode(ArmingModeValue armingMode) => RunSync(() => GetAlarmDurationForArmingModeAsync(armingMode));
+
+    /// <inheritdoc cref="GetAlarmDurationForArmingMode"/>
+    public async Task<uint> GetAlarmDurationForArmingModeAsync(ArmingModeValue armingMode) =>
+        uint.Parse(await GetMiotPropertyAsync(3, _alarmDurationMap[armingMode], _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Set delay time for specific arming mode
@@ -145,11 +197,15 @@ public class MultimodeGateway : MqttGatewayBase
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <param name="durationTime">seconds in range 0 - 2147483647</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public void SetAlarmDurationForArmingMode(ArmingModeValue armingMode, uint durationTime)
-    {
-        if (durationTime > int.MaxValue) throw new ArgumentOutOfRangeException("Duration time should be in range 0 - 2147483647");
+    public void SetAlarmDurationForArmingMode(ArmingModeValue armingMode, uint durationTime) =>
+        RunSync(() => SetAlarmDurationForArmingModeAsync(armingMode, durationTime));
 
-        SetMiotProperty(3, _alarmDurationMap[armingMode], _did, durationTime);
+    /// <inheritdoc cref="SetAlarmDurationForArmingMode"/>
+    public Task SetAlarmDurationForArmingModeAsync(ArmingModeValue armingMode, uint durationTime)
+    {
+        if (durationTime > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(durationTime), durationTime, "Duration time should be in range 0 - 2147483647");
+
+        return SetMiotPropertyAsync(3, _alarmDurationMap[armingMode], _did, durationTime);
     }
 
     /// <summary>
@@ -157,17 +213,23 @@ public class MultimodeGateway : MqttGatewayBase
     /// </summary>
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <returns>Silent, Low, Middle, High</returns>
-    public VolumeLeveValue GetAlarmVolumeForArmingMode(ArmingModeValue armingMode) => (VolumeLeveValue)byte.Parse(GetMiotProperty(3, _alarmVolumeMap[armingMode], _did));
+    public VolumeLevelValue GetAlarmVolumeForArmingMode(ArmingModeValue armingMode) => RunSync(() => GetAlarmVolumeForArmingModeAsync(armingMode));
+
+    /// <inheritdoc cref="GetAlarmVolumeForArmingMode"/>
+    public async Task<VolumeLevelValue> GetAlarmVolumeForArmingModeAsync(ArmingModeValue armingMode) =>
+        (VolumeLevelValue)byte.Parse(await GetMiotPropertyAsync(3, _alarmVolumeMap[armingMode], _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Set alarm volume for specific arming mode
     /// </summary>
     /// <param name="armingMode">Basic, Home, Away, Sleep</param>
     /// <param name="volumeLevel">Silent, Low, Middle, High</param>
-    public void SetAlarmVolumeForArmingMode(ArmingModeValue armingMode, VolumeLeveValue volumeLevel)
-    {
-        SetMiotProperty(3, _alarmVolumeMap[armingMode], _did, volumeLevel);
-    }
+    public void SetAlarmVolumeForArmingMode(ArmingModeValue armingMode, VolumeLevelValue volumeLevel) =>
+        RunSync(() => SetAlarmVolumeForArmingModeAsync(armingMode, volumeLevel));
+
+    /// <inheritdoc cref="SetAlarmVolumeForArmingMode"/>
+    public Task SetAlarmVolumeForArmingModeAsync(ArmingModeValue armingMode, VolumeLevelValue volumeLevel) =>
+        SetMiotPropertyAsync(3, _alarmVolumeMap[armingMode], _did, volumeLevel);
 
     public override string ToString() => $"Model: {MARKET_MODEL} {MODEL}";
 }

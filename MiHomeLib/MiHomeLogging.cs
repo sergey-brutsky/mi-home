@@ -1,6 +1,6 @@
 using System;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.MqttGateway;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace MiHomeLib;
 
@@ -10,15 +10,19 @@ namespace MiHomeLib;
 /// </summary>
 public static class MiHomeLogging
 {
+    private static volatile ILoggerFactory _default = NullLoggerFactory.Instance;
+
+    /// <summary>
+    /// Factory used by gateways created without a factory of their own
+    /// </summary>
+    internal static ILoggerFactory Default => _default;
+
+    internal static ILoggerFactory Resolve(ILoggerFactory loggerFactory) => loggerFactory ?? _default;
+
     /// <summary>
     /// Sets the logger factory for all gateways created afterwards without a factory of their own.
     /// A gateway keeps the factory it was created with and passes it to its devices
     /// </summary>
-    public static void SetLoggerFactory(ILoggerFactory loggerFactory)
-    {
-        if (loggerFactory is null) throw new ArgumentNullException(nameof(loggerFactory));
-
-        MqttGatewayBase.SetLoggerFactory(loggerFactory);
-        XiaomiGateway2.XiaomiGateway2.SetLoggerFactory(loggerFactory);
-    }
+    public static void SetLoggerFactory(ILoggerFactory loggerFactory) =>
+        _default = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
 }

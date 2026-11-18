@@ -1,6 +1,10 @@
+using MiHomeLib.MiioDevices.Internal;
+using MiHomeLib.Helpers;
+using MiHomeLib.MqttGateway.Discovery;
 using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using MiHomeLib.Contracts;
 using MiHomeLib.MiioDevices;
 
 
@@ -14,12 +18,17 @@ public abstract class MultimodeGateway2Base : MqttGatewayBase
     public MultimodeGateway2Base(string ip, string token, string did, int port, string endMarker, ILoggerFactory loggerFactory) :
         this(
                 did,
-                new MiioTransport(ip, token),
-                new MqttDotNetTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory)),
+                ResourceFactory.CreatePair<IMiioTransport, IMqttTransport>(
+                    () => new MiioTransport(ip, token),
+                    () => new MqttTransport(ip, port, [.. _zigbeeTopics, .. _bleTopics], _zigbeeCommandsTopic, ResolveLoggerFactory(loggerFactory))),
                 new CommonDevicesDiscoverer(ip, 23, "root", endMarker, "/data/zigbee/device.info", "/data/local/miio_bt/mible_local.db"),
                 loggerFactory
         )
     { }
+
+    private MultimodeGateway2Base(string did, (IMiioTransport First, IMqttTransport Second) transports,
+        IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory)
+        : this(did, transports.First, transports.Second, devicesDiscoverer, loggerFactory) { }
 
     // For unit tests only
     protected MultimodeGateway2Base(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer) : base(did, miioTransport, mqttTransport, devicesDiscoverer) { }
@@ -36,60 +45,82 @@ public abstract class MultimodeGateway2Base : MqttGatewayBase
     /// <summary>
     /// Gateway connection type: LAN, Wireless 2G, Wireless 5G
     /// </summary>
-    public AccessModeValue AccessMode
+    public AccessModeValue GetAccessMode() => RunSync(GetAccessModeAsync);
+
+    /// <inheritdoc cref="GetAccessMode"/>
+    public async Task<AccessModeValue> GetAccessModeAsync()
     {
-        get => (AccessModeValue)ushort.Parse(GetMiotProperty(2, 1, _did));
-        set => SetMiotProperty(2, 1, _did, value);
+        return (AccessModeValue)ushort.Parse(await GetMiotPropertyAsync(2, 1, _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>Sets AccessMode on the gateway.</summary>
+    public void SetAccessMode(AccessModeValue value) => RunSync(() => SetAccessModeAsync(value));
+
+    /// <inheritdoc cref="SetAccessMode"/>
+    public Task SetAccessModeAsync(AccessModeValue value)
+    {
+        return SetMiotPropertyAsync(2, 1, _did, value);
     }
 
     /// <summary>
     /// Do not distirb mode enable/disable, affects only led indicator glow in specific hours
     /// </summary>
-    public bool DoNotDisturbModeEnabled
-    {
-        get => int.Parse(GetMiotProperty(6, 1, _did)) == 1;
+    public bool GetDoNotDisturbModeEnabled() => RunSync(GetDoNotDisturbModeEnabledAsync);
 
-        set => SetMiotProperty(6, 1, _did, value == true ? 1 : 0);
+    /// <inheritdoc cref="GetDoNotDisturbModeEnabled"/>
+    public async Task<bool> GetDoNotDisturbModeEnabledAsync()
+    {
+        return int.Parse(await GetMiotPropertyAsync(6, 1, _did).ConfigureAwait(false), CultureInfo.InvariantCulture) == 1;
+    }
+
+    /// <summary>Sets DoNotDisturbModeEnabled on the gateway.</summary>
+    public void SetDoNotDisturbModeEnabled(bool value) => RunSync(() => SetDoNotDisturbModeEnabledAsync(value));
+
+    /// <inheritdoc cref="SetDoNotDisturbModeEnabled"/>
+    public Task SetDoNotDisturbModeEnabledAsync(bool value)
+    {
+        return SetMiotPropertyAsync(6, 1, _did, value ? 1 : 0);
     }
 
     /// <summary>
     /// Time when led indicator will be off when do not disturb mode enabled
     /// </summary>
-    public (ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) DoNotDisturbEffectiveTime
+    public (ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) GetDoNotDisturbEffectiveTime() => RunSync(GetDoNotDisturbEffectiveTimeAsync);
+
+    /// <inheritdoc cref="GetDoNotDisturbEffectiveTime"/>
+    public async Task<(ushort startHour, ushort startMinute, ushort endHour, ushort endMinute)> GetDoNotDisturbEffectiveTimeAsync()
     {
-        get
-        {
-            var (start, end) = GetMiotProperty(6, 2, _did).Split('-') switch { var x => (x[0], x[1]) };
-            var (startHour, startMinute) = start.Split(':') switch { var x => (ushort.Parse(x[0]), ushort.Parse(x[1])) };
-            var (endHour, endMinute) = end.Split(':') switch { var x => (ushort.Parse(x[0]), ushort.Parse(x[1])) };
+        return GatewayTimeRange.Parse(await GetMiotPropertyAsync(6, 2, _did).ConfigureAwait(false));
+    }
 
-            return (startHour, startMinute, endHour, endMinute);
-        }
-        set
-        {
-            if (value.startHour > 23) throw new ArgumentOutOfRangeException("Starting hour should be in range 00-23");
-            if (value.startMinute > 59) throw new ArgumentOutOfRangeException("Starting minute should be in range 00-59");
-            if (value.endHour > 23) throw new ArgumentOutOfRangeException("Ending hour should be in range 00-23");
-            if (value.endMinute > 59) throw new ArgumentOutOfRangeException("Ending minute should be in range 00-59");
+    /// <summary>Sets DoNotDisturbEffectiveTime on the gateway.</summary>
+    public void SetDoNotDisturbEffectiveTime((ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) value) => RunSync(() => SetDoNotDisturbEffectiveTimeAsync(value));
 
-            var str = $"{value.startHour:D2}:{value.startMinute:D2}-{value.endHour:D2}:{value.endMinute:D2}";
-
-            SetMiotProperty(6, 2, _did, str);
-        }
+    /// <inheritdoc cref="SetDoNotDisturbEffectiveTime"/>
+    public Task SetDoNotDisturbEffectiveTimeAsync((ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) value)
+    {
+        var hours = GatewayTimeRange.Format(value.startHour, value.startMinute, value.endHour, value.endMinute);
+        return SetMiotPropertyAsync(6, 2, _did, hours);
     }
 
     /// <summary>
     /// Led indicator brightness is in range 0 - 100
     /// </summary>
-    public ushort LedIndicatorBrightness
+    public ushort GetLedIndicatorBrightness() => RunSync(GetLedIndicatorBrightnessAsync);
+
+    /// <inheritdoc cref="GetLedIndicatorBrightness"/>
+    public async Task<ushort> GetLedIndicatorBrightnessAsync()
     {
-        get => ushort.Parse(GetMiotProperty(6, 3, _did));
+        return ushort.Parse(await GetMiotPropertyAsync(6, 3, _did).ConfigureAwait(false), CultureInfo.InvariantCulture);
+    }
 
-        set
-        {
-            if (value < 0 || value > 100) throw new ArgumentOutOfRangeException("Led indicator brightness should be in range 0 - 100");
+    /// <summary>Sets LedIndicatorBrightness on the gateway.</summary>
+    public void SetLedIndicatorBrightness(ushort value) => RunSync(() => SetLedIndicatorBrightnessAsync(value));
 
-            SetMiotProperty(6, 3, _did, value);
-        }
+    /// <inheritdoc cref="SetLedIndicatorBrightness"/>
+    public Task SetLedIndicatorBrightnessAsync(ushort value)
+    {
+        if (value > 100) throw new ArgumentOutOfRangeException(nameof(value), value, "Brightness must be within 0-100.");
+        return SetMiotPropertyAsync(6, 3, _did, value);
     }
 }

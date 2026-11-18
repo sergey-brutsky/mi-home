@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using MiHomeLib.MiioDevices.Internal;
+using System;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 
@@ -31,149 +30,145 @@ public class XiaomiRobotVacuumCleanerV1 : MiioDevice
         Updating = 14,
     };
     
+    [Obsolete("Use MiioDiscovery.DiscoverAsync and filter by DeviceType \"05c5\".")]
     public static event Action<string, string, string, string> OnDiscovered;
 
     public XiaomiRobotVacuumCleanerV1(string ip, string token): base(new MiioTransport(ip, token)) {}
 
     internal XiaomiRobotVacuumCleanerV1(IMiioTransport transport) : base(transport) { }
 
+    /// <summary>A snapshot from one get_status request. Cleaning time is in seconds and area is in square metres.</summary>
+    public sealed record DeviceStatus(Status State, int BatteryPercent, int FanPower, int CleaningSeconds, float CleanedAreaSquareMeters);
+
+    /// <summary>Reads the current status without retaining a cached state.</summary>
+    public DeviceStatus GetStatus() => RunSync(GetStatusAsync);
+
+    /// <inheritdoc cref="GetStatus"/>
+    public async Task<DeviceStatus> GetStatusAsync()
+    {
+        var response = await RequestArrayAsync("get_status", "").ConfigureAwait(false);
+        const string operation = "Unable to read vacuum status";
+        using var document = MiioResponseReader.Parse(response, operation);
+        var status = MiioResponseReader.First(document.RootElement.GetProperty("result"), operation);
+        if (status.ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException($"{operation}: expected a status object.");
+
+        int ReadInteger(string property)
+        {
+            if (!status.TryGetProperty(property, out var value) ||
+                !int.TryParse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var number))
+                throw new InvalidOperationException($"{operation}: missing or invalid '{property}'.");
+            return number;
+        }
+
+        return new DeviceStatus((Status)ReadInteger("state"), ReadInteger("battery"), ReadInteger("fan_power"),
+            ReadInteger("clean_time"), (float)ReadInteger("clean_area") / 1_000_000);
+    }
+
     public override string ToString()
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("get_status", ""));
-
-        var values = JsonNode.Parse(response)["result"][0].Deserialize<Dictionary<string, object>>().ToDictionary(x => x.Key, x => x.Value.ToString());
-
-        return $"Model: {MODEL}\nState: {(Status)int.Parse(values["state"])}\n" +
-            $"Battery: {values["battery"]} %\nFanspeed: {values["fan_power"]} %\n" +
-            $"Cleaning since: {values["clean_time"]} seconds\n" +
-            $"Cleaned area: {(float)int.Parse(values["clean_area"]) / 1_000_000} m²\n" +
-            $"IP Address: {_miioTransport.Ip}\nToken: {_miioTransport.Token}";
+        var status = GetStatus();
+        return $"Model: {MODEL}\nState: {status.State}\n" +
+            $"Battery: {status.BatteryPercent} %\nFanspeed: {status.FanPower} %\n" +
+            $"Cleaning since: {status.CleaningSeconds} seconds\n" +
+            $"Cleaned area: {status.CleanedAreaSquareMeters} m²\n" +
+            $"IP Address: {_miioTransport.Ip}";
     }
 
     /// <summary>
     /// Find all available mi robot vacuums in the LAN
     /// </summary>
+    [Obsolete("Use MiioDiscovery.DiscoverAsync and filter by DeviceType \"05c5\".")]
     public static void DiscoverDevices()
     {
-        var discoveredRobots = MiioTransport
-            .SendDiscoverMessage()
-            .Where(x => x.type == "05c5"); // magic number identifying rockrobo.vacuum.v1
-
-        foreach (var (ip, type, serial, token) in discoveredRobots)
-        {
-            OnDiscovered?.Invoke(ip, type, serial, token);
-        }
+        var devices = RunSync(() => MiioDiscovery.DiscoverAsync());
+        foreach (var device in devices.Where(device => device.DeviceType == "05c5"))
+            OnDiscovered?.Invoke(device.Ip, device.DeviceType, device.Serial, device.Token);
     }
 
     /// <summary>
     /// This will make a robot to give a voice
     /// </summary>
-    public void FindMe()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("find_me", ""));
-        CheckMessage(response, "Unable to find mi robot");
-    }
+    public void FindMe() => RunSync(() => FindMeAsync());
 
     /// <summary>
     /// This will make a robot to give a voice
     /// </summary>
     public async Task FindMeAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("find_me", ""));
+        var response = await RequestArrayAsync("find_me", "").ConfigureAwait(false);
         CheckMessage(response, "Unable to find mi robot");
     }
 
     /// <summary>
     /// Tell the robot to go to the base station
     /// </summary>
-    public void Home()
-    {
-        var resp1 = _miioTransport.SendMessage(BuildParamsArray("app_pause", ""));
-        CheckMessage(resp1, "Unable to tell the robot to go to the base station");
-        var resp2 = _miioTransport.SendMessage(BuildParamsArray("app_charge", ""));
-        CheckMessage(resp2, "Unable to tell the robot to go to the base station");
-    }
+    public void GoHome() => RunSync(() => GoHomeAsync());
 
     /// <summary>
     /// Tell the robot to go to the base station
     /// </summary>
-    public async Task HomeAsync()
+    public async Task GoHomeAsync()
     {
-        var resp1 = await _miioTransport.SendMessageAsync(BuildParamsArray("app_pause", ""));
+        var resp1 = await RequestArrayAsync("app_pause", "").ConfigureAwait(false);
         CheckMessage(resp1, "Unable to tell the robot to go to the base station");
-        var resp2 = await _miioTransport.SendMessageAsync(BuildParamsArray("app_charge", ""));
+        var resp2 = await RequestArrayAsync("app_charge", "").ConfigureAwait(false);
         CheckMessage(resp2, "Unable to tell the robot to go to the base station");
     }
 
     /// <summary>
     /// Tell the robot to start cleaning
     /// </summary>
-    public void Start()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("app_start", ""));
-        CheckMessage(response, "Unable to tell the robot to start cleaning");
-    }
+    public void StartCleaning() => RunSync(() => StartCleaningAsync());
 
     /// <summary>
     /// Tell the robot to start cleaning
     /// </summary>
-    public async Task StartAsync()
+    public async Task StartCleaningAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("app_start", ""));
+        var response = await RequestArrayAsync("app_start", "").ConfigureAwait(false);
         CheckMessage(response, "Unable to tell the robot to start cleaning");
     }
 
     /// <summary>
     /// Tell the robot to stop cleaning
     /// </summary>
-    public void Stop()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("app_stop", ""));
-        CheckMessage(response, "Unable to tell the robot to stop cleaning");
-    }
+    public void StopCleaning() => RunSync(() => StopCleaningAsync());
 
     /// <summary>
     /// Tell the robot to stop cleaning
     /// </summary>
-    public async Task StopAsync()
+    public async Task StopCleaningAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("app_stop", ""));
+        var response = await RequestArrayAsync("app_stop", "").ConfigureAwait(false);
         CheckMessage(response, "Unable to tell the robot to stop cleaning");
     }
 
     /// <summary>
     /// Tell the robot to pause cleaning
     /// </summary>
-    public void Pause()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("app_pause", ""));
-        CheckMessage(response, "Unable to tell the robot to pause cleaning");
-    }
+    public void Pause() => RunSync(() => PauseAsync());
 
     /// <summary>
     /// Tell the robot to pause cleaning
     /// </summary>
     public async Task PauseAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("app_pause", ""));
+        var response = await RequestArrayAsync("app_pause", "").ConfigureAwait(false);
         CheckMessage(response, "Unable to tell the robot to pause cleaning");
     }
 
     /// <summary>
     /// Tell the robot to start spot cleaning
     /// </summary>
-    public void Spot()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("app_spot", ""));
-        CheckMessage(response, "Unable to tell the robot to start spot cleaning");
-    }
+    public void StartSpotCleaning() => RunSync(() => StartSpotCleaningAsync());
 
     /// <summary>
     /// Tell the robot to start spot cleaning
     /// </summary>
-    public async Task SpotAsync()
+    public async Task StartSpotCleaningAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("app_spot", ""));
+        var response = await RequestArrayAsync("app_spot", "").ConfigureAwait(false);
         CheckMessage(response, "Unable to tell the robot to start spot cleaning");
     }
 }

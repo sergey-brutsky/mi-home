@@ -1,8 +1,9 @@
-﻿using System;
+using MiHomeLib.MiioDevices.Internal;
+using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MiHomeLib.Contracts;
 
 namespace MiHomeLib.MiioDevices;
 
@@ -32,209 +33,170 @@ public class XiaomiAirHumidifierV1 : MiioDevice
         { "silent", Mode.Silent},
     };
 
+    [Obsolete("Use MiioDiscovery.DiscoverAsync and filter by DeviceType \"0404\".")]
     public static event Action<string, string, string, string> OnDiscovered;
 
     public XiaomiAirHumidifierV1(string ip, string token) : base(new MiioTransport(ip, token)) { }
 
     internal XiaomiAirHumidifierV1(IMiioTransport transport) : base(transport) { }
 
+    /// <summary>A snapshot returned by one get_prop request. Temperature is in degrees Celsius.</summary>
+    public sealed record DeviceStatus(bool IsTurnedOn, Mode Mode, float Temperature, int Humidity,
+        Brightness LedBrightness, bool IsBuzzerOn, bool IsChildLockOn, int TargetHumidity);
+
+    /// <summary>Reads the current status in one request without retaining a cached state.</summary>
+    public DeviceStatus GetStatus() => RunSync(GetStatusAsync);
+
+    /// <inheritdoc cref="GetStatus"/>
+    public async Task<DeviceStatus> GetStatusAsync()
+    {
+        var values = await GetPropsAsync("power", "mode", "temp_dec", "humidity", "led_b", "buzzer", "child_lock", "limit_hum").ConfigureAwait(false);
+        const string operation = "Unable to read humidifier status";
+        int Number(int index, string field) => MiioResponseReader.ConvertValue(
+            () => int.Parse(values[index], CultureInfo.InvariantCulture), $"{operation} {field}");
+        bool Switch(int index, string field) => values[index] switch
+        {
+            "on" => true,
+            "off" => false,
+            _ => throw new InvalidOperationException($"{operation} {field}: expected 'on' or 'off'.")
+        };
+        if (!_mapMode.TryGetValue(values[1], out var mode))
+            throw new InvalidOperationException($"{operation} mode: unknown mode.");
+        return new DeviceStatus(Switch(0, "power"), mode, Number(2, "temp_dec") / 10f,
+            Number(3, "humidity"), (Brightness)Number(4, "led_b"), Switch(5, "buzzer"),
+            Switch(6, "child_lock"), Number(7, "limit_hum"));
+    }
+
     public override string ToString()
     {
         var values = GetProps("power", "mode", "temp_dec", "humidity", "led_b", "buzzer", "child_lock", "limit_hum");
-        var temp = $"{values[2].Substring(0, 2)}.{values[2].Substring(2, 1)} °C";
+        var temperature = int.Parse(values[2], CultureInfo.InvariantCulture) / 10f;
+        var temp = temperature.ToString("F1", CultureInfo.InvariantCulture) + " °C";
         var brightness = ((Brightness)Enum.Parse(typeof(Brightness), values[4])).ToString().ToLower();
 
         return $"Power: {values[0]}\nMode: {values[1]}\nTemperature: {temp}\n" +
             $"Humidity: {values[3]}%\nLED brightness: {brightness}\n" +
             $"Buzzer: {values[5]}\nChild lock: {values[6]}\nTarget humidity: {values[7]}%\n" +
-            $"Model: {MODEL}\nIP Address:{_miioTransport.Ip}\nToken: {_miioTransport.Token}";
+            $"Model: {MODEL}\nIP Address:{_miioTransport.Ip}";
     }
 
+    [Obsolete("Use MiioDiscovery.DiscoverAsync and filter by DeviceType \"0404\".")]
     public static void DiscoverDevices()
     {
-        var discoveredHumidifiers = MiioTransport
-            .SendDiscoverMessage()
-            .Where(x => x.type == "0404"); // magic number identifying air humidifier
-
-        foreach (var (ip, type, serial, token) in discoveredHumidifiers)
-        {
-            OnDiscovered?.Invoke(ip, type, serial, token);
-        }
+        var devices = RunSync(() => MiioDiscovery.DiscoverAsync());
+        foreach (var device in devices.Where(device => device.DeviceType == "0404"))
+            OnDiscovered?.Invoke(device.Ip, device.DeviceType, device.Serial, device.Token);
     }
 
-    public bool IsTurnedOn()
+    public bool GetPowerState() => RunSync(() => GetPowerStateAsync());
+
+    public async Task<bool> GetPowerStateAsync()
     {
-        return GetProps("power")[0] == "on";
+        return await ReadPropertyValueAsync("power", MiioResponseReader.OnOff).ConfigureAwait(false);
     }
 
-    public async Task<bool> IsTurnedOnAsync()
-    {
-        return (await GetPropsAsync("power").ConfigureAwait(false))[0] == "on";
-    }
+    public void TurnOn() => RunSync(() => TurnOnAsync());
 
-    public void PowerOn()
+    public async Task TurnOnAsync()
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_power", "on"));
+        var response = await RequestArrayAsync("set_power", "on").ConfigureAwait(false);
         CheckMessage(response, "Unable to power on air humidifier");
     }
 
-    public async Task PowerOnAsync()
-    {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_power", "on")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to power on air humidifier");
-    }
+    public void TurnOff() => RunSync(() => TurnOffAsync());
 
-    public void PowerOff()
+    public async Task TurnOffAsync()
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_power", "off"));
+        var response = await RequestArrayAsync("set_power", "off").ConfigureAwait(false);
         CheckMessage(response, "Unable to power off air humidifier");
     }
 
-    public async Task PowerOffAsync()
+    public Mode GetMode() => RunSync(() => GetModeAsync());
+
+    public async Task<Mode> GetModeAsync()
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_power", "off")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to power off air humidifier");
+        return await ReadPropertyValueAsync("mode", value => _mapMode.TryGetValue(value, out var mode)
+            ? mode : throw new FormatException("Unknown humidifier mode.")).ConfigureAwait(false);
     }
 
-    public Mode GetDeviceMode()
-    {
-        return _mapMode[GetProps("mode")[0]];
-    }
-
-    public async Task<Mode> GetDeviceModeAsync()
-    {
-        return _mapMode[(await GetPropsAsync("mode").ConfigureAwait(false))[0]];
-    }
-
-    public void SetMode(Mode mode)
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_mode", mode.ToString().ToLower()));
-        CheckMessage(response, "Unable to set fan mode of air humidifier");
-    }
+    public void SetMode(Mode mode) => RunSync(() => SetModeAsync(mode));
 
     public async Task SetModeAsync(Mode mode)
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_mode", mode.ToString().ToLower())).ConfigureAwait(false);
+        ValidateEnum(mode, nameof(mode));
+        var response = await RequestArrayAsync("set_mode", mode.ToString().ToLower()).ConfigureAwait(false);
         CheckMessage(response, "Unable to set fan mode of air humidifier");
     }
 
-    public float GetTemperature()
-    {
-        return int.Parse(GetProps("temp_dec")[0]) / 10f;
-    }
+    public float GetTemperature() => RunSync(() => GetTemperatureAsync());
 
     public async Task<float> GetTemperatureAsync()
     {
-        return int.Parse((await GetPropsAsync("temp_dec").ConfigureAwait(false))[0]) / 10f;
+        return (await ReadPropertyValueAsync("temp_dec", value => int.Parse(value, CultureInfo.InvariantCulture)).ConfigureAwait(false)) / 10f;
     }
 
-    public int GetHumidity()
-    {
-        return int.Parse(GetProps("humidity")[0]);
-    }
+    public int GetHumidity() => RunSync(() => GetHumidityAsync());
 
     public async Task<int> GetHumidityAsync()
     {
-        return int.Parse((await GetPropsAsync("humidity").ConfigureAwait(false))[0]);
+        return await ReadPropertyValueAsync("humidity", value => int.Parse(value, CultureInfo.InvariantCulture)).ConfigureAwait(false);
     }
 
-    public Brightness GetBrightness()
-    {
-        return (Brightness)Enum.Parse(typeof(Brightness), GetProps("led_b")[0]);
-    }
+    public Brightness GetBrightness() => RunSync(() => GetBrightnessAsync());
 
     public async Task<Brightness> GetBrightnessAsync()
     {
-        return (Brightness)Enum.Parse(typeof(Brightness), (await GetPropsAsync("led_b").ConfigureAwait(false))[0]);
+        return await ReadPropertyValueAsync("led_b", value => Enum.TryParse<Brightness>(value, out var brightness)
+            ? brightness : throw new FormatException("Unknown LED brightness.")).ConfigureAwait(false);
     }
 
-    public void SetBrightness(Brightness brightness)
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_led_b", brightness));
-        CheckMessage(response, "Unable to set brightness of air humidifier");
-    }
+    public void SetBrightness(Brightness brightness) => RunSync(() => SetBrightnessAsync(brightness));
 
     public async Task SetBrightnessAsync(Brightness brightness)
     {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_led_b", brightness)).ConfigureAwait(false);
+        ValidateEnum(brightness, nameof(brightness));
+        var response = await RequestArrayAsync("set_led_b", brightness).ConfigureAwait(false);
         CheckMessage(response, "Unable to set brightness of air humidifier");
     }
 
-    public int GetTargetHumidity()
-    {
-        return int.Parse(GetProps("limit_hum")[0]);
-    }
+    public int GetTargetHumidity() => RunSync(() => GetTargetHumidityAsync());
 
     public async Task<int> GetTargetHumidityAsync()
     {
-        return int.Parse((await GetPropsAsync("limit_hum").ConfigureAwait(false))[0]);
+        return await ReadPropertyValueAsync("limit_hum", value => int.Parse(value, CultureInfo.InvariantCulture)).ConfigureAwait(false);
     }
 
-    public bool IsBuzzerOn()
+    public bool GetBuzzerEnabled() => RunSync(() => GetBuzzerEnabledAsync());
+
+    public async Task<bool> GetBuzzerEnabledAsync()
     {
-        return GetProps("buzzer")[0] == "on";
+        return await ReadPropertyValueAsync("buzzer", MiioResponseReader.OnOff).ConfigureAwait(false);
     }
 
-    public async Task<bool> IsBuzzerOnAsync()
+    /// <summary>Sets whether buzzer is enabled on the device.</summary>
+    public void SetBuzzerEnabled(bool enabled) => RunSync(() => SetBuzzerEnabledAsync(enabled));
+
+    /// <inheritdoc cref="SetBuzzerEnabled"/>
+    public async Task SetBuzzerEnabledAsync(bool enabled)
     {
-        return (await GetPropsAsync("buzzer").ConfigureAwait(false))[0] == "on";
+        var response = await RequestArrayAsync("set_buzzer", enabled ? "on" : "off").ConfigureAwait(false);
+        CheckMessage(response, "Unable to set buzzer on air humidifier");
     }
 
-    public void BuzzerOn()
+    public bool GetChildLockEnabled() => RunSync(() => GetChildLockEnabledAsync());
+
+    public async Task<bool> GetChildLockEnabledAsync()
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_buzzer", "on"));
-        CheckMessage(response, "Unable to enable buzzer on air humidifier");
+        return await ReadPropertyValueAsync("child_lock", MiioResponseReader.OnOff).ConfigureAwait(false);
     }
 
-    public async Task BuzzerOnAsync()
-    {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_buzzer", "on")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to enable buzzer on air humidifier");
-    }
+    /// <summary>Sets whether child lock is enabled on the device.</summary>
+    public void SetChildLockEnabled(bool enabled) => RunSync(() => SetChildLockEnabledAsync(enabled));
 
-    public void BuzzerOff()
+    /// <inheritdoc cref="SetChildLockEnabled"/>
+    public async Task SetChildLockEnabledAsync(bool enabled)
     {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_buzzer", "off"));
-        CheckMessage(response, "Unable to disable buzzer on air humidifier");
-    }
-
-    public async Task BuzzerOffAsync()
-    {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_buzzer", "off")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to disable buzzer on air humidifier");
-    }
-
-    public bool IsChildLockOn()
-    {
-        return GetProps("child_lock")[0] == "on";
-    }
-
-    public async Task<bool> IsChildLockOnAsync()
-    {
-        return (await GetPropsAsync("child_lock").ConfigureAwait(false))[0] == "on";
-    }
-
-    public void ChildLockOn()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_child_lock", "on"));
-        CheckMessage(response, "Unable to enable child lock on air humidifier");
-    }
-
-    public async Task ChildLockOnAsync()
-    {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_child_lock", "on")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to enable child lock on air humidifier");
-    }
-
-    public void ChildLockOff()
-    {
-        var response = _miioTransport.SendMessage(BuildParamsArray("set_child_lock", "off"));
-        CheckMessage(response, "Unable to disable child lock on air humidifier");
-    }
-
-    public async Task ChildLockOffAsync()
-    {
-        var response = await _miioTransport.SendMessageAsync(BuildParamsArray("set_child_lock", "off")).ConfigureAwait(false);
-        CheckMessage(response, "Unable to disable child lock on air humidifier");
+        var response = await RequestArrayAsync("set_child_lock", enabled ? "on" : "off").ConfigureAwait(false);
+        CheckMessage(response, "Unable to set child lock on air humidifier");
     }
 }
