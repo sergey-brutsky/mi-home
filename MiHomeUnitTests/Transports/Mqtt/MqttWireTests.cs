@@ -244,9 +244,14 @@ public class MqttWireTests
     public async Task Consecutive_Fragmented_Packets_Preserve_Lengths_And_Payloads()
     {
         using var session = await Session.Open();
-        var received = new List<string>();
-        session.Transport.OnMessageReceived += (_, payload) => received.Add(payload);
         var expected = new[] { "", new string('a', 125), new string('b', 300) };
+        var received = new List<string>();
+        var delivered = new TaskCompletionSource<string[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+        session.Transport.OnMessageReceived += (_, payload) =>
+        {
+            received.Add(payload);
+            if (received.Count == expected.Length) delivered.TrySetResult(received.ToArray());
+        };
 
         for (byte id = 1; id <= expected.Length; id++)
         {
@@ -258,7 +263,9 @@ public class MqttWireTests
             acknowledgement.body.Should().Equal(0, id);
         }
 
-        received.Should().Equal(expected);
+        // PUBACK confirms receipt, while application delivery runs on a separate queue.
+        var payloads = await delivered.Task.WaitAsync(TimeSpan.FromSeconds(3));
+        payloads.Should().Equal(expected);
         session.Logs.ThrowIfAnyErrors();
     }
 
