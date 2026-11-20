@@ -1,0 +1,32 @@
+name: create release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    name: 'Create GitHub Release'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+    - name: Verify tag belongs to master history
+      run: |
+        if ! git merge-base --is-ancestor HEAD origin/master; then
+          echo '::error::The release tag must point to a commit in master history.'
+          exit 1
+        fi
+    - name: Create release from package README
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ github.ref_name }}
+      run: |
+        gh release create "$RELEASE_TAG" \
+          --verify-tag \
+          --title "$RELEASE_TAG" \
+          --notes-file MiHomeLib/README.md

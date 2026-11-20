@@ -24,6 +24,6 @@ jobs:
     - name: Test
       run: dotnet test --no-restore MiHomeUnitTests
     - name: Pack
-      run: dotnet pack MiHomeLib --no-restore -c Release -o artifacts
+      run: dotnet pack MiHomeLib --no-restore -c Release -o artifacts -p:UseReadmeAsPackageDescription=true
     - name: Push MiHomeLib ${{ steps.version.outputs.value }}
       run: dotnet nuget push artifacts/MiHomeLib.${{ steps.version.outputs.value }}.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
