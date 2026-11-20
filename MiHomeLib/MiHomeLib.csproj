@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>MiHomeLib</Title>
-    <TargetFrameworks>netstandard2.0;net481;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net10.0</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-This is a breaking changes release. Review the release notes and migration guide before upgrading.
-Release notes and breaking changes: https://github.com/sergey-brutsky/mi-home/wiki/Release-Notes-3.0
+3.0.1: Added a dedicated .NET Framework 4.6.2 target, replacing the .NET Framework 4.8.1 target. .NET Standard 2.0 and .NET 10 targets remain available. No public API changes in this patch.
+When upgrading from 2.x, review the 3.0 breaking changes and migration guide:
+Release notes: https://github.com/sergey-brutsky/mi-home/wiki/Release-Notes-3.0
 Migration guide: https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -20,7 +21,7 @@ Migration guide: https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>3.0.0</Version>
+    <Version>3.0.1</Version>
     <LangVersion>14</LangVersion>
   </PropertyGroup>
   <ItemGroup>

@@ -2,6 +2,11 @@ name: publish nuget
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_package:
+        description: 'Publish to nuget.org after verification (disable for verification only)'
+        type: boolean
+        default: true
 
 jobs:
   package:
@@ -40,7 +45,7 @@ jobs:
       matrix:
         include:
         - os: windows-latest
-          framework: net481
+          framework: net462
         - os: ubuntu-latest
           framework: net8.0
         - os: ubuntu-latest
@@ -62,6 +67,7 @@ jobs:
       run: dotnet run --project PackageSmokeTests/PackageSmokeTests.csproj -c Release -f ${{ matrix.framework }} -p:MiHomePackageVersion=${{ needs.package.outputs.version }} --no-restore
 
   publish:
+    if: inputs.publish_package
     needs: [package, package_consumers]
     permissions:
       contents: read
