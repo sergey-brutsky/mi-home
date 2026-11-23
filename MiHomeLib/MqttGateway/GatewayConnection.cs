@@ -15,6 +15,9 @@ internal static class GatewayConnection
 
     /// <param name="service">Human readable name of the gateway service, e.g. "MQTT" or "telnet"</param>
     /// <param name="enableHint">How the service gets enabled on the gateway, appended when the port is closed</param>
+    /// <param name="client">TCP client used to connect to the gateway service.</param>
+    /// <param name="ip">Gateway IP address.</param>
+    /// <param name="port">Gateway service port.</param>
     public static void Connect(TcpClient client, string ip, int port, string service, string enableHint) =>
         ConnectAsync(client, ip, port, service, enableHint).GetAwaiter().GetResult();
 

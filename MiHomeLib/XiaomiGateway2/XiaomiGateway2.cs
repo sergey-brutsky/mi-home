@@ -130,6 +130,9 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
         : this(ip, token, gatewaySid, null) { }
 
     /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    /// <param name="gatewaySid">Optional gateway SID used to select this hub among multicast responses.</param>
+    /// <param name="ip">Gateway IP address.</param>
+    /// <param name="token">Gateway miIO token.</param>
     public XiaomiGateway2(string ip, string token, string gatewaySid, ILoggerFactory loggerFactory)
         : this(ResourceFactory.CreatePair<IMiioTransport, IGateway2Transport>(
             () => new MiioTransport(ip, token),

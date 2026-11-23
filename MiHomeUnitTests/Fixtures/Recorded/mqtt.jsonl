@@ -1,0 +1,2 @@
+{"gateway": "MultimodeGateway", "topic": "zigbee/send", "message": "{\"cmd\":\"read_rsp\",\"id\":340,\"did\":\"lumi.158d000830508d\",\"time\":1794564562637,\"zseq\":74,\"results\":[{\"res_name\":\"4.1.85\",\"value\":0,\"error_code\":0}]}", "model": "lumi.relay.c2acn01"}
+{"gateway": "MultimodeGateway", "topic": "zigbee/send", "message": "{\"cmd\":\"read_rsp\",\"id\":323,\"time\":1794564555027,\"did\":\"lumi.158d0008332825\",\"results\":[{\"res_name\":\"8.0.2031\",\"error_code\":-4003}]}", "model": "lumi.weather"}

@@ -84,9 +84,9 @@ public class AqaraVibrationSensorTests : Gateway2DeviceTestBase
     }
 
     [Fact]
-    public void SetSensivity_Is_Not_Supported_On_Gateway2()
+    public void SetSensitivity_Is_Not_Supported_On_Gateway2()
     {
-        _device.Invoking(x => x.SetSensivity(AqaraVibrationSensor.SensivityState.High)).Should().Throw<NotSupportedException>();
+        _device.Invoking(x => x.SetSensitivity(AqaraVibrationSensor.SensitivityState.High)).Should().Throw<NotSupportedException>();
     }
 
     [Theory]

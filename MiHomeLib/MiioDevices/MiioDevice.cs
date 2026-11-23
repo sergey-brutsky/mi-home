@@ -41,6 +41,10 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
             throw new InvalidOperationException($"{msg}: invalid integer value.");
         return number;
     }
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization.")]
+#endif
     protected string BuildParamsArray(string method, params object[] methodParams)
     {
         return JsonSerializer.Serialize(new Dictionary<string, object>(){
@@ -49,6 +53,10 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
             { "params", methodParams}
         }, _serializerSettings);
     }
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization.")]
+#endif
     protected string BuildParamsObject(string method, object methodParams)
     {
         return JsonSerializer.Serialize(new Dictionary<string, object>(){
@@ -57,6 +65,10 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
             { "params", methodParams }
         }, _serializerSettings);
     }
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization.")]
+#endif
     protected string BuildSidProp(string method, string sid, string prop, int value)
     {
         return JsonSerializer.Serialize(new Dictionary<string, object>(){
@@ -86,7 +98,14 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
     private protected Task<string> RequestObjectAsync(string method, object parameters, MiioRetryPolicy retryPolicy) =>
         _miioTransport is IMiioRequests requests
             ? requests.RequestAsync(method, parameters, retryPolicy)
-            : _miioTransport.SendMessageAsync(BuildParamsObject(method, parameters));
+            : _miioTransport.SendMessageAsync(BuildRequest(method, parameters));
+
+    private string BuildRequest(string method, object parameters) => new JsonObject
+    {
+        ["id"] = Interlocked.Increment(ref _initialId),
+        ["method"] = method,
+        ["params"] = MiioParameters.ToNode(parameters)?.DeepClone()
+    }.ToJsonString();
 
     /// <summary>
     /// {"params":{"sid":..,"prop":value}}

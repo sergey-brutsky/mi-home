@@ -15,6 +15,11 @@ public abstract class MultimodeGateway2Base : MqttGatewayBase
     public MultimodeGateway2Base(string ip, string token, string did, int port, string endMarker) : this(ip, token, did, port, endMarker, null) { }
 
     /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    /// <param name="did">Gateway device identifier.</param>
+    /// <param name="endMarker">Telnet shell prompt marking the end of a command response.</param>
+    /// <param name="ip">Gateway IP address.</param>
+    /// <param name="port">Gateway service port.</param>
+    /// <param name="token">Gateway miIO token.</param>
     public MultimodeGateway2Base(string ip, string token, string did, int port, string endMarker, ILoggerFactory loggerFactory) :
         this(
                 did,

@@ -66,27 +66,27 @@ public class AqaraVibrationSensorTests : MqttDeviceTestBase
     }
 
     [Theory]
-    [InlineData(AqaraVibrationSensor.SensivityState.Low, 21)]
-    [InlineData(AqaraVibrationSensor.SensivityState.Middle, 11)]
-    [InlineData(AqaraVibrationSensor.SensivityState.High, 1)]
-    public void SetSensivity_Sends_Write_Command(AqaraVibrationSensor.SensivityState state, int value)
+    [InlineData(AqaraVibrationSensor.SensitivityState.Low, 21)]
+    [InlineData(AqaraVibrationSensor.SensitivityState.Middle, 11)]
+    [InlineData(AqaraVibrationSensor.SensitivityState.High, 1)]
+    public void SetSensitivity_Sends_Write_Command(AqaraVibrationSensor.SensitivityState state, int value)
     {
         var sensor = CreateSensor();
 
-        sensor.SetSensivity(state);
+        sensor.SetSensitivity(state);
 
         _mqttTransport.Verify(x => x.SendMessage(
             $"{{\"cmd\":\"write\",\"did\":\"{sensor.DeviceId}\",\"params\":[{{\"res_name\":\"14.1.85\",\"value\":{value}}}]}}"), Times.Once);
     }
     [Theory]
-    [InlineData(AqaraVibrationSensor.SensivityState.Low, 21)]
-    [InlineData(AqaraVibrationSensor.SensivityState.Middle, 11)]
-    [InlineData(AqaraVibrationSensor.SensivityState.High, 1)]
-    public async Task SetSensivity_Sends_Write_Command_Async(AqaraVibrationSensor.SensivityState state, int value)
+    [InlineData(AqaraVibrationSensor.SensitivityState.Low, 21)]
+    [InlineData(AqaraVibrationSensor.SensitivityState.Middle, 11)]
+    [InlineData(AqaraVibrationSensor.SensitivityState.High, 1)]
+    public async Task SetSensitivity_Sends_Write_Command_Async(AqaraVibrationSensor.SensitivityState state, int value)
     {
         var sensor = CreateSensor();
 
-        await sensor.SetSensivityAsync(state);
+        await sensor.SetSensitivityAsync(state);
 
         _mqttTransport.Verify(x => x.SendMessage(
             $"{{\"cmd\":\"write\",\"did\":\"{sensor.DeviceId}\",\"params\":[{{\"res_name\":\"14.1.85\",\"value\":{value}}}]}}"), Times.Once);

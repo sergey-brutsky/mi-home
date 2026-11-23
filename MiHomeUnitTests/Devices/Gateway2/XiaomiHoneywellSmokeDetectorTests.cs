@@ -81,7 +81,7 @@ public class XiaomiHoneywellSmokeDetectorTests: Gateway2DeviceTestBase
     [Fact]
     public void Commands_Are_Not_Supported_On_Gateway2()
     {
-        _device.Invoking(x => x.SetSensivity(XiaomiHoneywellSmokeDetector.SensivityMode.LowSmoke))
+        _device.Invoking(x => x.SetSensitivity(XiaomiHoneywellSmokeDetector.SensitivityMode.LowSmoke))
             .Should().Throw<NotSupportedException>();
     }
 }

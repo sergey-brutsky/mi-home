@@ -5,11 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.Devices;
 
+/// <summary>WSDCGQ01LM temperature and humidity sensor, shared by Xiaomi Gateway 2 and Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-/// <summary>
-/// WSDCGQ01LM temperature and humidity sensor, shared by Xiaomi Gateway 2 and Lumi MQTT gateways.
-/// </summary>
 public sealed class XiaomiTemperatureHumiditySensor : LumiBatteryDeviceBase
 {
     public const string MARKET_MODEL = "WSDCGQ01LM";

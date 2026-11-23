@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 
 namespace MiHomeLib.Devices;
 
-[ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
 /// <summary>LYWSD03MMC BLE temperature and humidity sensor used by Lumi MQTT gateways.</summary>
+[ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
 public sealed class XiaomiBluetoothHygrothermograph2(string deviceId, ILoggerFactory loggerFactory) : ProtocolMappedDeviceBase(loggerFactory), IProtocolMappedBleDevice
 {
     public const string MARKET_MODEL = "LYWSD03MMC";

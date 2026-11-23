@@ -94,8 +94,16 @@ public sealed class MiioTransportRetryTests : IAsyncLifetime
     [Fact]
     public async Task Dispose_Cancels_Active_And_Queued_Commands()
     {
-        _answer = (_, _) => [];
+        var commandReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _answer = (_, _) =>
+        {
+            commandReceived.TrySetResult(true);
+            return [];
+        };
         var first = _transport.SendMessageAsync("{\"id\":40,\"method\":\"get_prop\",\"params\":[]}");
+
+        // Wait for the handshake to finish so the fake cannot reply to a closed UDP socket on Windows.
+        await commandReceived.Task.WaitAsync(TimeSpan.FromSeconds(2));
         var second = _transport.SendMessageAsync("{\"id\":41,\"method\":\"get_prop\",\"params\":[]}");
         _transport.Dispose();
         Func<Task> active = async () => await first.WaitAsync(TimeSpan.FromSeconds(1));

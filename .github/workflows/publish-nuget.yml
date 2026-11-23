@@ -34,7 +34,9 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: release-package
-        path: artifacts/MiHomeLib.${{ steps.version.outputs.value }}.nupkg
+        path: |
+          artifacts/MiHomeLib.${{ steps.version.outputs.value }}.nupkg
+          artifacts/MiHomeLib.${{ steps.version.outputs.value }}.snupkg
         if-no-files-found: error
 
   package_consumers:

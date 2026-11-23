@@ -1,3 +1,5 @@
+using MiHomeLib.Helpers;
+using MiHomeLib.MiioDevices.Internal;
 using MiHomeLib.Protocols;
 using MiHomeLib.MqttGateway;
 // Support for this device has been implemented on top of https://home.miot-spec.com/spec?type=urn%3Amiot-spec-v2%3Adevice%3Aswitch%3A0000A003%3Azimi-dhkg01%3A2%3A0000C808
@@ -55,11 +57,8 @@ public sealed class XiaomiMeshWallSwitchSingleOpen : ProtocolMappedDeviceBase, I
     {
         if (_mqttTransport is null)
             throw new InvalidOperationException($"Device '{DeviceId}' is not connected to the gateway transport");
-        _mqttTransport.Publish("miio/command", JsonSerializer.Serialize(new
-        {
-            method = "set_properties",
-            @params = new[] { new { did = DeviceId, siid, piid, value } }
-        }));
+        _mqttTransport.Publish("miio/command", JsonSerializer.Serialize(new MeshCommand("set_properties",
+            [new MiotWriteProperty(DeviceId, siid, piid, MiioParameters.ToNode(value))]), MiHomeJsonContext.Default.MeshCommand));
     }
 
     public enum WirelessMode

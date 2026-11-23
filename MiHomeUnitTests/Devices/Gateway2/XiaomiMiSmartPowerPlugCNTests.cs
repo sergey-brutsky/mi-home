@@ -30,6 +30,18 @@ public class XiaomiMiSmartPowerPlugCNTests : Gateway2DeviceTestBase
         _socketPlug.ParseData(Gateway2Message.Parse(
             CreateCommand(cmd, XiaomiMiSmartPowerPlugCN.XIAOMI_GATEWAY2_MODEL, _sid, _shortId, data)).Data);
 
+    [Fact]
+    public void Discovery_Read_Off_Is_Known_Even_If_It_Matches_The_Default()
+    {
+        Parse("read_ack", new() { { "load_power", "0" } });
+        _socketPlug.HasKnownState.Should().BeFalse();
+
+        Parse("read_ack", new() { { "status", "off" } });
+
+        _socketPlug.HasKnownState.Should().BeTrue();
+        _socketPlug.State.Should().Be(XiaomiMiSmartPowerPlugCN.PlugState.Off);
+    }
+
     [Theory]
     [InlineData("on")]
     [InlineData("off")]

@@ -60,6 +60,10 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         : this(did, miioTransport, mqttTransport, devicesDiscoverer, null) { }
 
     /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by SetLoggerFactory</param>
+    /// <param name="devicesDiscoverer">Gateway device discovery provider.</param>
+    /// <param name="did">Gateway device identifier.</param>
+    /// <param name="miioTransport">Transport for miIO commands.</param>
+    /// <param name="mqttTransport">Transport for MQTT messages.</param>
     protected MqttGatewayBase(string did, IMiioTransport miioTransport, IMqttTransport mqttTransport, IDevicesDiscoverer devicesDiscoverer, ILoggerFactory loggerFactory) : base(did, miioTransport, 0, () => ResourceCleanup.DisposeAll(mqttTransport.Dispose, miioTransport.Dispose))
     {
         _lifetimeToken = _lifetime.Token;

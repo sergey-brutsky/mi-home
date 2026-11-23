@@ -18,6 +18,15 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
     public const string LUMI_MQTT_MODEL = "lumi.sensor_smoke";
     public const int SELF_TEST_MAGIC_NUMBER = 50397184; // only God knows why this number
 
+    public enum SensitivityMode
+    {
+        // I don't know why exactly these numbers have been selected by vendor
+        NoSmoke = 67174400,
+        LowSmoke = 67239936,
+        MiddleSmoke = 67305472,
+    }
+
+    [Obsolete("Use SensitivityMode. SensivityMode will be removed in the next major version")]
     public enum SensivityMode
     {
         // I don't know why exactly these numbers have been selected by vendor
@@ -76,7 +85,13 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
     /// <summary>
     /// Raised when Lumi MQTT gateways report the sensitivity mode, the new mode is passed as an argument
     /// </summary>
+    [Obsolete("Use OnSmokeSensitivityModeChangedAsync. OnSmokeSensivityModeChanged will be removed in the next major version")]
+#pragma warning disable CS0618
     public event Func<SensivityMode, Task> OnSmokeSensivityModeChanged = _ => Task.CompletedTask;
+#pragma warning restore CS0618
+
+    /// <summary>Raised when Lumi MQTT gateways report the sensitivity mode; the new mode is passed as an argument.</summary>
+    public event Func<SensitivityMode, Task> OnSmokeSensitivityModeChangedAsync = _ => Task.CompletedTask;
 
     /// <summary>
     /// Raised on every report of the voltage, even if the value has not changed. The previous value is passed as an argument,
@@ -114,7 +129,7 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
         map.LumiMqtt("0.1.85", "density",
             value => UpdateSmokeDensity(value.ReadInt32()),
             value => SmokeDensity = value.GetValue<int>());
-        map.LumiMqtt(SMOKE_MODE_RES_NAME, value => RaiseEvent(OnSmokeSensivityModeChanged, (SensivityMode)value.ReadInt32()));
+        map.LumiMqtt(SMOKE_MODE_RES_NAME, value => ReportSensitivity(value.ReadInt32()));
         // Not read at discovery: the detector was never asked for it, it is taken when it comes with a report
         map.LumiMqtt("8.0.2008", value => UpdateVoltage(value.ReadInt32() / 1000f));
         map.LumiMqtt("8.0.2007", "lqi",
@@ -128,10 +143,19 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
     /// <summary>
     /// Supported by Lumi MQTT gateways only
     /// </summary>
-    public void SetSensivity(SensivityMode mode) => RunSync(() => SetSensivityAsync(mode));
+    [Obsolete("Use SetSensitivity. SetSensivity will be removed in the next major version")]
+#pragma warning disable CS0618
+    public void SetSensivity(SensivityMode mode) => SetSensitivity((SensitivityMode)(int)mode);
 
-    /// <inheritdoc cref="SetSensivity"/>
-    public Task SetSensivityAsync(SensivityMode mode)
+    [Obsolete("Use SetSensitivityAsync. SetSensivityAsync will be removed in the next major version")]
+    public Task SetSensivityAsync(SensivityMode mode) => SetSensitivityAsync((SensitivityMode)(int)mode);
+#pragma warning restore CS0618
+
+    /// <summary>Sets sensitivity on Lumi MQTT gateways.</summary>
+    public void SetSensitivity(SensitivityMode mode) => RunSync(() => SetSensitivityAsync(mode));
+
+    /// <inheritdoc cref="SetSensitivity"/>
+    public Task SetSensitivityAsync(SensitivityMode mode)
     {
         try
         {
@@ -155,6 +179,16 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
             return Task.CompletedTask;
         }
         catch (Exception exception) { return Task.FromException(exception); }
+    }
+
+    private void ReportSensitivity(int value) => _ = ReportSensitivityAsync(value);
+
+    private async Task ReportSensitivityAsync(int value)
+    {
+        await RaiseEventAsync(OnSmokeSensitivityModeChangedAsync, (SensitivityMode)value).ConfigureAwait(false);
+#pragma warning disable CS0618
+        await RaiseEventAsync(OnSmokeSensivityModeChanged, (SensivityMode)value).ConfigureAwait(false);
+#pragma warning restore CS0618
     }
 
     private void SendWriteCommand(int value)

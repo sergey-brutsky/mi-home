@@ -1,3 +1,4 @@
+using MiHomeLib.Helpers;
 using MiHomeLib.MiioDevices.Internal;
 // MIoT specification https://home.miot-spec.com/spec/xiaomi.vacuum.c102gl
 
@@ -277,8 +278,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
         var nonceBytes = new byte[2];
         using (var random = RandomNumberGenerator.Create()) random.GetBytes(nonceBytes);
         var nonce = BitConverter.ToUInt16(nonceBytes, 0) % 65535;
-        var data = JsonSerializer.Serialize(new { spdv = velocity, spdw = rotation,
-            audio = playSound ? "true" : "false", random = nonce });
+        var data = JsonSerializer.Serialize(new RemoteControlPayload(velocity, rotation, playSound ? "true" : "false", nonce), MiHomeJsonContext.Default.RemoteControlPayload);
         await SetMiotPropertyOnceAsync(4, 15, data).ConfigureAwait(false);
     }
 
@@ -302,8 +302,8 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
             data.Add([room.RoomId, room.RepeatCount, (int)room.Suction, (int)room.Water, index + 1]);
         }
         // c102gl firmware 4.5.6_1087 requires work-mode as well as the selects string.
-        var payload = JsonSerializer.Serialize(new { selects = data });
-        await CallMiotActionAsync(4, 1, new { piid = 1, value = 18 }, new { piid = 10, value = payload }).ConfigureAwait(false);
+        var payload = JsonSerializer.Serialize(new RoomCleaningPayload(data), MiHomeJsonContext.Default.RoomCleaningPayload);
+        await CallMiotActionAsync(4, 1, new MiotActionInput(1, MiioParameters.ToNode(18)), new MiotActionInput(10, MiioParameters.ToNode(payload))).ConfigureAwait(false);
     }
 
     /// <summary>Starts a firmware-specific cleaning task. The data is an object encoded as JSON.</summary>
@@ -315,7 +315,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
         if (data is null) throw new ArgumentNullException(nameof(data));
         using var document = JsonDocument.Parse(data);
         if (document.RootElement.ValueKind != JsonValueKind.Object) throw new ArgumentException("Expected a JSON object.", nameof(data));
-        await CallMiotActionAsync(4, 1, new { piid = 1, value = workMode }, new { piid = 10, value = data }).ConfigureAwait(false);
+        await CallMiotActionAsync(4, 1, new MiotActionInput(1, MiioParameters.ToNode(workMode)), new MiotActionInput(10, MiioParameters.ToNode(data))).ConfigureAwait(false);
     }
 
     #endregion
@@ -448,7 +448,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
     {
         if (string.IsNullOrWhiteSpace(key)) throw new ArgumentException("A switch key is required.", nameof(key));
         // Dreame writes one k/v object, while reads return an array of all switches.
-        var data = JsonSerializer.Serialize(new { k = key, v = value });
+        var data = JsonSerializer.Serialize(new SettingPayload(key, MiioParameters.ToNode(value)), MiHomeJsonContext.Default.SettingPayload);
         await SetMiotPropertyAsync(4, 50, value: data).ConfigureAwait(false);
     }
 
@@ -491,7 +491,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
         if (md5 is null || md5.Length != 32 || !md5.All(Uri.IsHexDigit))
             throw new ArgumentException("Expected a 32-character MD5 checksum.", nameof(md5));
         if (sizeBytes <= 0) throw new ArgumentOutOfRangeException(nameof(sizeBytes), sizeBytes, "Expected a positive package size in bytes.");
-        var data = JsonSerializer.Serialize(new { id = packetId, url, md5, size = sizeBytes });
+        var data = JsonSerializer.Serialize(new UploadPayload(packetId, url, md5, sizeBytes), MiHomeJsonContext.Default.UploadPayload);
         await SetMiotPropertyOnceAsync(7, 4, data).ConfigureAwait(false);
     }
 
@@ -523,7 +523,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
     public async Task DeleteCleaningScheduleAsync(string timerId)
     {
         if (string.IsNullOrWhiteSpace(timerId)) throw new ArgumentException("A timer ID is required.", nameof(timerId));
-        await CallMiotActionAsync(8, 1, new { piid = 3, value = timerId }).ConfigureAwait(false);
+        await CallMiotActionAsync(8, 1, new MiotActionInput(3, MiioParameters.ToNode(timerId))).ConfigureAwait(false);
     }
 
     #endregion
@@ -558,7 +558,7 @@ public class XiaomiRobotVacuumX20Plus : MiotGenericDevice
         catch (JsonException)
         {
             // Firmware 4.5.6_1087 also returns JSON with escaped quotes but no outer quotes.
-            return JsonDocument.Parse(JsonSerializer.Deserialize<string>("\"" + value + "\""));
+            return JsonDocument.Parse(JsonSerializer.Deserialize("\"" + value + "\"", MiHomeJsonContext.Default.String));
         }
         if (document.RootElement.ValueKind != JsonValueKind.String) return document;
         using (document) return JsonDocument.Parse(document.RootElement.GetString());

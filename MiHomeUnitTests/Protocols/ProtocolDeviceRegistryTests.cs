@@ -13,6 +13,37 @@ namespace MiHomeUnitTests.Protocols;
 
 public class ProtocolDeviceRegistryTests
 {
+    [Fact]
+    public void Generated_Catalog_Contains_Every_Attributed_Concrete_Device_Exactly_Once()
+    {
+        var expected = typeof(ProtocolDeviceRegistry).Assembly.GetTypes()
+            .Where(t => !t.IsAbstract && t.GetCustomAttributes(typeof(ProtocolDeviceModelAttribute), false).Length > 0).ToArray();
+        var actual = ProtocolDeviceCatalog.Entries.Select(entry => entry.DeviceType).ToArray();
+        actual.Should().OnlyHaveUniqueItems();
+        actual.Should().BeEquivalentTo(expected, "the generated catalog must include every attributed device; missing: {0}",
+            string.Join(", ", expected.Except(actual).Select(t => t.FullName)));
+    }
+
+    // Reflection is confined to tests that deliberately validate malformed registrations.
+    private static ProtocolDeviceEntry Entry(Type type)
+    {
+        System.Func<string, int, ILoggerFactory, GatewaySubDeviceBase> create = null;
+        System.Func<string, ILoggerFactory, GatewaySubDeviceBase> byPdid = null;
+        if (typeof(GatewaySubDeviceBase).IsAssignableFrom(type) && !type.IsAbstract)
+        {
+            var id = System.Linq.Expressions.Expression.Parameter(typeof(string), "id");
+            var shortId = System.Linq.Expressions.Expression.Parameter(typeof(int), "shortId");
+            var logs = System.Linq.Expressions.Expression.Parameter(typeof(ILoggerFactory), "logs");
+            var ctor = type.GetConstructor([typeof(string), typeof(int), typeof(ILoggerFactory)]);
+            if (ctor is not null) create = System.Linq.Expressions.Expression.Lambda<System.Func<string, int, ILoggerFactory, GatewaySubDeviceBase>>(
+                System.Linq.Expressions.Expression.New(ctor, id, shortId, logs), id, shortId, logs).Compile();
+            ctor = type.GetConstructor([typeof(string), typeof(ILoggerFactory)]);
+            if (ctor is not null) byPdid = System.Linq.Expressions.Expression.Lambda<System.Func<string, ILoggerFactory, GatewaySubDeviceBase>>(
+                System.Linq.Expressions.Expression.New(ctor, id, logs), id, logs).Compile();
+        }
+        return new ProtocolDeviceEntry(type, create, byPdid);
+    }
+
     [Theory]
     [InlineData("LumiMqtt", false)]
     [InlineData("LumiMqtt", true)]
@@ -26,7 +57,7 @@ public class ProtocolDeviceRegistryTests
         var cleanupFailure = new InvalidOperationException("cleanup failed");
         if (cleanupFails) logs.Resource.Setup(value => value.Dispose()).Throws(cleanupFailure);
         var protocol = Enum.Parse<DeviceProtocol>(protocolName);
-        var registration = ProtocolDeviceRegistry.ValidateRegistrations([typeof(InitializationFailureDevice)])
+        var registration = ProtocolDeviceRegistry.ValidateRegistrations([Entry(typeof(InitializationFailureDevice))])
             .Single(value => value.Metadata.Protocol == protocol);
 
         Action create = () => registration.Create("test", 0, logs);
@@ -41,7 +72,7 @@ public class ProtocolDeviceRegistryTests
     public void Successful_Initialization_Transfers_Resource_Ownership_To_The_Caller()
     {
         using var logs = new CleanupFactory { FailInitialization = false };
-        var registration = ProtocolDeviceRegistry.ValidateRegistrations([typeof(InitializationFailureDevice)])
+        var registration = ProtocolDeviceRegistry.ValidateRegistrations([Entry(typeof(InitializationFailureDevice))])
             .Single(value => value.Metadata.Protocol == DeviceProtocol.LumiMqtt);
         using (var device = registration.Create("test", 0, logs))
         {
@@ -108,7 +139,7 @@ public class ProtocolDeviceRegistryTests
     public void Compiled_Factory_Preserves_The_Constructor_Exception(bool ble)
     {
         var type = ble ? typeof(ThrowingBleDevice) : typeof(ThrowingZigbeeDevice);
-        var registration = ProtocolDeviceRegistry.ValidateRegistrations([type])[0];
+        var registration = ProtocolDeviceRegistry.ValidateRegistrations([Entry(type)])[0];
         Action create = () =>
         {
             if (ble) registration.CreateByPdid("test", NullLoggerFactory.Instance);
@@ -200,7 +231,7 @@ public class ProtocolDeviceRegistryTests
     [InlineData(typeof(DuplicatePdid))]
     public void Invalid_Registration_Is_Rejected(Type type)
     {
-        Action validate = () => ProtocolDeviceRegistry.ValidateRegistrations([type]);
+        Action validate = () => ProtocolDeviceRegistry.ValidateRegistrations([Entry(type)]);
         validate.Should().Throw<InvalidOperationException>();
     }
 

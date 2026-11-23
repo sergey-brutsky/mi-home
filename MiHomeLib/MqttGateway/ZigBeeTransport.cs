@@ -1,3 +1,4 @@
+using MiHomeLib.Helpers;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -7,12 +8,6 @@ namespace MiHomeLib.MqttGateway;
 
 internal sealed class ZigBeeTransport(IMqttTransport mqttTransport)
 {
-    private static readonly JsonSerializerOptions _options = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
-
     private readonly IMqttTransport _mqttTransport = mqttTransport;
     public Task SendConfirmedWriteCommandAsync(string did, string resName, int value)
     {
@@ -22,7 +17,7 @@ internal sealed class ZigBeeTransport(IMqttTransport mqttTransport)
         {
             Did = did,
             Params = [new() { ResName = resName, Value = value }]
-        }, _options);
+        }, MiHomeJsonContext.Default.ZigbeeWriteCommand);
         return commands.SendCommandAsync(message);
     }
     public void SendWriteCommand(string did, string resName, int value)
@@ -33,7 +28,7 @@ internal sealed class ZigBeeTransport(IMqttTransport mqttTransport)
             Params = [
                 new()  { ResName = resName, Value = value }
             ]
-        }, _options);
+        }, MiHomeJsonContext.Default.ZigbeeWriteCommand);
 
         _mqttTransport.SendMessage(cmd);
     }
@@ -45,7 +40,7 @@ internal sealed class ZigBeeTransport(IMqttTransport mqttTransport)
             MiSpec = [
                 new()  { Siid = res.siid, Piid = res.piid, Value = value }
             ]
-        }, _options);
+        }, MiHomeJsonContext.Default.ZigbeeWriteCommand);
 
         _mqttTransport.SendMessage(cmd);
     }
@@ -53,11 +48,15 @@ internal sealed class ZigBeeTransport(IMqttTransport mqttTransport)
     {
         public string Cmd { get; } = "write";
         public string Did { get; internal set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public List<ZigbeeWriteItem> Params { get; internal set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        [JsonPropertyName("mi_spec")]
         public List<ZigbeeMiSpecWriteItem> MiSpec { get; internal set; }
 
         public class ZigbeeWriteItem
         {
+            [JsonPropertyName("res_name")]
             public string ResName { get; set; }
             public int Value { get; set; }
         }

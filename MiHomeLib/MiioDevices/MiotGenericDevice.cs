@@ -118,11 +118,7 @@ public class MiotGenericDevice: MiioDevice
 
     private protected async Task<string[]> GetMiotPropertiesAsync((int siid, int piid, string did)[] arr)
     {
-        object[] properties = [.. arr.Select(x => new {
-            x.did,
-            x.siid,
-            x.piid
-        })];
+        object[] properties = [.. arr.Select(x => new MiotReadProperty(x.did, x.siid, x.piid))];
 
         var requested = string.Join(", ", arr.Select(x => $"{x.siid}/{x.piid} ({x.did})"));
         var response = await RequestArrayAsync("get_properties", properties).ConfigureAwait(false);
@@ -153,12 +149,20 @@ public class MiotGenericDevice: MiioDevice
         }).ToArray();
     }
 
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+#endif
     protected void SetMiotProperty(int siid, int piid, object value = null)
     {
         SetMiotProperty(siid, piid, $"set-{siid}-{piid}", value);
     }
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+#endif
     protected void SetMiotProperty(int siid, int piid, string did, object value = null) =>
-        RunSync(() => SetMiotPropertyAsync(siid, piid, did, value));
+        RunSync(() => SetMiotPropertyAsync(siid, piid, did, SerializeExternalParameter(value, validateEnum: true)));
 
     private protected Task SetMiotPropertyAsync(int siid, int piid, object value = null) =>
         SetMiotPropertyAsync(siid, piid, $"set-{siid}-{piid}", value);
@@ -173,17 +177,32 @@ public class MiotGenericDevice: MiioDevice
     {
         if (value is Enum enumeration && !Enum.IsDefined(enumeration.GetType(), enumeration))
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown enum value.");
-        var response = await RequestObjectAsync("set_properties", new object[] { new { did, siid, piid, value } }, retryPolicy).ConfigureAwait(false);
+        var response = await RequestObjectAsync("set_properties", new object[] { new MiotWriteProperty(did, siid, piid, MiioParameters.ToNode(value)) }, retryPolicy).ConfigureAwait(false);
 
         var operation = $"Unable to set property {siid}/{piid} for {did}";
         using var document = MiioResponseReader.Parse(response, operation);
         MiioResponseReader.CheckStatus(MiioResponseReader.First(document.RootElement.GetProperty("result"), operation), operation);
     }
-    protected void CallMiotAction(int siid, int aiid, params object[] args) => RunSync(() => CallMiotActionAsync(siid, aiid, args));
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+#endif
+    protected void CallMiotAction(int siid, int aiid, params object[] args) => RunSync(() => CallMiotActionAsync(siid, aiid, args is null ? null : args.Select(value => (object)SerializeExternalParameter(value)).ToArray()));
+
+#if NET
+    [System.Diagnostics.CodeAnalysis.RequiresUnreferencedCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+    [System.Diagnostics.CodeAnalysis.RequiresDynamicCode("Uses reflection-based JSON serialization for arbitrary external parameters.")]
+#endif
+    private static JsonNode SerializeExternalParameter(object value, bool validateEnum = false)
+    {
+        if (validateEnum && value is Enum enumeration && !Enum.IsDefined(enumeration.GetType(), enumeration))
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown enum value.");
+        return JsonSerializer.SerializeToNode(value, MiioJson.Options);
+    }
 
     private protected async Task CallMiotActionAsync(int siid, int aiid, params object[] args)
     {
-        var response = await RequestObjectAsync("action", new { did = $"call-{siid}-{aiid}", siid, aiid, @in = args }).ConfigureAwait(false);
+        var response = await RequestObjectAsync("action", new MiotAction($"call-{siid}-{aiid}", siid, aiid, MiioParameters.ToNode(args))).ConfigureAwait(false);
 
         var operation = $"Unable to call action siid: {siid}, aiid: {aiid} for {_did}";
         using var document = MiioResponseReader.Parse(response, operation);

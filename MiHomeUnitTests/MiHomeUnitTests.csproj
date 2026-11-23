@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Fixtures/Recorded/*.jsonl" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MiHomeLib\MiHomeLib.csproj" />
     <ProjectReference Include="..\MiHomeSetup\MiHomeSetup.csproj" />
   </ItemGroup>

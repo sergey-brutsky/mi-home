@@ -1,0 +1,1620 @@
+MiHomeLib.Devices.AqaraCubeSensor
+MiHomeLib.Devices.AqaraCubeSensor.BatteryPercent.get -> byte
+MiHomeLib.Devices.AqaraCubeSensor.CubeRotate
+MiHomeLib.Devices.AqaraCubeSensor.CubeRotate.CubeRotate() -> void
+MiHomeLib.Devices.AqaraCubeSensor.CubeRotate.CubeRotate(short shift, short value) -> void
+MiHomeLib.Devices.AqaraCubeSensor.CubeRotate.Shift.get -> short
+MiHomeLib.Devices.AqaraCubeSensor.CubeRotate.Value.get -> short
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Alert = 8 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Flip180 = 4 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Flip90 = 3 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.FreeFall = 9 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Move = 2 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Rotated = 1 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.ShakeAir = 6 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Swing = 7 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.TapTwice = 5 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.CubeStatus.Undefined = 0 -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraCubeSensor.OnStatusChangedAsync -> System.Func<MiHomeLib.Devices.AqaraCubeSensor.CubeStatus, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraCubeSensor.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraCubeSensor.Rotate.get -> MiHomeLib.Devices.AqaraCubeSensor.CubeRotate
+MiHomeLib.Devices.AqaraCubeSensor.ShortId.get -> int
+MiHomeLib.Devices.AqaraCubeSensor.Status.get -> MiHomeLib.Devices.AqaraCubeSensor.CubeStatus
+MiHomeLib.Devices.AqaraCubeSensor.Voltage.get -> float
+MiHomeLib.Devices.AqaraDualWallSwitch
+MiHomeLib.Devices.AqaraDualWallSwitch.Button
+MiHomeLib.Devices.AqaraDualWallSwitch.Button.Both = 2 -> MiHomeLib.Devices.AqaraDualWallSwitch.Button
+MiHomeLib.Devices.AqaraDualWallSwitch.Button.Left = 0 -> MiHomeLib.Devices.AqaraDualWallSwitch.Button
+MiHomeLib.Devices.AqaraDualWallSwitch.Button.Right = 1 -> MiHomeLib.Devices.AqaraDualWallSwitch.Button
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelLeftPowerOff() -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelLeftPowerOn() -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelRightPowerOff() -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelRightPowerOn() -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg.LongPressHold = 16 -> MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg.LongPressRelease = 17 -> MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallSwitch.OnButtonClickAsync -> System.Func<MiHomeLib.Devices.AqaraDualWallSwitch.Button, MiHomeLib.Devices.AqaraDualWallSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallSwitch.OnSwitchChannelLeftAsync -> System.Func<string, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallSwitch.OnSwitchChannelRightAsync -> System.Func<string, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallSwitch.SetLed(bool enabled) -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.SetWirelessMode(MiHomeLib.Devices.AqaraDualWallSwitch.Button button, bool wireless) -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ShortId.get -> int
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.BatteryLow.get -> bool
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.BatteryPercent.get -> byte
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button.Both = 2 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button.Left = 0 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button.Right = 1 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ChipTemperature.get -> byte
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg.LongPressHold = 16 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg.LongPressRelease = 17 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.OnButtonClickAsync -> System.Func<MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Button, MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.OnChipTemperatureChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ShortId.get -> int
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.Voltage.get -> float
+MiHomeLib.Devices.AqaraDualWirelessRelayCN
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1.get -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1PowerOff() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1PowerOn() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1ToggleState() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2.get -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2PowerOff() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2PowerOn() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2ToggleState() -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState.Off = 0 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState.On = 1 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState.Unknown = -1 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChipTemperature.get -> byte
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Current.get -> float
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Energy.get -> float
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Interlock.get -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState.Disabled = 0 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState.Enabled = 1 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState.Unknown = -1 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.LinkQuality.get -> byte
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.LoadPower.get -> float
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnChannel1StateChangeAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnChannel2StateChangeAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnChipTemperatureChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnCurrentChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnEnergyChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnLinkQualityChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnLoadPowerChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState.PowerOff = 0 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState.Previous = 1 -> MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetChannel1StateConfirmed(MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState state) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetChannel2StateConfirmed(MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState state) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetInterlock(MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState state) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetPowerMemoryState(MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState state) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.ShortId.get -> int
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Voltage.get -> float
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.OnButton1ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.OnButton2ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.OnButton3ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.OnButton4ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch
+MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.OnButton1ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.OnButton2ClickAsync -> System.Func<MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraOppleWirelesSwitch
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.LongPressHold = 16 -> MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.LongPressRelease = 17 -> MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.TripleClick = 3 -> MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.ShortId.get -> int
+MiHomeLib.Devices.AqaraSmartHumanBodySensor
+MiHomeLib.Devices.AqaraSmartHumanBodySensor.Lux.get -> int
+MiHomeLib.Devices.AqaraSmartHumanBodySensor.OnLuxChangeAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraT1WithNeutral
+MiHomeLib.Devices.AqaraT1WithNeutral.LoadPower.get -> float
+MiHomeLib.Devices.AqaraT1WithNeutral.OnLoadPowerChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraT1WithNeutral.OnPowerConsumptionChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraT1WithNeutral.OnStateChangeAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerConsumption.get -> float
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState.PowerOff = 0 -> MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState.Previous = 1 -> MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode.Momentary = 1 -> MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode.Toggle = 2 -> MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerOff() -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerOn() -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.RelayState
+MiHomeLib.Devices.AqaraT1WithNeutral.RelayState.Off = 0 -> MiHomeLib.Devices.AqaraT1WithNeutral.RelayState
+MiHomeLib.Devices.AqaraT1WithNeutral.RelayState.On = 1 -> MiHomeLib.Devices.AqaraT1WithNeutral.RelayState
+MiHomeLib.Devices.AqaraT1WithNeutral.RelayState.Unknown = -1 -> MiHomeLib.Devices.AqaraT1WithNeutral.RelayState
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerMemoryState(MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState state) -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerMode(MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode mode) -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerOverloadThreshold(int threshold) -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.ShortId.get -> int
+MiHomeLib.Devices.AqaraT1WithNeutral.State.get -> MiHomeLib.Devices.AqaraT1WithNeutral.RelayState
+MiHomeLib.Devices.AqaraT1WithNeutral.ToggleState() -> void
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.Humidity.get -> float
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.OnHumidityChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.OnPressureChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.OnTemperatureChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.Pressure.get -> float
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.ShortId.get -> int
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.Temperature.get -> float
+MiHomeLib.Devices.AqaraVibrationSensor
+MiHomeLib.Devices.AqaraVibrationSensor.BedActivity.get -> int
+MiHomeLib.Devices.AqaraVibrationSensor.Coordinates.get -> (int X, int Y, int Z)
+MiHomeLib.Devices.AqaraVibrationSensor.FinalTiltAngle.get -> int
+MiHomeLib.Devices.AqaraVibrationSensor.OnBedActivityAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.OnCoordinatesChangeAsync -> System.Func<(int X, int Y, int Z), System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.OnFinalTiltAngleAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.OnFreeFallAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.OnTiltAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.OnVibrationAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraVibrationSensor.SensivityState
+MiHomeLib.Devices.AqaraVibrationSensor.SensivityState.High = 1 -> MiHomeLib.Devices.AqaraVibrationSensor.SensivityState
+MiHomeLib.Devices.AqaraVibrationSensor.SensivityState.Low = 21 -> MiHomeLib.Devices.AqaraVibrationSensor.SensivityState
+MiHomeLib.Devices.AqaraVibrationSensor.SensivityState.Middle = 11 -> MiHomeLib.Devices.AqaraVibrationSensor.SensivityState
+MiHomeLib.Devices.AqaraVibrationSensor.SetSensivity(MiHomeLib.Devices.AqaraVibrationSensor.SensivityState state) -> void
+MiHomeLib.Devices.AqaraVibrationSensor.ShortId.get -> int
+MiHomeLib.Devices.AqaraWaterLeakSensor
+MiHomeLib.Devices.AqaraWaterLeakSensor.Moisture.get -> bool
+MiHomeLib.Devices.AqaraWaterLeakSensor.OnMoistureChangeAsync -> System.Func<bool, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraWaterLeakSensor.ShortId.get -> int
+MiHomeLib.Devices.AqaraWindowDoorSensor
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg.LongPressHold = 16 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg.LongPressRelease = 17 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.OnClickAsync -> System.Func<MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ShortId.get -> int
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatus.get -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType.LowBattery = 2 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType.Normal = 1 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType.Unknown = 0 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg.LongPressClick = 3 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.OnBatteryStatusAsync -> System.Func<MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.BatteryStatusType, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.OnClickAsync -> System.Func<MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ShortId.get -> int
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.Voltage.get -> float
+MiHomeLib.Devices.GatewaySubDeviceBase
+MiHomeLib.Devices.GatewaySubDeviceBase.BeginDispose() -> bool
+MiHomeLib.Devices.GatewaySubDeviceBase.IsDisposed.get -> bool
+MiHomeLib.Devices.GatewaySubDeviceBase.LastMessageSourceTimeUtc.get -> System.DateTime?
+MiHomeLib.Devices.GatewaySubDeviceBase.LastTimeMessageReceived.get -> System.DateTime?
+MiHomeLib.Devices.LumiBatteryDeviceBase
+MiHomeLib.Devices.LumiBatteryDeviceBase.BatteryPercent.get -> byte
+MiHomeLib.Devices.LumiBatteryDeviceBase.ChipTemperature.get -> byte
+MiHomeLib.Devices.LumiBatteryDeviceBase.LinkQuality.get -> byte
+MiHomeLib.Devices.LumiBatteryDeviceBase.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.LumiBatteryDeviceBase.OnChipTemperatureChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.LumiBatteryDeviceBase.OnLinkQualityChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.LumiBatteryDeviceBase.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.LumiBatteryDeviceBase.Voltage.get -> float
+MiHomeLib.Devices.MotionSensorBase
+MiHomeLib.Devices.MotionSensorBase.MotionDate.get -> System.DateTime?
+MiHomeLib.Devices.MotionSensorBase.OnMotionAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.MotionSensorBase.OnNoMotionAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.Devices.MotionSensorBase.ShortId.get -> int
+MiHomeLib.Devices.ProtocolMappedDeviceBase
+MiHomeLib.Devices.PtxWirelessSwitchBle
+MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg
+MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg.DoubleClick = 1013 -> MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg
+MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg.LongPressClick = 1014 -> MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg
+MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg.SingleClick = 1012 -> MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg
+MiHomeLib.Devices.PtxWirelessSwitchBle.OnClickAsync -> System.Func<MiHomeLib.Devices.PtxWirelessSwitchBle.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.PtxWirelessSwitchBle.OnLowBatteryAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase
+MiHomeLib.Devices.WindowDoorSensorBase.Contact.get -> MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState
+MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState
+MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState.Closed = 0 -> MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState
+MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState.Opened = 1 -> MiHomeLib.Devices.WindowDoorSensorBase.DoorWindowContactState
+MiHomeLib.Devices.WindowDoorSensorBase.NotClosedFor1MinuteAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase.NotClosedFor5MinutesAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase.OnCloseAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase.OnContactChangedAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase.OnOpenAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.WindowDoorSensorBase.ShortId.get -> int
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.BatteryPercent.get -> byte
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.Humidity.get -> float
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.OnHumidityChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.OnTemperatureChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.Temperature.get -> float
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.BatteryPercent.get -> byte
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.Humidity.get -> byte
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.OnHumidityChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.OnTemperatureChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.Temperature.get -> float
+MiHomeLib.Devices.XiaomiDoorWindowSensor2
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.BatteryPercent.get -> byte
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.Contact.get -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState.Closed = 1 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState.NotClosedAfterConfiguredTimeout = 2 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState.Open = 0 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState.Unknown = -1 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.Light.get -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState.LightDiscovered = 1 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState.NoLight = 0 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState.Unknown = -1 -> MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.OnContactChangeAsync -> System.Func<MiHomeLib.Devices.XiaomiDoorWindowSensor2.ContactState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.OnLightChangeAsync -> System.Func<MiHomeLib.Devices.XiaomiDoorWindowSensor2.LightState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.Alarm.get -> bool
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.ChipTemperature.get -> byte
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.LinkQuality.get -> byte
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnAlarmAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnAlarmStoppedAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnChipTemperatureChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnLinkQualityChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnSmokeDensityChangeAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnSmokeSensivityModeChanged -> System.Func<MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.OnVoltageChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.RunSelfTest() -> void
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode.LowSmoke = 67239936 -> MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode.MiddleSmoke = 67305472 -> MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode.NoSmoke = 67174400 -> MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SetSensivity(MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode mode) -> void
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.ShortId.get -> int
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SmokeDensity.get -> int
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.Voltage.get -> float
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.IsIndicatorLightEnabled.get -> bool
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.IsTurnedOn.get -> bool
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.OnClickAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.OnIndicatorLightChangeAsync -> System.Func<bool, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.OnStateChangeAsync -> System.Func<bool, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue.Value15 = 0 -> MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue.Value20 = 1 -> MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue.Value25 = 2 -> MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetIndicatorLight(bool enabled) -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetMode(MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode mode) -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetPowerChangeValue(MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue value) -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.Toggle() -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.TurnOff() -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.TurnOn() -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode.WiredAndWireless = 0 -> MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode.WirelessOnly = 1 -> MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect.Off = 0 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect.On = 1 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChipTemperature.get -> byte
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.Inuse.get -> int
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState.AlwaysOn = 1 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState.TurnOffAtNightTime = 0 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LinkQuality.get -> byte
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LoadPower.get -> float
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.MaxPower.get -> int
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.OnChipTemperatureChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.OnLinkQualityChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.OnLoadPowerChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.OnStateChangeAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState.Off = 0 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState.On = 1 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerConsumed.get -> int
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState.PowerOff = 0 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState.Previous = 1 -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerOff() -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerOn() -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetChargeProtection(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect state) -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetLedState(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState state) -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetPowerMemoryState(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState state) -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetStateConfirmed(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState state) -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ShortId.get -> int
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.State.get -> MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ToggleState() -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.Voltage.get -> float
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.BatteryPercent.get -> byte
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.Light.get -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState.LightOff = 0 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState.LightOn = 1 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState.Unknown = -1 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.Motion.get -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState.MotionWithLight = 100 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState.MotionWithoutLight = 0 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState.Unknown = -1 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState.Idle120Seconds = 120 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState.Idle300Seconds = 300 -> MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.OnLightChangeAsync -> System.Func<MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.LightState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.OnMotionDetectedAsync -> System.Func<MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MotionState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.OnNoMotionDetectedAsync -> System.Func<MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.NoMotionState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.DoubleClick = 2 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.LongPressHold = 16 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.LongPressRelease = 17 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.ManyClicks = 128 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.QuadrupleClick = 4 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.SingleClick = 1 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg.TripleClick = 3 -> MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.OnClickAsync -> System.Func<MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ClickArg, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ShortId.get -> int
+MiHomeLib.Devices.XiaomiSmokeSensorGuard
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.BatteryPercent.get -> byte
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.OnBatteryPercentChangeAsync -> System.Func<byte, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.OnSmokeChangeAsync -> System.Func<MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.Smoke.get -> MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState.NoSmokeDetected = 0 -> MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState.SmokeDetected = 1 -> MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState.Unknown = -1 -> MiHomeLib.Devices.XiaomiSmokeSensorGuard.SmokeState
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.Humidity.get -> float
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.OnHumidityChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.OnTemperatureChangeAsync -> System.Func<float, System.Threading.Tasks.Task>
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.ShortId.get -> int
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.Temperature.get -> float
+MiHomeLib.Devices.XiaomiWindowDoorSensor
+MiHomeLib.MiHomeLogging
+MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.Excellent = 0 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.Good = 1 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.Hazardous = 5 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.HeavyPollution = 4 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.Moderate = 2 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.AirQuality.Poor = 3 -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.FaultState.Motor = 2 -> MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.FaultState.NoFaults = 0 -> MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.FaultState.Pm25Sensor = 3 -> MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.IMiioTransport
+MiHomeLib.MiioDevices.MiioDevice
+MiHomeLib.MiioDevices.MiioDiscovery
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice
+MiHomeLib.MiioDevices.MijiaSmartSocket2China
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetElectricCurrent() -> ushort
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetElectricPower() -> float
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetLedEnabled() -> bool
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetOverPowerEnabled() -> bool
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetOverPowerThreshold() -> ushort
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetPowerState() -> bool
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetTemperature() -> byte
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetVoltage() -> ushort
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetLedEnabled(bool value) -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetOverPowerEnabled(bool value) -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetOverPowerThreshold(ushort value) -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TogglePower() -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TurnOff() -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TurnOn() -> void
+MiHomeLib.MiioDevices.MiotGenericDevice
+MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings
+MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings.NetifSettings() -> void
+MiHomeLib.MiioDevices.MiotGenericDevice.UptimeSeconds.get -> uint
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings.Freq.get -> int
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings.Rssi.get -> int
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings.WifiSettings() -> void
+MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.OperationMode.Auto = 0 -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.OperationMode.Favorite = 2 -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.OperationMode.Sleep = 1 -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.ScreenBrightness.Bright = 1 -> MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.ScreenBrightness.Brightest = 2 -> MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.ScreenBrightness.Off = 0 -> MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness.Bright = 0 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness.Dim = 1 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness.Off = 2 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.DeviceStatus(bool IsTurnedOn, MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode Mode, float Temperature, int Humidity, MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness LedBrightness, bool IsBuzzerOn, bool IsChildLockOn, int TargetHumidity) -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Humidity.get -> int
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Humidity.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsBuzzerOn.get -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsBuzzerOn.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsChildLockOn.get -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsChildLockOn.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsTurnedOn.get -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.IsTurnedOn.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.LedBrightness.get -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.LedBrightness.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Mode.get -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Mode.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.TargetHumidity.get -> int
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.TargetHumidity.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Temperature.get -> float
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus.Temperature.init -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetBrightness() -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetBuzzerEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetChildLockEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetHumidity() -> int
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetMode() -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetPowerState() -> bool
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetTargetHumidity() -> int
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetTemperature() -> float
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode.High = 2 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode.Medium = 1 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode.Silent = 0 -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetBrightness(MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness brightness) -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetBuzzerEnabled(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetChildLockEnabled(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetMode(MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode mode) -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.TurnOff() -> void
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.TurnOn() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.BatteryPercent.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.BatteryPercent.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.CleanedAreaSquareMeters.get -> float
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.CleanedAreaSquareMeters.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.CleaningSeconds.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.CleaningSeconds.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.DeviceStatus(MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status State, int BatteryPercent, int FanPower, int CleaningSeconds, float CleanedAreaSquareMeters) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.FanPower.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.FanPower.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.State.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus.State.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.FindMe() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.GoHome() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Pause() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StartCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StartSpotCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.ChargerDisconnected = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Charging = 8 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Cleaning = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Error = 12 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Idle = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.ManualMode = 7 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Paused = 10 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.ReturningHome = 6 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.SpotCleaning = 11 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Unknown1 = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Unknown2 = 4 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Unknown3 = 9 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Unknown4 = 13 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status.Updating = 14 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StopCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode.Mop = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode.Sweep = 0 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode.SweepAndMop = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType.GlobalSweep = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType.OnlyMop = 6 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType.OnlySweep = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType.SweepAndMop = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.BatteryPercent.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.BatteryPercent.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.CleaningMode.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.CleaningMode.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.DeviceStatus(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status State, ushort BatteryPercent, MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode CleaningMode, MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType SweepType, ushort VoiceLevel) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.State.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.State.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.SweepType.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.SweepType.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.VoiceLevel.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus.VoiceLevel.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.FindMe() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetBatteryPercent() -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetCleaningMode() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetState() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetSweepType() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetVoiceLevel() -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GoHome() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.DndEndingHour.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.DndEndingMinute.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.DndStartingHour.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.DndStartingMinute.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.IsNoDisturbingEnabled.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings.NoDisturbingSettings() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetCleaningMode(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode cleaningMode) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetSweepType(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType sweepType) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetVoiceLevel(ushort level) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.StartCleaning(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType ct) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Charging = 4 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.GoCharging = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Idle = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Mopping = 7 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Paused = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Sleep = 0 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Sweeping = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.SweepingAndMopping = 6 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status.Upgrading = 8 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.StopCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.HepaFilterLifeHours.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.HepaFilterLifePercent.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.MainBrushLifeHours.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.MainBrushLifePercent.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.MopLifeHours.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.MopLifePercent.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.SideBrushLifeHours.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.SideBrushLifePercent.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables.SweepConsumables() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Area = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Edge = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Explore = 6 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Floor = 8 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Global = 0 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Mop = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Point = 4 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Remote = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType.Room = 7 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState.Charging = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState.NotCharging = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState.ReturningToDock = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.CleaningStatistics(uint FirstCleaningTimestamp, uint TotalCleaningMinutes, uint TotalCleaningCount, uint TotalCleaningArea) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.FirstCleaningTimestamp.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.FirstCleaningTimestamp.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningArea.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningArea.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningCount.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningCount.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningMinutes.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics.TotalCleaningMinutes.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable.Consumable(ushort RemainingHours, byte RemainingPercent) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable.RemainingHours.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable.RemainingHours.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable.RemainingPercent.get -> byte
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable.RemainingPercent.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType.Filter = 11 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType.MainBrush = 9 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType.Mop = 18 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType.SideBrush = 10 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.CarpetBoost.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.CarpetBoost.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.ChildLock.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.ChildLock.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.ResumeAfterCharging.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.ResumeAfterCharging.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Suction.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Suction.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Volume.get -> byte
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Volume.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Water.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.Water.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.BatteryPercent.get -> byte
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.BatteryPercent.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.Charging.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.Charging.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.CleaningArea.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.CleaningArea.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.CleaningMinutes.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.CleaningMinutes.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.DeviceStatus(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState State, byte FaultCode, byte BatteryPercent, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ChargingState Charging, uint WorkMode, uint TaskStatus, uint CleaningMinutes, uint CleaningArea, byte WashStation, ushort DryingMinutesLeft) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.DryingMinutesLeft.get -> ushort
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.DryingMinutesLeft.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.FaultCode.get -> byte
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.FaultCode.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.State.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.State.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.TaskStatus.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.TaskStatus.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.WashStation.get -> byte
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.WashStation.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.WorkMode.get -> uint
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus.WorkMode.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.IsAvailable.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.PropertyId.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.PropertyId.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.ServiceId.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.ServiceId.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.DndSettings(bool Enabled, System.TimeSpan StartTime, System.TimeSpan EndTime) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.Enabled.get -> bool
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.Enabled.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.EndTime.get -> System.TimeSpan
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.EndTime.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.StartTime.get -> System.TimeSpan
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings.StartTime.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.EjectFromDock() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.FindMe() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GoHome() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Pause() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.PlaySound() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RemoteControlMoveStep(int velocity, int rotation, bool playSound = false) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ResetConsumable(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType consumable) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.RepeatCount.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.RepeatCount.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.RoomId.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.RoomId.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.RoomSelection(int RoomId, int RepeatCount = 1, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode Suction = MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode.Standard, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel Water = MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel.Medium) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.Suction.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.Suction.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.Water.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection.Water.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetCarpetBoost(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetChildLock(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndEnabled(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndEndTime(System.TimeSpan time) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndStartTime(System.TimeSpan time) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetMopWashReminder(int minutes) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetResumeAfterCharging(bool enabled) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetSuctionMode(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode mode) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetVolume(int volume) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetWaterLevel(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel level) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartDrying() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartDustCollection() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartMopWashing() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StopCleaning() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StopDrying() -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode.Max = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode.Silent = 0 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode.Standard = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode.Strong = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.BuildingMap = 11 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Charging = 6 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.ChargingCompleted = 13 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.CollectingDust = 22 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Drying = 8 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Error = 4 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Idle = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Mopping = 7 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Paused = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.RemoteCleaning = 23 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.ReturningToDock = 5 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.ReturningToWash = 10 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Sweeping = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.SweepingAndMopping = 12 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.Upgrading = 14 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.WashingMop = 9 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.WashingPaused = 21 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState.WaterInspecting = 19 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VacuumState
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.Progress.get -> int
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.Progress.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel.High = 3 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel.Low = 1 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel.Medium = 2 -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.BuzzerEnabled.get -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.BuzzerEnabled.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.ChildLockEnabled.get -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.ChildLockEnabled.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.DeviceSettings(MiHomeLib.MiioDevices.OperationMode Mode, bool BuzzerEnabled, MiHomeLib.MiioDevices.ScreenBrightness ScreenBrightness, bool ChildLockEnabled, byte FanLevel) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.FanLevel.get -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.FanLevel.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.Mode.get -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.Mode.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.ScreenBrightness.get -> MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings.ScreenBrightness.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.AirQuality.get -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.AirQuality.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.DeviceFaultState.get -> MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.DeviceFaultState.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.DeviceStatus(bool IsTurnedOn, MiHomeLib.MiioDevices.FaultState DeviceFaultState, MiHomeLib.MiioDevices.OperationMode Mode, byte Humidity, ushort Pm25Density, float Temperature, MiHomeLib.MiioDevices.AirQuality AirQuality, ushort MotorSpeedRpm) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Humidity.get -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Humidity.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.IsTurnedOn.get -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.IsTurnedOn.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Mode.get -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Mode.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.MotorSpeedRpm.get -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.MotorSpeedRpm.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Pm25Density.get -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Pm25Density.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Temperature.get -> float
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus.Temperature.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.FilterInfo(byte LifePercent, ushort UsedHours, ushort RemainingDays) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.LifePercent.get -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.LifePercent.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.RemainingDays.get -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.RemainingDays.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.UsedHours.get -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo.UsedHours.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetAirQuality() -> MiHomeLib.MiioDevices.AirQuality
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetAqiUpdateHeartbeat() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetBuzzerEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetChildLockEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetDeviceFaultState() -> MiHomeLib.MiioDevices.FaultState
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFanLevel() -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterLeftTime() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterLifeLevel() -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterUsedTime() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterUsedTimeDebug() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetHumidity() -> byte
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetMode() -> MiHomeLib.MiioDevices.OperationMode
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetMotorSpeedRpm() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetPm25Density() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetPowerState() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetScreenBrightness() -> MiHomeLib.MiioDevices.ScreenBrightness
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetTemperature() -> float
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.ResetFilterLife() -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetAqiUpdateHeartbeat(ushort value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetBuzzerEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetChildLockEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetFanLevel(byte value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetFilterUsedTimeDebug(ushort value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetMode(MiHomeLib.MiioDevices.OperationMode value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetScreenBrightness(MiHomeLib.MiioDevices.ScreenBrightness value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.ToggleMode() -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TogglePower() -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TurnOff() -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TurnOn() -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState.RestoreLast = 2 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState.TurnOff = 0 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState.TurnOn = 1 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue.NoFaults = 0 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue.OverTemperature = 1 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue.Overloaded = 2 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionPowerThreshold() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionTime() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCurrentElectricPower() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCycleData() -> (ushort minutesOn, ushort minutesOff, MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState cycleState, byte cyclesCount)
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCyclingEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetDefaultPowerOnState() -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetDeviceFaultState() -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetLedEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetMaxPowerLimitEnabled() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetMaxPowerThreshold() -> ushort
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetPhysicalControlBlocked() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetPowerState() -> bool
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState.RestoreLast = 0 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState.TurnOffPower = 2 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState.TurnOnPower = 1 -> MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionPowerThreshold(ushort value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionTime(ushort value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetCycleData((ushort minutesOn, ushort minutesOff, MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState cycleState, byte cyclesCount) value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetCyclingEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetDefaultPowerOnState(MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetLedEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetMaxPowerLimitEnabled(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetMaxPowerThreshold(ushort value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetPhysicalControlBlocked(bool value) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TogglePower() -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TurnOff() -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TurnOn() -> void
+MiHomeLib.MqttGateway.AqaraHubE1China
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotModeEnabled() -> bool
+MiHomeLib.MqttGateway.AqaraHubE1China.GetNightModeEffectiveHours() -> (byte startHour, byte startMinute, byte endHour, byte endMinute)
+MiHomeLib.MqttGateway.AqaraHubE1China.GetNightModeEnabled() -> bool
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotModeEnabled(bool value) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.SetNightModeEffectiveHours((byte startHour, byte startMinute, byte endHour, byte endMinute) value) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.SetNightModeEnabled(bool value) -> void
+MiHomeLib.MqttGateway.Discovery.BleDeviceInfo
+MiHomeLib.MqttGateway.Discovery.BleDeviceInfo.Pdid.get -> int
+MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer
+MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo
+MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo.Pdid.get -> int
+MiHomeLib.MqttGateway.Discovery.ZigBeeDeviceInfo
+MiHomeLib.MqttGateway.IMqttTransport
+MiHomeLib.MqttGateway.IMqttTransport.OnMessageReceived -> System.Action<string, string>
+MiHomeLib.MqttGateway.MqttGatewayBase
+MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverDevices() -> void
+MiHomeLib.MqttGateway.MqttGatewayBase.GetAccidentalDeletionEnabled() -> bool
+MiHomeLib.MqttGateway.MqttGatewayBase.OnConnectionLostAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.MqttGateway.MqttGatewayBase.OnConnectionRestoredAsync -> System.Func<System.Threading.Tasks.Task>
+MiHomeLib.MqttGateway.MqttGatewayBase.OnDeviceDiscoveredAsync -> System.Func<MiHomeLib.Devices.GatewaySubDeviceBase, System.Threading.Tasks.Task>
+MiHomeLib.MqttGateway.MqttGatewayBase.SetAccidentalDeletionEnabled(bool value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway
+MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue
+MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue.NoAlarm = 0 -> MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue
+MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue.NonSecurityAlarm = 2 -> MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue
+MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue.SecurityAlarm = 1 -> MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue
+MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue.Away = 2 -> MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue.Basic = 0 -> MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue.Home = 1 -> MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue.Sleep = 3 -> MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmDurationForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> uint
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmState() -> MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmVolumeForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway.GetArmingMode() -> MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue
+MiHomeLib.MqttGateway.MultimodeGateway.GetDelayTimeForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> byte
+MiHomeLib.MqttGateway.MultimodeGateway.GetLedEnabled() -> bool
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmDurationForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, uint durationTime) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmState(MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmVolumeForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue volumeLevel) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetDelayTimeForArmingMode(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, byte delayTime) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetLedEnabled(bool value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue.High = 3 -> MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue.Low = 1 -> MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue.Middle = 2 -> MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue.Silent = 0 -> MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base
+MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue.LAN = 0 -> MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue.Wireless2G = 1 -> MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue.Wireless5G = 2 -> MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetAccessMode() -> MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetDoNotDisturbEffectiveTime() -> (ushort startHour, ushort startMinute, ushort endHour, ushort endMinute)
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetDoNotDisturbModeEnabled() -> bool
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetLedIndicatorBrightness() -> ushort
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetAccessMode(MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetDoNotDisturbEffectiveTime((ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetDoNotDisturbModeEnabled(bool value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetLedIndicatorBrightness(ushort value) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2China
+MiHomeLib.MqttGateway.MultimodeGateway2Global
+MiHomeLib.XiaomiGateway2.XiaomiGateway2
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DisableLight() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DisableNightLight() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DiscoverDevices() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.EnableLight(byte r, byte g, byte b, int brightness) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.EnableNightLight(byte r, byte g, byte b, int brightness) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingBlinkingTime() -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingLastTimeTriggeredTimestamp() -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingOffTime() -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingVolume() -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingWaitTime() -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Illumination.get -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.IsArmingOn() -> bool
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.OnDeviceDiscoveredAsync -> System.Func<MiHomeLib.Devices.GatewaySubDeviceBase, System.Threading.Tasks.Task>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.OnIlluminationChangeAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.OnRgbChangeAsync -> System.Func<int, System.Threading.Tasks.Task>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlayCustomSound(int soundNo, int volume) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlayRadio(int channelId, int volume) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlaySound(MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound sound, int volume) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Id.get -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Id.set -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.RadioChannel() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Type.get -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Type.set -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RemoveAllRadioChannels() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RemoveRadioChannel(int channelId) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Rgb.get -> int
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingBlinkingTime(int seconds) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOff() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOffTime(int seconds) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOn() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingVolume(int volume) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingWaitTime(int seconds) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Accident = 2 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.AirRaid = 7 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.AlarmClock = 13 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Amuse = 12 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Bark = 8 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Battle = 6 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.ChildHood = 25 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Countdown = 3 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Custom1 = 10001 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Custom2 = 10002 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Custom3 = 10003 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Doorbell = 10 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Enthusiastic = 21 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Ghost = 4 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.GuitarClassic = 22 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.IceWorldPiano = 23 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.KnockAtDoor = 11 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.LeisureTime = 24 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Mimix = 20 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.MorningStreamList = 26 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.MusicBox = 27 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Orange = 28 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.PoliceСar1 = 0 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.PoliceСar2 = 1 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.SniperRifle = 5 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound.Thinker = 29 -> MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SoundsOff() -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.StopRadio() -> void
+const MiHomeLib.Devices.PtxWirelessSwitchBle.PDID = 14523 -> int
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.PDID = 1371 -> int
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.PDID = 10290 -> int
+const MiHomeLib.Devices.XiaomiDoorWindowSensor2.PDID = 2443 -> int
+const MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SELF_TEST_MAGIC_NUMBER = 50397184 -> int
+const MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PDID = 1945 -> int
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.PDID = 2701 -> int
+const MiHomeLib.Devices.XiaomiSmokeSensorGuard.PDID = 2455 -> int
+override MiHomeLib.Devices.MotionSensorBase.Dispose() -> void
+override MiHomeLib.Devices.WindowDoorSensorBase.Dispose() -> void
+override MiHomeLib.MqttGateway.MqttGatewayBase.Dispose() -> void
+override MiHomeLib.XiaomiGateway2.XiaomiGateway2.Dispose() -> void
+override MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.GetHashCode() -> int
+static MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DiscoverDevices() -> void
+static MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.OnDiscovered -> System.Action<string, string, string, string>
+static MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DiscoverDevices() -> void
+static MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.OnDiscovered -> System.Action<string, string, string, string>
+virtual MiHomeLib.Devices.GatewaySubDeviceBase.Dispose() -> void
+virtual MiHomeLib.MiioDevices.MiioDevice.Dispose() -> void
+MiHomeLib.Devices.AqaraCubeSensor.AqaraCubeSensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.AqaraDualWallSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelLeftPowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelLeftPowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelRightPowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.ChannelRightPowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.SetLedAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.SetWirelessModeAsync(MiHomeLib.Devices.AqaraDualWallSwitch.Button button, bool wireless) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWallSwitch.StatusLeft.get -> string
+MiHomeLib.Devices.AqaraDualWallSwitch.StatusRight.get -> string
+MiHomeLib.Devices.AqaraDualWallWirelessSwitch.AqaraDualWallWirelessSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.AqaraDualWirelessRelayCN(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1PowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1PowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel1ToggleStateAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2PowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2PowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.Channel2ToggleStateAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetChannel1StateConfirmedAsync(MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetChannel2StateConfirmedAsync(MiHomeLib.Devices.AqaraDualWirelessRelayCN.ChannelState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetInterlockAsync(MiHomeLib.Devices.AqaraDualWirelessRelayCN.InterlockState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraDualWirelessRelayCN.SetPowerMemoryStateAsync(MiHomeLib.Devices.AqaraDualWirelessRelayCN.PowerMemoryState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.AqaraOppleFourButtonsWirelesSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.AqaraOppleTwoButtonsWirelesSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraOppleWirelesSwitch.AqaraOppleWirelesSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraSmartHumanBodySensor.AqaraSmartHumanBodySensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.AqaraT1WithNeutral(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraT1WithNeutral.PowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerMemoryStateAsync(MiHomeLib.Devices.AqaraT1WithNeutral.PowerMemoryState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerModeAsync(MiHomeLib.Devices.AqaraT1WithNeutral.PowerMode mode) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraT1WithNeutral.SetPowerOverloadThresholdAsync(int threshold) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraT1WithNeutral.ToggleStateAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraTemperatureHumiditySensor.AqaraTemperatureHumiditySensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraVibrationSensor.AqaraVibrationSensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraVibrationSensor.SetSensivityAsync(MiHomeLib.Devices.AqaraVibrationSensor.SensivityState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.AqaraWaterLeakSensor.AqaraWaterLeakSensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraWindowDoorSensor.AqaraWindowDoorSensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.AqaraWirelessMiniSwitchCN(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.Status.get -> string
+MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.AqaraWirelessMiniSwitchCN2(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.GatewaySubDeviceBase(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEvent(System.Func<System.Threading.Tasks.Task> handlers) -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEvent<T1, T2>(System.Func<T1, T2, System.Threading.Tasks.Task> handlers, T1 first, T2 second) -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEvent<T>(System.Func<T, System.Threading.Tasks.Task> handlers, T value) -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEventAsync(System.Func<System.Threading.Tasks.Task> handlers) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEventAsync<T1, T2>(System.Func<T1, T2, System.Threading.Tasks.Task> handlers, T1 first, T2 second) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.GatewaySubDeviceBase.RaiseEventAsync<T>(System.Func<T, System.Threading.Tasks.Task> handlers, T value) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.ProtocolMappedDeviceBase.Model.get -> string
+MiHomeLib.Devices.ProtocolMappedDeviceBase.ProtocolMappedDeviceBase(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.PtxWirelessSwitchBle.Mac.get -> string
+MiHomeLib.Devices.PtxWirelessSwitchBle.PtxWirelessSwitchBle(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.WindowDoorSensorBase.Status.get -> string
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.Mac.get -> string
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.XiaomiBluetoothHygrothermograph2(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.Mac.get -> string
+MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.XiaomiBluetoothHygrothermograph3(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.Mac.get -> string
+MiHomeLib.Devices.XiaomiDoorWindowSensor2.XiaomiDoorWindowSensor2(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.RunSelfTestAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SetSensivityAsync(MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.SensivityMode mode) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.XiaomiHoneywellSmokeDetector(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.Mac.get -> string
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetIndicatorLightAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetModeAsync(MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.WirelessMode mode) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.SetPowerChangeValueAsync(MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.PowerChangeValue value) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.ToggleAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.XiaomiMeshWallSwitchSingleOpen(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetChargeProtectionAsync(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ChargeProtect state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetLedStateAsync(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LedState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetPowerMemoryStateAsync(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PowerMemoryState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.SetStateConfirmedAsync(MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.PlugState state) -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ToggleStateAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.XiaomiMiSmartPowerPlugCN(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor.XiaomiSmartHumanBodySensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.Mac.get -> string
+MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.XiaomiSmartHumanBodySensor2(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.Status.get -> string
+MiHomeLib.Devices.XiaomiSmartWirelessSwitch.XiaomiSmartWirelessSwitch(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.Mac.get -> string
+MiHomeLib.Devices.XiaomiSmokeSensorGuard.XiaomiSmokeSensorGuard(string deviceId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.XiaomiTemperatureHumiditySensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.Devices.XiaomiWindowDoorSensor.XiaomiWindowDoorSensor(string deviceId, int shortId, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MiioDevices.IMiioTransport.Ip.get -> string
+MiHomeLib.MiioDevices.IMiioTransport.SendMessage(string msg) -> string
+MiHomeLib.MiioDevices.IMiioTransport.SendMessageAsync(string msg) -> System.Threading.Tasks.Task<string>
+MiHomeLib.MiioDevices.IMiioTransport.SendMessageRepeated(string msg, int times = 3) -> string
+MiHomeLib.MiioDevices.IMiioTransport.Token.get -> string
+MiHomeLib.MiioDevices.MiioDevice.BuildParamsArray(string method, params object[] methodParams) -> string
+MiHomeLib.MiioDevices.MiioDevice.BuildParamsObject(string method, object methodParams) -> string
+MiHomeLib.MiioDevices.MiioDevice.BuildSidProp(string method, string sid, string prop, int value) -> string
+MiHomeLib.MiioDevices.MiioDevice.CheckMessage(string response, string errorMessage) -> void
+MiHomeLib.MiioDevices.MiioDevice.GetInteger(string response, string msg) -> int
+MiHomeLib.MiioDevices.MiioDevice.GetProps(params string[] props) -> string[]
+MiHomeLib.MiioDevices.MiioDevice.GetPropsAsync(params string[] props) -> System.Threading.Tasks.Task<string[]>
+MiHomeLib.MiioDevices.MiioDevice.MiioDevice(MiHomeLib.MiioDevices.IMiioTransport miioTransport, int initialIdExternal = 0) -> void
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.DeviceType.get -> string
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.DeviceType.init -> void
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.DiscoveredDevice(string Ip, string DeviceType, string Serial, string Token) -> void
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Ip.get -> string
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Ip.init -> void
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Serial.get -> string
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Serial.init -> void
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Token.get -> string
+MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice.Token.init -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetElectricCurrentAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetElectricPowerAsync() -> System.Threading.Tasks.Task<float>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetLedEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetOverPowerEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetOverPowerThresholdAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetPowerStateAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetTemperatureAsync() -> System.Threading.Tasks.Task<byte>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.GetVoltageAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.MijiaSmartSocket2China(string ip, string token) -> void
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetLedEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetOverPowerEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.SetOverPowerThresholdAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TogglePowerAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MijiaSmartSocket2China.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.MiotGenericDevice.CallMiotAction(int siid, int aiid, params object[] args) -> void
+MiHomeLib.MiioDevices.MiotGenericDevice.FirmwareVersion.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.GetDeviceInfo(string marketModel, string model) -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.GetMiotProperties((int siid, int piid)[] arr) -> string[]
+MiHomeLib.MiioDevices.MiotGenericDevice.GetMiotProperties((int siid, int piid, string did)[] arr) -> string[]
+MiHomeLib.MiioDevices.MiotGenericDevice.GetMiotProperty(int siid, int piid, string did = null) -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.Hardware.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.Mac.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.MiioVersion.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.MiotGenericDevice(string did, MiHomeLib.MiioDevices.IMiioTransport miioTransport, int initialIdExternal) -> void
+MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings.Gateway.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings.Ip.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings.Mask.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.Network.get -> MiHomeLib.MiioDevices.MiotGenericDevice.NetifSettings
+MiHomeLib.MiioDevices.MiotGenericDevice.SetMiotProperty(int siid, int piid, object value = null) -> void
+MiHomeLib.MiioDevices.MiotGenericDevice.SetMiotProperty(int siid, int piid, string did, object value = null) -> void
+MiHomeLib.MiioDevices.MiotGenericDevice.Wifi.get -> MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings.Bssid.get -> string
+MiHomeLib.MiioDevices.MiotGenericDevice.WifiSettings.Ssid.get -> string
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetBrightnessAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetBuzzerEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetChildLockEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetHumidityAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetModeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetPowerStateAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetStatus() -> MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetStatusAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.DeviceStatus>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetTargetHumidityAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.GetTemperatureAsync() -> System.Threading.Tasks.Task<float>
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetBrightnessAsync(MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Brightness brightness) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetBuzzerEnabledAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetChildLockEnabledAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.SetModeAsync(MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.Mode mode) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.XiaomiAirHumidifierV1(string ip, string token) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.FindMeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.GetStatus() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.GetStatusAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.DeviceStatus>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.GoHomeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.PauseAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StartCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StartSpotCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.StopCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.XiaomiRobotVacuumCleanerV1(string ip, string token) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.FindMeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetBatteryPercentAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetCleaningModeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetConsumables() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetConsumablesAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepConsumables>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetDndSettings() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetDndSettingsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.NoDisturbingSettings>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetStateAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.Status>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetStatus() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetStatusAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.DeviceStatus>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetSweepTypeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GetVoiceLevelAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.GoHomeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetCleaningModeAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningMode cleaningMode) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetSweepTypeAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SweepType sweepType) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.SetVoiceLevelAsync(ushort level) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.StartCleaningAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.CleaningType ct) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.StopCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.XiaomiRobotVacuumMop3C(string ip, string token) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule.CleaningSchedule(string Data, string TimeZone) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule.Data.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule.Data.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule.TimeZone.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule.TimeZone.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.ConsumablesInfo(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable MainBrush, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable SideBrush, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable Filter, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable Mop) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.Filter.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.Filter.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.MainBrush.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.MainBrush.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.Mop.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.Mop.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.SideBrush.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.Consumable
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo.SideBrush.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeleteCleaningSchedule(string timerId) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeleteCleaningScheduleAsync(string timerId) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.DeviceSettings(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode Suction, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel Water, bool ResumeAfterCharging, bool CarpetBoost, bool ChildLock, byte Volume, MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings DoNotDisturb, string TimeZone) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.DoNotDisturb.get -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.DoNotDisturb.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.TimeZone.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings.TimeZone.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.DiagnosticProperty(int ServiceId, int PropertyId, string Name, string Value, string Error) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Error.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Error.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Name.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Name.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Value.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty.Value.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.EjectFromDockAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.FindMeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetCleaningSchedule() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetCleaningScheduleAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningSchedule>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetCleaningStatistics() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetCleaningStatisticsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.CleaningStatistics>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetConsumables() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetConsumablesAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumablesInfo>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetDiagnostics() -> System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetDiagnosticsAsync() -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DiagnosticProperty>>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetDndSettings() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetDndSettingsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DndSettings>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetExtendedSwitches() -> System.Collections.Generic.IReadOnlyDictionary<string, System.Text.Json.JsonElement>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetExtendedSwitchesAsync() -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string, System.Text.Json.JsonElement>>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetSettings() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetSettingsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceSettings>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetStatus() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetStatusAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.DeviceStatus>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetVoiceSettings() -> MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GetVoiceSettingsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings>
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.GoHomeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.InstallVoicePackage(string packetId, string url, string md5, int sizeBytes) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.InstallVoicePackageAsync(string packetId, string url, string md5, int sizeBytes) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.PauseAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.PlaySoundAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RemoteControlMoveStepAsync(int velocity, int rotation, bool playSound = false) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ResetConsumableAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ConsumableType consumable) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetCarpetBoostAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetChildLockAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetCleaningSchedule(string data) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetCleaningScheduleAsync(string data) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndEnabledAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndEndTimeAsync(System.TimeSpan time) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetDndStartTimeAsync(System.TimeSpan time) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetExtendedSwitch(string key, int value) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetExtendedSwitchAsync(string key, int value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetMopWashReminderAsync(int minutes) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetResumeAfterChargingAsync(bool enabled) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetSuctionModeAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SuctionMode mode) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetVoicePacket(string packetId) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetVoicePacketAsync(string packetId) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetVolumeAsync(int volume) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.SetWaterLevelAsync(MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.WaterLevel level) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartCustomCleaning(int workMode, string data) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartCustomCleaningAsync(int workMode, string data) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartDryingAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartDustCollectionAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartMopWashingAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartRoomCleaning(System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection> rooms) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StartRoomCleaningAsync(System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.RoomSelection> rooms) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StopCleaningAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.StopDryingAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.PacketId.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.PacketId.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.State.get -> string
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.State.init -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.VoiceSettings.VoiceSettings(string PacketId, string State, int Progress) -> void
+MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.XiaomiRobotVacuumX20Plus(string ip, string token) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.DeviceId.get -> string
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.DeviceId.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.DeviceInformation(string Manufacturer, string Model, string DeviceId, string FirmwareRevision, string SerialNumber) -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.FirmwareRevision.get -> string
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.FirmwareRevision.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.Manufacturer.get -> string
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.Manufacturer.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.Model.get -> string
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.Model.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.SerialNumber.get -> string
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation.SerialNumber.init -> void
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetAirQualityAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.AirQuality>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetAqiUpdateHeartbeatAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetBuzzerEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetChildLockEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetDeviceFaultStateAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.FaultState>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetDeviceInformation() -> MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetDeviceInformationAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceInformation>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFanLevelAsync() -> System.Threading.Tasks.Task<byte>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterInfo() -> MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterInfoAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.FilterInfo>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterLeftTimeAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterLifeLevelAsync() -> System.Threading.Tasks.Task<byte>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterUsedTimeAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetFilterUsedTimeDebugAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetHumidityAsync() -> System.Threading.Tasks.Task<byte>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetModeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.OperationMode>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetMotorSpeedRpmAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetPm25DensityAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetPowerStateAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetScreenBrightnessAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.ScreenBrightness>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetSettings() -> MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetSettingsAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceSettings>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetStatus() -> MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetStatusAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.DeviceStatus>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.GetTemperatureAsync() -> System.Threading.Tasks.Task<float>
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.ResetFilterLifeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetAqiUpdateHeartbeatAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetBuzzerEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetChildLockEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetFanLevelAsync(byte value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetFilterUsedTimeDebugAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetModeAsync(MiHomeLib.MiioDevices.OperationMode value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.SetScreenBrightnessAsync(MiHomeLib.MiioDevices.ScreenBrightness value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.ToggleModeAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TogglePowerAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.XiaomiSmartAirPurifier4Lite(string ip, string token) -> void
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionPowerThresholdAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetChargingProtectionTimeAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCurrentElectricPowerAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCycleDataAsync() -> System.Threading.Tasks.Task<(ushort minutesOn, ushort minutesOff, MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState cycleState, byte cyclesCount)>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetCyclingEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetDefaultPowerOnStateAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetDeviceFaultStateAsync() -> System.Threading.Tasks.Task<MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.FaultStateValue>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetLedEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetMaxPowerLimitEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetMaxPowerThresholdAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetPhysicalControlBlockedAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.GetPowerStateAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionPowerThresholdAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetChargingProtectionTimeAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetCycleDataAsync((ushort minutesOn, ushort minutesOff, MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.CycleState cycleState, byte cyclesCount) value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetCyclingEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetDefaultPowerOnStateAsync(MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.PowerOnState value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetLedEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetMaxPowerLimitEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetMaxPowerThresholdAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.SetPhysicalControlBlockedAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TogglePowerAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.XiaomiSmartPlug2Euro(string ip, string token) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.AqaraHubE1China(string ip, string token, string did, int port = 1883) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.AqaraHubE1China(string ip, string token, string did, int port, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotClients() -> (string ip, string mac, string name)[]
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotClientsAsync() -> System.Threading.Tasks.Task<(string ip, string mac, string name)[]>
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotModeEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotName() -> string
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotNameAsync() -> System.Threading.Tasks.Task<string>
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotPassword() -> string
+MiHomeLib.MqttGateway.AqaraHubE1China.GetHotspotPasswordAsync() -> System.Threading.Tasks.Task<string>
+MiHomeLib.MqttGateway.AqaraHubE1China.GetNightModeEffectiveHoursAsync() -> System.Threading.Tasks.Task<(byte startHour, byte startMinute, byte endHour, byte endMinute)>
+MiHomeLib.MqttGateway.AqaraHubE1China.GetNightModeEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotModeEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotName(string value) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotNameAsync(string value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotPassword(string value) -> void
+MiHomeLib.MqttGateway.AqaraHubE1China.SetHotspotPasswordAsync(string value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.AqaraHubE1China.SetNightModeEffectiveHoursAsync((byte startHour, byte startMinute, byte endHour, byte endMinute) value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.AqaraHubE1China.SetNightModeEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.Discovery.BleDeviceInfo.BleDeviceInfo(string did, int pdid, string mac) -> void
+MiHomeLib.MqttGateway.Discovery.BleDeviceInfo.Did.get -> string
+MiHomeLib.MqttGateway.Discovery.BleDeviceInfo.Mac.get -> string
+MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer.DiscoverBleDevices() -> System.Collections.Generic.List<MiHomeLib.MqttGateway.Discovery.BleDeviceInfo>
+MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer.DiscoverMeshDevices() -> System.Collections.Generic.List<MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo>
+MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer.DiscoverZigBeeDevices() -> System.Collections.Generic.List<MiHomeLib.MqttGateway.Discovery.ZigBeeDeviceInfo>
+MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo.Did.get -> string
+MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo.Mac.get -> string
+MiHomeLib.MqttGateway.Discovery.MeshDeviceInfo.MeshDeviceInfo(string did, int pdid, string mac) -> void
+MiHomeLib.MqttGateway.Discovery.ZigBeeDeviceInfo.Did.get -> string
+MiHomeLib.MqttGateway.Discovery.ZigBeeDeviceInfo.Model.get -> string
+MiHomeLib.MqttGateway.Discovery.ZigBeeDeviceInfo.ZigBeeDeviceInfo(string did, string model) -> void
+MiHomeLib.MqttGateway.IMqttTransport.Publish(string topic, string message) -> void
+MiHomeLib.MqttGateway.IMqttTransport.SendMessage(string message) -> void
+MiHomeLib.MqttGateway.MqttGatewayBase.DecodeMacAddress(string mac) -> string
+MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverDevicesAsync() -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MqttGatewayBase.GetAccidentalDeletionEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MqttGateway.MqttGatewayBase.GetDeviceByDid<T>(string did) -> T
+MiHomeLib.MqttGateway.MqttGatewayBase.GetDeviceById<T>(string deviceId) -> T
+MiHomeLib.MqttGateway.MqttGatewayBase.GetDevices() -> System.Collections.Generic.List<MiHomeLib.Devices.GatewaySubDeviceBase>
+MiHomeLib.MqttGateway.MqttGatewayBase.Logger.get -> Microsoft.Extensions.Logging.ILogger
+MiHomeLib.MqttGateway.MqttGatewayBase.LoggerFactory.get -> Microsoft.Extensions.Logging.ILoggerFactory
+MiHomeLib.MqttGateway.MqttGatewayBase.MqttGatewayBase(string did, MiHomeLib.MiioDevices.IMiioTransport miioTransport, MiHomeLib.MqttGateway.IMqttTransport mqttTransport, MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer devicesDiscoverer) -> void
+MiHomeLib.MqttGateway.MqttGatewayBase.MqttGatewayBase(string did, MiHomeLib.MiioDevices.IMiioTransport miioTransport, MiHomeLib.MqttGateway.IMqttTransport mqttTransport, MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer devicesDiscoverer, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MqttGateway.MqttGatewayBase.SetAccidentalDeletionEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MqttGatewayBase._devicesDiscoverer -> MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmDurationForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> System.Threading.Tasks.Task<uint>
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmStateAsync() -> System.Threading.Tasks.Task<MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue>
+MiHomeLib.MqttGateway.MultimodeGateway.GetAlarmVolumeForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> System.Threading.Tasks.Task<MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue>
+MiHomeLib.MqttGateway.MultimodeGateway.GetArmingModeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue>
+MiHomeLib.MqttGateway.MultimodeGateway.GetDelayTimeForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode) -> System.Threading.Tasks.Task<byte>
+MiHomeLib.MqttGateway.MultimodeGateway.GetLedEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MqttGateway.MultimodeGateway.MultimodeGateway(string ip, string token, string did = "", int port = 1883) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.MultimodeGateway(string ip, string token, string did, int port, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmDurationForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, uint durationTime) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmStateAsync(MiHomeLib.MqttGateway.MultimodeGateway.AlarmStateValue value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway.SetAlarmVolumeForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, MiHomeLib.MqttGateway.MultimodeGateway.VolumeLevelValue volumeLevel) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway.SetArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway.SetDelayTimeForArmingModeAsync(MiHomeLib.MqttGateway.MultimodeGateway.ArmingModeValue armingMode, byte delayTime) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway.SetLedEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetAccessModeAsync() -> System.Threading.Tasks.Task<MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue>
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetDoNotDisturbEffectiveTimeAsync() -> System.Threading.Tasks.Task<(ushort startHour, ushort startMinute, ushort endHour, ushort endMinute)>
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetDoNotDisturbModeEnabledAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.MqttGateway.MultimodeGateway2Base.GetLedIndicatorBrightnessAsync() -> System.Threading.Tasks.Task<ushort>
+MiHomeLib.MqttGateway.MultimodeGateway2Base.MultimodeGateway2Base(string did, MiHomeLib.MiioDevices.IMiioTransport miioTransport, MiHomeLib.MqttGateway.IMqttTransport mqttTransport, MiHomeLib.MqttGateway.Discovery.IDevicesDiscoverer devicesDiscoverer) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.MultimodeGateway2Base(string ip, string token, string did, int port, string endMarker) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.MultimodeGateway2Base(string ip, string token, string did, int port, string endMarker, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetAccessModeAsync(MiHomeLib.MqttGateway.MultimodeGateway2Base.AccessModeValue value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetDoNotDisturbEffectiveTimeAsync((ushort startHour, ushort startMinute, ushort endHour, ushort endMinute) value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetDoNotDisturbModeEnabledAsync(bool value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway2Base.SetLedIndicatorBrightnessAsync(ushort value) -> System.Threading.Tasks.Task
+MiHomeLib.MqttGateway.MultimodeGateway2China.MultimodeGateway2China(string ip, string token, string did, int port = 1883) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2China.MultimodeGateway2China(string ip, string token, string did, int port, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Global.MultimodeGateway2Global(string ip, string token, string did, int port = 1883) -> void
+MiHomeLib.MqttGateway.MultimodeGateway2Global.MultimodeGateway2Global(string ip, string token, string did, int port, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.AddRadioChannel(int channelId, string channelUrl) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.AddRadioChannelAsync(int channelId, string channelUrl) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DisableLightAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DisableNightLightAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DiscoverDevicesAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.EnableLightAsync(byte r, byte g, byte b, int brightness) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.EnableNightLightAsync(byte r, byte g, byte b, int brightness) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingBlinkingTimeAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingLastTimeTriggeredTimestampAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingOffTimeAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingVolumeAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetArmingWaitTimeAsync() -> System.Threading.Tasks.Task<int>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetDeveloperKey() -> string
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetDeveloperKeyAsync() -> System.Threading.Tasks.Task<string>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetDeviceById<T>(string deviceId) -> T
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetDevices() -> System.Collections.Generic.List<MiHomeLib.Devices.GatewaySubDeviceBase>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetRadioChannels() -> System.Collections.Generic.List<MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GetRadioChannelsAsync() -> System.Threading.Tasks.Task<System.Collections.Generic.List<MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel>>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Ip.get -> string
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.IsArmingOnAsync() -> System.Threading.Tasks.Task<bool>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlayCustomSoundAsync(int soundNo, int volume) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlayRadioAsync(int channelId, int volume) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.PlaySoundAsync(MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sound sound, int volume) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.ProtoVersion.get -> string
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Url.get -> string
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Url.set -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RemoveAllRadioChannelsAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.RemoveRadioChannelAsync(int channelId) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingBlinkingTimeAsync(int seconds) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOffTimeAsync(int seconds) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingVolumeAsync(int volume) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetArmingWaitTimeAsync(int seconds) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetDeveloperKey(string key) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetDeveloperKeyAsync(string key) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.Sid.get -> string
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.SoundsOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.StopRadioAsync() -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.XiaomiGateway2(string ip, string token, string gatewaySid = null) -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.XiaomiGateway2(string ip, string token, string gatewaySid, Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+abstract MiHomeLib.Devices.GatewaySubDeviceBase.DeviceId.get -> string
+const MiHomeLib.Devices.AqaraCubeSensor.LUMI_MQTT_MODEL = "lumi.sensor_cube.aqgl01" -> string
+const MiHomeLib.Devices.AqaraCubeSensor.LUMI_MQTT_MODEL_LEGACY = "lumi.sensor_cube" -> string
+const MiHomeLib.Devices.AqaraCubeSensor.MARKET_MODEL = "MFKZQ01LM" -> string
+const MiHomeLib.Devices.AqaraCubeSensor.XIAOMI_GATEWAY2_MODEL = "sensor_cube.aqgl01" -> string
+const MiHomeLib.Devices.AqaraDualWallSwitch.LUMI_MQTT_MODEL = "lumi.ctrl_neutral2" -> string
+const MiHomeLib.Devices.AqaraDualWallSwitch.MARKET_MODEL = "QBKG03LM" -> string
+const MiHomeLib.Devices.AqaraDualWallSwitch.XIAOMI_GATEWAY2_MODEL = "ctrl_neutral2" -> string
+const MiHomeLib.Devices.AqaraDualWallWirelessSwitch.LUMI_MQTT_MODEL = "lumi.remote.b286acn01" -> string
+const MiHomeLib.Devices.AqaraDualWallWirelessSwitch.LUMI_MQTT_MODEL_86SW2 = "lumi.sensor_86sw2" -> string
+const MiHomeLib.Devices.AqaraDualWallWirelessSwitch.LUMI_MQTT_MODEL_86SW2_ES1 = "lumi.sensor_86sw2.es1" -> string
+const MiHomeLib.Devices.AqaraDualWallWirelessSwitch.MARKET_MODEL = "WXKG02LM" -> string
+const MiHomeLib.Devices.AqaraDualWallWirelessSwitch.XIAOMI_GATEWAY2_MODEL = "remote.b286acn01" -> string
+const MiHomeLib.Devices.AqaraDualWirelessRelayCN.LUMI_MQTT_MODEL = "lumi.relay.c2acn01" -> string
+const MiHomeLib.Devices.AqaraDualWirelessRelayCN.MARKET_MODEL = "LLKZMK11LM" -> string
+const MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL = "lumi.remote.b486opcn01" -> string
+const MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.MARKET_MODEL = "WXCJKG12LM" -> string
+const MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL = "lumi.remote.b286opcn01" -> string
+const MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.MARKET_MODEL = "WXCJKG11LM" -> string
+const MiHomeLib.Devices.AqaraSmartHumanBodySensor.LUMI_MQTT_MODEL = "lumi.sensor_motion.aq2" -> string
+const MiHomeLib.Devices.AqaraSmartHumanBodySensor.MARKET_MODEL = "RTCGQ11LM" -> string
+const MiHomeLib.Devices.AqaraSmartHumanBodySensor.XIAOMI_GATEWAY2_MODEL = "sensor_motion.aq2" -> string
+const MiHomeLib.Devices.AqaraT1WithNeutral.LUMI_MQTT_MODEL = "lumi.switch.n0agl1" -> string
+const MiHomeLib.Devices.AqaraT1WithNeutral.MARKET_MODEL = "SSM-U01" -> string
+const MiHomeLib.Devices.AqaraTemperatureHumiditySensor.LUMI_MQTT_MODEL = "lumi.weather" -> string
+const MiHomeLib.Devices.AqaraTemperatureHumiditySensor.MARKET_MODEL = "WSDCGQ11LM" -> string
+const MiHomeLib.Devices.AqaraTemperatureHumiditySensor.XIAOMI_GATEWAY2_MODEL = "weather.v1" -> string
+const MiHomeLib.Devices.AqaraVibrationSensor.LUMI_MQTT_MODEL = "lumi.vibration.aq1" -> string
+const MiHomeLib.Devices.AqaraVibrationSensor.MARKET_MODEL = "DJT11LM" -> string
+const MiHomeLib.Devices.AqaraVibrationSensor.XIAOMI_GATEWAY2_MODEL = "vibration" -> string
+const MiHomeLib.Devices.AqaraWaterLeakSensor.LUMI_MQTT_MODEL = "lumi.sensor_wleak.aq1" -> string
+const MiHomeLib.Devices.AqaraWaterLeakSensor.MARKET_MODEL = "SJCGQ11LM" -> string
+const MiHomeLib.Devices.AqaraWaterLeakSensor.XIAOMI_GATEWAY2_MODEL = "sensor_wleak.aq1" -> string
+const MiHomeLib.Devices.AqaraWindowDoorSensor.LUMI_MQTT_MODEL = "lumi.sensor_magnet.aq2" -> string
+const MiHomeLib.Devices.AqaraWindowDoorSensor.MARKET_MODEL = "MCCGQ11LM" -> string
+const MiHomeLib.Devices.AqaraWindowDoorSensor.XIAOMI_GATEWAY2_MODEL = "sensor_magnet.aq2" -> string
+const MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.LUMI_MQTT_MODEL = "lumi.remote.b1acn01" -> string
+const MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.MARKET_MODEL = "WXKG11LM" -> string
+const MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.XIAOMI_GATEWAY2_MODEL = "remote.b1acn01" -> string
+const MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.LUMI_MQTT_MODEL = "lumi.remote.acn007" -> string
+const MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.MARKET_MODEL = "WXKG20LM" -> string
+const MiHomeLib.Devices.PtxWirelessSwitchBle.MARKET_MODEL = "PTX-YK1-QMIMB" -> string
+const MiHomeLib.Devices.PtxWirelessSwitchBle.MODEL = "090615.remote.btsw1" -> string
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.MARKET_MODEL = "LYWSD03MMC" -> string
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.MODEL = "miaomiaoce.sensor_ht" -> string
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.MARKET_MODEL = "MJWSD05MMC" -> string
+const MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.MODEL = "miaomiaoce.sensor_ht.t9" -> string
+const MiHomeLib.Devices.XiaomiDoorWindowSensor2.MARKET_MODEL = "MCCGQ02HL" -> string
+const MiHomeLib.Devices.XiaomiDoorWindowSensor2.MODEL = "isa.magnet.dw2hl" -> string
+const MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.LUMI_MQTT_MODEL = "lumi.sensor_smoke" -> string
+const MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.MARKET_MODEL = "JTYJ-GD-01LM/BW" -> string
+const MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.XIAOMI_GATEWAY2_MODEL = "smoke" -> string
+const MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.MARKET_MODEL = "DHKG01CM" -> string
+const MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.MODEL = "zimi.switch.dhkg01" -> string
+const MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.LUMI_MQTT_MODEL = "lumi.plug" -> string
+const MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.MARKET_MODEL = "ZNCZ02LM" -> string
+const MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.XIAOMI_GATEWAY2_MODEL = "plug" -> string
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor.LUMI_MQTT_MODEL = "lumi.sensor_motion" -> string
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor.MARKET_MODEL = "RTCGQ01LM" -> string
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor.XIAOMI_GATEWAY2_MODEL = "motion" -> string
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MARKET_MODEL = "RTCGQ02LM" -> string
+const MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.MODEL = "lumi.motion.bmgl01" -> string
+const MiHomeLib.Devices.XiaomiSmartWirelessSwitch.LUMI_MQTT_MODEL = "lumi.sensor_switch" -> string
+const MiHomeLib.Devices.XiaomiSmartWirelessSwitch.MARKET_MODEL = "WXKG01LM" -> string
+const MiHomeLib.Devices.XiaomiSmartWirelessSwitch.XIAOMI_GATEWAY2_MODEL = "switch" -> string
+const MiHomeLib.Devices.XiaomiSmokeSensorGuard.MARKET_MODEL = "JTYJ-GD-03MI" -> string
+const MiHomeLib.Devices.XiaomiSmokeSensorGuard.MODEL = "lumi.sensor_smoke.mcn02" -> string
+const MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.LUMI_MQTT_MODEL = "lumi.sensor_ht" -> string
+const MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.MARKET_MODEL = "WSDCGQ01LM" -> string
+const MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.XIAOMI_GATEWAY2_MODEL = "sensor_ht" -> string
+const MiHomeLib.Devices.XiaomiWindowDoorSensor.LUMI_MQTT_MODEL = "lumi.sensor_magnet" -> string
+const MiHomeLib.Devices.XiaomiWindowDoorSensor.MARKET_MODEL = "MCCGQ01LM" -> string
+const MiHomeLib.Devices.XiaomiWindowDoorSensor.XIAOMI_GATEWAY2_MODEL = "magnet" -> string
+const MiHomeLib.MiioDevices.MijiaSmartSocket2China.MARKET_MODEL = "ZNCZ07CM" -> string
+const MiHomeLib.MiioDevices.MijiaSmartSocket2China.MODEL = "chuangmi.plug.212a01" -> string
+const MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.MARKET_MODEL = "CJJSQ01ZM" -> string
+const MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.MODEL = "zhimi.humidifier.v1" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.MARKET_MODEL = "SDJQR02RR" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.MODEL = "rockrobo.vacuum.v1" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.MARKET_MODEL = "B106CN" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.MODEL = "ijai.vacuum.v18" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.MARKET_MODEL = "X20 Plus" -> string
+const MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.MODEL = "xiaomi.vacuum.c102gl" -> string
+const MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.MARKET_MODEL = "AC-M17-SC" -> string
+const MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.MODEL = "zhimi.airp.rma3" -> string
+const MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.MARKET_MODEL = "ZNCZ302KK" -> string
+const MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.MODEL = "cuco.plug.v2eur" -> string
+const MiHomeLib.MqttGateway.AqaraHubE1China.MARKET_MODEL = "ZHWG16LM" -> string
+const MiHomeLib.MqttGateway.AqaraHubE1China.MODEL = "lumi.gateway.aqcn02" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway.MARKET_MODEL = "ZNDMWG03LM" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway.MODEL = "lumi.gateway.mgl03" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway2China.MARKET_MODEL = "DMWG03LM" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway2China.MODEL = "lumi.gateway.mcn001" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway2Global.MARKET_MODEL = "ZNDMWG04LM" -> string
+const MiHomeLib.MqttGateway.MultimodeGateway2Global.MODEL = "lumi.gateway.mgl001" -> string
+const MiHomeLib.XiaomiGateway2.XiaomiGateway2.MARKET_MODEL = "DGNWG02LM" -> string
+const MiHomeLib.XiaomiGateway2.XiaomiGateway2.MODEL = "lumi.gateway.v3" -> string
+override MiHomeLib.Devices.AqaraCubeSensor.CubeRotate.ToString() -> string
+override MiHomeLib.Devices.AqaraCubeSensor.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraCubeSensor.ToString() -> string
+override MiHomeLib.Devices.AqaraDualWallSwitch.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraDualWallSwitch.ToString() -> string
+override MiHomeLib.Devices.AqaraDualWallWirelessSwitch.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraDualWallWirelessSwitch.ToString() -> string
+override MiHomeLib.Devices.AqaraDualWirelessRelayCN.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraDualWirelessRelayCN.ToString() -> string
+override MiHomeLib.Devices.AqaraOppleWirelesSwitch.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraOppleWirelesSwitch.ToString() -> string
+override MiHomeLib.Devices.AqaraT1WithNeutral.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraT1WithNeutral.ToString() -> string
+override MiHomeLib.Devices.AqaraTemperatureHumiditySensor.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraTemperatureHumiditySensor.ToString() -> string
+override MiHomeLib.Devices.AqaraVibrationSensor.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraVibrationSensor.ToString() -> string
+override MiHomeLib.Devices.AqaraWaterLeakSensor.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraWaterLeakSensor.ToString() -> string
+override MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraWirelessMiniSwitchCN.ToString() -> string
+override MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.DeviceId.get -> string
+override MiHomeLib.Devices.AqaraWirelessMiniSwitchCN2.ToString() -> string
+override MiHomeLib.Devices.MotionSensorBase.DeviceId.get -> string
+override MiHomeLib.Devices.MotionSensorBase.ToString() -> string
+override MiHomeLib.Devices.PtxWirelessSwitchBle.DeviceId.get -> string
+override MiHomeLib.Devices.PtxWirelessSwitchBle.ToString() -> string
+override MiHomeLib.Devices.WindowDoorSensorBase.DeviceId.get -> string
+override MiHomeLib.Devices.WindowDoorSensorBase.ToString() -> string
+override MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiBluetoothHygrothermograph2.ToString() -> string
+override MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiBluetoothHygrothermograph3.ToString() -> string
+override MiHomeLib.Devices.XiaomiDoorWindowSensor2.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiDoorWindowSensor2.ToString() -> string
+override MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiHoneywellSmokeDetector.ToString() -> string
+override MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiMeshWallSwitchSingleOpen.ToString() -> string
+override MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiMiSmartPowerPlugCN.ToString() -> string
+override MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiSmartHumanBodySensor2.ToString() -> string
+override MiHomeLib.Devices.XiaomiSmartWirelessSwitch.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiSmartWirelessSwitch.ToString() -> string
+override MiHomeLib.Devices.XiaomiSmokeSensorGuard.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiSmokeSensorGuard.ToString() -> string
+override MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.DeviceId.get -> string
+override MiHomeLib.Devices.XiaomiTemperatureHumiditySensor.ToString() -> string
+override MiHomeLib.MiioDevices.MijiaSmartSocket2China.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiAirHumidifierV1.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiRobotVacuumCleanerV1.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiRobotVacuumMop3C.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiRobotVacuumX20Plus.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiSmartAirPurifier4Lite.ToString() -> string
+override MiHomeLib.MiioDevices.XiaomiSmartPlug2Euro.ToString() -> string
+override MiHomeLib.MqttGateway.AqaraHubE1China.ToString() -> string
+override MiHomeLib.MqttGateway.MultimodeGateway.ToString() -> string
+override MiHomeLib.MqttGateway.MultimodeGateway2China.ToString() -> string
+override MiHomeLib.MqttGateway.MultimodeGateway2Global.ToString() -> string
+override MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.Equals(object obj) -> bool
+override MiHomeLib.XiaomiGateway2.XiaomiGateway2.RadioChannel.ToString() -> string
+override MiHomeLib.XiaomiGateway2.XiaomiGateway2.ToString() -> string
+override sealed MiHomeLib.MqttGateway.AqaraHubE1China.DiscoverBleDevices() -> System.Threading.Tasks.Task
+override sealed MiHomeLib.MqttGateway.AqaraHubE1China.DiscoverMeshDevices() -> System.Threading.Tasks.Task
+readonly MiHomeLib.Devices.GatewaySubDeviceBase._logger -> Microsoft.Extensions.Logging.ILogger
+readonly MiHomeLib.MiioDevices.MiioDevice._miioTransport -> MiHomeLib.MiioDevices.IMiioTransport
+readonly MiHomeLib.MiioDevices.MiotGenericDevice._did -> string
+static MiHomeLib.Devices.MotionSensorBase.NoMotionPeriods.get -> System.Collections.Generic.IReadOnlyList<int>
+static MiHomeLib.MiHomeLogging.SetLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+static MiHomeLib.MiioDevices.MiioDevice.GetDeviceIdByIp(string ip) -> string
+static MiHomeLib.MiioDevices.MiioDevice.GetDeviceIdByIpAsync(string ip) -> System.Threading.Tasks.Task<string>
+static MiHomeLib.MiioDevices.MiioDevice.RunSync(System.Func<System.Threading.Tasks.Task> asyncFunc) -> void
+static MiHomeLib.MiioDevices.MiioDevice.RunSync<T>(System.Func<System.Threading.Tasks.Task<T>> asyncFunc) -> T
+static MiHomeLib.MiioDevices.MiioDiscovery.DiscoverAsync(System.TimeSpan? timeout = null) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice>>
+static MiHomeLib.MqttGateway.MqttGatewayBase.SetLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory value) -> void
+static MiHomeLib.XiaomiGateway2.XiaomiGateway2.SetLoggerFactory(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory) -> void
+static readonly MiHomeLib.MqttGateway.MqttGatewayBase._bleTopics -> string[]
+static readonly MiHomeLib.MqttGateway.MqttGatewayBase._zigbeeCommandsTopic -> string
+static readonly MiHomeLib.MqttGateway.MqttGatewayBase._zigbeeTopics -> string[]
+virtual MiHomeLib.Devices.GatewaySubDeviceBase.GetBaseInfo(string marketModel, string model) -> string
+virtual MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverBleDevices() -> System.Threading.Tasks.Task
+virtual MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverMeshDevices() -> System.Threading.Tasks.Task
+virtual MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverZigbeeDevices() -> System.Threading.Tasks.Task

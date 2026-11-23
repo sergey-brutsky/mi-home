@@ -49,7 +49,7 @@ public abstract class GatewaySubDeviceBase : IDisposable
     // The string fallback preserves the contract of other GatewaySubDeviceBase implementations.
     internal virtual void ParseData(JsonElement data) => ParseData(data.GetRawText());
 
-    internal virtual void ParseData(IEnumerable<JsonElement> data) => ParseData(JsonSerializer.Serialize(data));
+    internal virtual void ParseData(IEnumerable<JsonElement> data) => ParseData(JsonSerializer.Serialize(System.Linq.Enumerable.ToArray(data), MiHomeJsonContext.Default.JsonElementArray));
 
     /// <summary>
     /// Format base device info string with market model, model and device identifier

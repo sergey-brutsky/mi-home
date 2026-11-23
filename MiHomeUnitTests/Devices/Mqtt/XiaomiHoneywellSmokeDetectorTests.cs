@@ -66,15 +66,15 @@ public class XiaomiHoneywellSmokeDetectorTests: MqttDeviceTestBase
     [InlineData(67174400)]
     [InlineData(67239936)]
     [InlineData(67305472)]
-    public void Check_OnSmokeSensivityModeChanged_Event(int value)
+    public void Check_OnSmokeSensitivityModeChanged_Event(int value)
     {
         var sensor = CreateSensor();
-        XiaomiHoneywellSmokeDetector.SensivityMode? mode = null;
-        sensor.OnSmokeSensivityModeChanged += x => { mode = x; return Task.CompletedTask; };
+        XiaomiHoneywellSmokeDetector.SensitivityMode? mode = null;
+        sensor.OnSmokeSensitivityModeChangedAsync += x => { mode = x; return Task.CompletedTask; };
 
         sensor.ParseData($"[{{\"res_name\":\"14.1.85\",\"value\":{value}}}]");
 
-        mode.Should().Be((XiaomiHoneywellSmokeDetector.SensivityMode)value);
+        mode.Should().Be((XiaomiHoneywellSmokeDetector.SensitivityMode)value);
     }
 
     [Fact]
@@ -88,15 +88,15 @@ public class XiaomiHoneywellSmokeDetectorTests: MqttDeviceTestBase
     }
 
     [Theory]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.NoSmoke, 67174400)]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.LowSmoke, 67239936)]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.MiddleSmoke, 67305472)]
-    public void Check_SetSensivity_Works(XiaomiHoneywellSmokeDetector.SensivityMode mode, int value)
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.NoSmoke, 67174400)]
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.LowSmoke, 67239936)]
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.MiddleSmoke, 67305472)]
+    public void Check_SetSensitivity_Works(XiaomiHoneywellSmokeDetector.SensitivityMode mode, int value)
     {
         var sensor = CreateSensor();
         var cmd = $"{{\"cmd\":\"write\",\"did\":\"{sensor.DeviceId}\",\"params\":[{{\"res_name\":\"14.1.85\",\"value\":{value}}}]}}";
 
-        sensor.SetSensivity(mode);
+        sensor.SetSensitivity(mode);
 
         _mqttTransport.Verify(x => x.SendMessage(cmd), Times.Once);
     }
@@ -120,15 +120,15 @@ public class XiaomiHoneywellSmokeDetectorTests: MqttDeviceTestBase
         sensor.Invoking(x => x.RunSelfTest()).Should().Throw<NotSupportedException>().WithMessage("*Lumi MQTT gateways*");
     }
     [Theory]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.NoSmoke, 67174400)]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.LowSmoke, 67239936)]
-    [InlineData(XiaomiHoneywellSmokeDetector.SensivityMode.MiddleSmoke, 67305472)]
-    public async Task Check_SetSensivity_Works_Async(XiaomiHoneywellSmokeDetector.SensivityMode mode, int value)
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.NoSmoke, 67174400)]
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.LowSmoke, 67239936)]
+    [InlineData(XiaomiHoneywellSmokeDetector.SensitivityMode.MiddleSmoke, 67305472)]
+    public async Task Check_SetSensitivity_Works_Async(XiaomiHoneywellSmokeDetector.SensitivityMode mode, int value)
     {
         var sensor = CreateSensor();
         var cmd = $"{{\"cmd\":\"write\",\"did\":\"{sensor.DeviceId}\",\"params\":[{{\"res_name\":\"14.1.85\",\"value\":{value}}}]}}";
 
-        await sensor.SetSensivityAsync(mode);
+        await sensor.SetSensitivityAsync(mode);
 
         _mqttTransport.Verify(x => x.SendMessage(cmd), Times.Once);
     }

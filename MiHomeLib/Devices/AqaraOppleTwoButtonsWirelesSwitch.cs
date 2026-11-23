@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 namespace MiHomeLib.Devices;
 
 /// <summary>WXCJKG11LM Opple wireless switch with 2 buttons, supported by Lumi MQTT gateways.</summary>
-[ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class AqaraOppleTwoButtonsWirelesSwitch : AqaraOppleWirelesSwitch
+[Obsolete("Use AqaraOppleTwoButtonsWirelessSwitch. AqaraOppleTwoButtonsWirelesSwitch will be removed in the next major version")]
+public class AqaraOppleTwoButtonsWirelesSwitch : AqaraOppleWirelesSwitch
 {
     public const string MARKET_MODEL = "WXCJKG11LM";
     public const string LUMI_MQTT_MODEL = "lumi.remote.b286opcn01";
