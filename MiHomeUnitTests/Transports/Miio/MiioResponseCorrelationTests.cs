@@ -37,6 +37,15 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
         _server = RunDeviceAsync();
     }
 
+    [Fact]
+    public async Task Gateway_Device_Id_Is_Read_From_The_Hello_Header()
+    {
+        _transport.DeviceId.Should().BeNull();
+        _responses = id => ["{\"id\":" + id + ",\"result\":[\"ok\"]}"];
+        await _transport.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat);
+        _transport.DeviceId.Should().Be(0x0404a850u);
+    }
+
     public static IEnumerable<object[]> InvalidResponses =>
         from response in new[]
         {
@@ -55,6 +64,25 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
         }
         from isAsync in new[] { false, true }
         select new object[] { response, isAsync };
+
+    [Fact]
+    public async Task Gateway2_Format_Uses_Small_Ids_And_Still_Rejects_A_Stale_Write_Response()
+    {
+        _transport.UseGateway2RequestFormat = true;
+        var ids = new List<int?>();
+        _responses = id =>
+        {
+            ids.Add(id);
+            return ["{\"id\":0,\"result\":[\"stale\"]}",
+                new JsonObject { ["id"] = id, ["result"] = new JsonArray("ok") }.ToJsonString()];
+        };
+        await _transport.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.DoNotRepeat);
+        var response = await _transport.RequestAsync("set_lumi_dpf_aes_key", new[] { "" }, MiioRetryPolicy.DoNotRepeat);
+        ids.Should().Equal(new int?[] { 1, 2 });
+        JsonNode.Parse(response)["id"].GetValue<int>().Should().Be(2);
+        JsonNode.Parse(response)["result"][0].GetValue<string>().Should().Be("ok");
+        Volatile.Read(ref _commands).Should().Be(2);
+    }
 
     [Theory]
     [MemberData(nameof(InvalidResponses))]

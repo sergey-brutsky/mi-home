@@ -83,52 +83,18 @@ dotnet add package MiHomeLib
 
 or install via [GitHub packages](https://github.com/sergey-brutsky/mi-home/pkgs/nuget/MiHomeLib)
 
-## <a name="setup-gateway">Setup Xiaomi Gateway 2</a>
+<a name="setup-xiaomi-gateway-2"></a>
+<a name="setup-xiaomi-multimode-gateway-same-for-multimode-gateway-2"></a>
+<a name="setup-aqara-hub-e1-gateway"></a>
 
-Before using this library you should setup **development mode** on your gateway, [instructions how to do this](https://www.domoticz.com/wiki/Xiaomi_Gateway_(Aqara)).\
-This mode allows to work with the gateway via UDP multicast protocol.
+## <a name="setup-gateway"></a>Gateway setup
 
-**Warning 1**:
-If you bought a newer revision of Xiaomi Gateway 2 (labels in a circle)
-<img src="https://user-images.githubusercontent.com/5664637/75097306-451c9300-55ba-11ea-90f9-f99b5ea883c1.png" width="450">
+Use MiHomeSetup to check readiness and prepare a supported gateway for the library. Run it from the repository root with the .NET 10 SDK and GNU Make installed.
 
-It could be possible that ports on your gateway required for UDP multicast traffic are **closed**.\
-Before using this library **ports must be opened**. [Check this instruction](https://community.openhab.org/t/solved-openhab2-xiaomi-mi-gateway-does-not-respond/52963/114).
+- **Xiaomi Gateway 2:** requires LAN access/development mode and UDP multicast connectivity on the gateway's local network.
+- **Multimode Gateway, Multimode Gateway 2 and Aqara Hub E1 China:** require MQTT on port 1883 and passwordless administrative Telnet on port 23. Automatic activation depends on the firmware; a miIO token and, on some firmware, a separate saved gateway key are required.
 
-**Warning 2**: Mi Home Gateway uses udp multicast for messages handling, so your app **must** be hosted in the same LAN as your gateway.
-If it is not you **have to** use multicast routers like [udproxy](https://github.com/pcherenkov/udpxy) or [igmpproxy](https://github.com/pali/igmpproxy) or [vpn bridging](https://forums.openvpn.net/viewtopic.php?t=21509).
-
-**Warning 3**: If your app is running on windows machine, make sure that you disabled virtual network adapters like VirtualBox, Hyper-V, Npcap, pcap etc.
-Because these adapters may prevent proper work of multicast traffic between your machine and gateway
-
-## <a name="setup-gateway">Setup Xiaomi Multimode Gateway (same for Multimode Gateway 2)</a>
-
-Before using this library:
-
-1. Open telnet on your gateway
-2. Enable MQTT broker access from your local network
-3. Extract token to work with your gateway
-
-The easisest way is to setup/configure [this HA integration](https://github.com/AlexxIT/XiaomiGateway3/) (it does all aforementioned things automatically).
-
-The way of warrior:
-
-1. [Enable telnet on your gateway](https://gist.github.com/zvldz/1bd6b21539f84339c218f9427e022709)
-2. Download this [openmiio_agent](http://github.com/AlexxIT/openmiio_agent/releases/download/v1.2.1/openmiio_agent_mips) and upload it to your gateway (for example to /data/openmiio_agent) via telnet
-3. Login to your gateway via telnet `telnet <gateway ip> 23` (login: admin or root, pwd: empty)
-4. Kill embedded mosquitto mqtt broker and run openmiio_agent (it enables local MQTT access on port 1883) `kill -9 <pid of mosquitto> && /data/openmiio_agent mqtt &`
-5. Check that mosquitto is binded to `0.0.0.0 1883` `netstat -ntlp | grep mosquitto`
-6. [Extract token instructions](https://github.com/jghaanstra/com.xiaomi-miio/blob/master/docs/obtain_token.md)
-
-## <a name="setup-gateway">Setup Aqara Hub E1 Gateway</a>
-
-Before using this library you need:
-
-1. [Open telnet on your gateway](https://gist.github.com/zvldz/1bd6b21539f84339c218f9427e022709#aqara-hub-e1-zhwg16lm-usb-stick)
-2. [Find out device id (did) of the gateway](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Hub-E1-China)
-3. [Find ip and token of the gateway](https://blog.matterxiaomi.com/blog/how-get-mi-home-devices-token/)
-
-More details in the [project's WIKI](https://github.com/sergey-brutsky/mi-home/wiki/Aqara-Hub-E1-China)
+For `make gw check/setup` commands, supported firmware, credentials, reboot behavior and troubleshooting, follow the **[gateway setup guide in the wiki](https://github.com/sergey-brutsky/mi-home/wiki/Gateway-Setup)**. `check` is read-only; `setup` changes gateway access and may restart MQTT services.
 
 ## <a name="basic-scenario">Basic scenarios</a>
 

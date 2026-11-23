@@ -90,7 +90,12 @@ internal partial class MiioTransport
         /// </summary>
         public byte[] BuildMessage(string msg, MiioCipher cipher, uint stamp)
         {
-            var encrypted = cipher.Encrypt(Encoding.UTF8.GetBytes(msg));
+            // python-miio terminates the JSON with NUL before applying PKCS7 padding.
+            // Preserve that framing, including for commands containing an empty string.
+            var payload = Encoding.UTF8.GetBytes(msg);
+            if (payload.Length == 0 || payload[payload.Length - 1] != 0)
+                Array.Resize(ref payload, payload.Length + 1);
+            var encrypted = cipher.Encrypt(payload);
             var packet = new byte[HEADER_LENGTH + encrypted.Length];
             Buffer.BlockCopy(_header, 0, packet, 0, CHECKSUM_OFFSET);
             packet[2] = (byte)(packet.Length >> 8);
@@ -123,8 +128,10 @@ internal partial class MiioTransport
                 throw new InvalidDataException(
                     "The Miio response checksum is invalid. The gateway token may be incorrect; verify the token configured for this gateway.");
 
-            return Encoding.UTF8.GetString(cipher.Decrypt(_data));
+            return Encoding.UTF8.GetString(cipher.Decrypt(_data)).TrimEnd('\0');
         }
+
+        internal uint DeviceId => (uint)(_header[8] << 24 | _header[9] << 16 | _header[10] << 8 | _header[11]);
 
         public string GetDeviceType() => _header.ToHex().Substring(16, 4);
 

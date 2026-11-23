@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
+[assembly: InternalsVisibleTo("MiHomeSetup")]
 // Lets Moq mock internal interfaces such as IGateway2Transport in the tests
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
@@ -39,6 +40,22 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     private MiioPacket initialPacket = null;
     // Ids of requests sent through RequestAsync. They start far from the small ids devices number their own messages with
     private int _requestId = 100_000;
+    private int _gateway2RequestId;
+    // Used by MiHomeSetup for the legacy gateway command exchange. Other clients keep the default format.
+    internal bool UseGateway2RequestFormat { get; set; }
+
+    internal static int NextGateway2RequestId(ref int counter) => (int)((uint)(Interlocked.Increment(ref counter) - 1) % 9998) + 1;
+
+    internal static string FormatGateway2Request(JsonNode request)
+    {
+        // Match python-miio's json.dumps separators without modifying string values.
+        if (request is JsonObject obj)
+            return "{" + string.Join(", ", obj.Select(item => JsonSerializer.Serialize(item.Key) + ": " +
+                (item.Value is null ? "null" : FormatGateway2Request(item.Value)))) + "}";
+        if (request is JsonArray array)
+            return "[" + string.Join(", ", array.Select(item => item is null ? "null" : FormatGateway2Request(item))) + "]";
+        return request.ToJsonString();
+    }
     private readonly MiioCipher _cipher;
     // Device clock: the last stamp the device sent and when it was received. Requests carry this stamp plus the time passed since,
     // a stamp that stays at the hello value is rejected by some devices after a while
@@ -46,6 +63,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     private readonly System.Diagnostics.Stopwatch _sinceDeviceStamp = new();
     // A receive that outlived the wait of an earlier attempt; it is reused, so its datagram is not lost
     private Task<UdpReceiveResult> _pendingReceive;
+    internal uint? DeviceId => initialPacket?.DeviceId;
     public string Ip => _ip;
     public string Token => _token;
 
@@ -138,14 +156,14 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
 
     public Task<string> RequestAsync(string method, object parameters, MiioRetryPolicy retryPolicy)
     {
-        var id = Interlocked.Increment(ref _requestId);
+        var id = UseGateway2RequestFormat ? NextGateway2RequestId(ref _gateway2RequestId) : Interlocked.Increment(ref _requestId);
         var request = new JsonObject
         {
             ["id"] = id,
             ["method"] = method,
             ["params"] = JsonSerializer.SerializeToNode(parameters, MiioJson.Options),
         };
-        return SendRequestAsync(request.ToJsonString(), request, id, null, retryPolicy);
+        return SendRequestAsync(UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString(), request, id, null, retryPolicy);
     }
 
     private async Task<string> SendRequestAsync(string msg, JsonObject request, int? requestId, int? attemptLimit, MiioRetryPolicy retryPolicy)
@@ -185,13 +203,14 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             var text = msg;
             if (requestId is not null)
             {
-                var attemptId = unchecked(requestId.Value + attempts * RETRY_ID_STEP);
+                var attemptId = attempts > 0 && UseGateway2RequestFormat
+                    ? NextGateway2RequestId(ref _gateway2RequestId) : unchecked(requestId.Value + attempts * RETRY_ID_STEP);
                 sentIds.Add(attemptId);
                 // The first attempt is sent as it is, only a repeated one gets a new id
                 if (attempts > 0)
                 {
                     request["id"] = attemptId;
-                    text = request.ToJsonString();
+                    text = UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString();
                 }
             }
 

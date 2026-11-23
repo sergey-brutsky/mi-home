@@ -47,7 +47,31 @@ public class MiioPacketTests
         var packet = miioPacket.BuildMessage("{\"id\": 1, \"method\": \"set_power\", \"params\": [\"on\"]}", "5d3a2f018c90097a850558c35c953b77");
 
         // Assert
-        packet.Should().Be("21310060000000000404a850002e58734a31baf3a300c3bb4179fe1b910bd69d2fa405db0b664dc87c543b16c63c69e5429f4825298687cf6194c23fdb0fbed9ed7846dbd1dd4e258218e3f922b632c3ee62af7240530a0757d9d5ec8febcd7b");
+        // Reference packet encrypted with python-miio, including its NUL terminator.
+        packet.Should().Be("21310060000000000404a850002e5873fc7f2415231e0ce210ce7581f0b5201b2fa405db0b664dc87c543b16c63c69e5429f4825298687cf6194c23fdb0fbed9ed7846dbd1dd4e258218e3f922b632c3251c3166909d4e1de646b13983853f75");
+    }
+
+    [Theory]
+    [InlineData("{\"id\":1,\"method\":\"set_lumi_dpf_aes_key\",\"params\":[\"\"]}")]
+    [InlineData("{\"id\":1,\"method\":\"set_lumi_dpf_aes_key\",\"params\":[\"abcdefghijklmnop\"]}")]
+    [InlineData("{\"id\":1,\"params\":[\"температура\"]}")]
+    public void Encrypted_Request_Contains_A_Nul_Terminated_Utf8_Json(string json)
+    {
+        var hello = new MiioPacket("21310020000000000404a850002e58735d3a2f018c90097a850558c35c953b77");
+        var cipher = new MiioCipher("5d3a2f018c90097a850558c35c953b77");
+        var bytes = hello.BuildMessage(json, cipher, hello.Stamp);
+        var ciphertext = new byte[bytes.Length - 32];
+        System.Buffer.BlockCopy(bytes, 32, ciphertext, 0, ciphertext.Length);
+        cipher.Decrypt(ciphertext).Should().Equal(System.Text.Encoding.UTF8.GetBytes(json + "\0"));
+        new MiioPacket(bytes).GetResponseData(cipher).Should().Be(json);
+    }
+
+    [Fact]
+    public void Existing_Nul_Terminator_Is_Not_Duplicated()
+    {
+        var hello = new MiioPacket("21310020000000000404a850002e58735d3a2f018c90097a850558c35c953b77");
+        var cipher = new MiioCipher("5d3a2f018c90097a850558c35c953b77");
+        hello.BuildMessage("{}\0", cipher, hello.Stamp).Should().Equal(hello.BuildMessage("{}", cipher, hello.Stamp));
     }
 
     [Fact]
