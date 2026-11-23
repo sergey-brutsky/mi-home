@@ -39,7 +39,8 @@ public class Gateway2CheckerTests
         var context = CreateGateway(keyAvailable: keyAvailable);
         using var gateway = context.Gateway;
         using var output = new StringWriter();
-        Assert.True(await Gateway2Checker.CheckAsync(gateway, CancellationToken.None, output));
+        var ready = await Gateway2Checker.CheckAsync(gateway, CancellationToken.None, output);
+        Assert.True(ready, output.ToString());
         Assert.Equal(Sid, gateway.Sid);
         Assert.Contains("PASS Gateway 2 UDP discovery (0 supported devices found)", output.ToString());
         Assert.Contains("READY (miIO and Gateway 2 UDP discovery)", output.ToString());
@@ -57,7 +58,8 @@ public class Gateway2CheckerTests
     [InlineData(true)]
     public async Task Missing_Or_Other_Gateway_Reply_Does_Not_Pass_The_Check(bool otherGatewayReplies)
     {
-        var context = CreateGateway(reply: otherGatewayReplies, replySid: "ffffffffffff");
+        var context = CreateGateway(reply: otherGatewayReplies, replySid: "ffffffffffff",
+            discoveryTimeout: TimeSpan.FromMilliseconds(250));
         using var gateway = context.Gateway;
         using var output = new StringWriter();
         Assert.False(await Gateway2Checker.CheckAsync(gateway, CancellationToken.None, output));
@@ -80,8 +82,9 @@ public class Gateway2CheckerTests
                     JsonSerializer.Serialize(new { cmd = "get_id_list_ack", sid = Sid, token = DeveloperKey, data = "[]" }));
         });
         using var output = new StringWriter();
-        Assert.True(await Gateway2Checker.CheckAsync(gateway, CancellationToken.None, output,
-            discoveryAttempts: 3, retryDelay: TimeSpan.Zero));
+        var ready = await Gateway2Checker.CheckAsync(gateway, CancellationToken.None, output,
+            discoveryAttempts: 3, retryDelay: TimeSpan.Zero);
+        Assert.True(ready, output.ToString());
         Assert.Equal(2, attempts);
         Assert.Contains("Waiting for Gateway 2 UDP LAN access", output.ToString());
     }
@@ -106,7 +109,7 @@ public class Gateway2CheckerTests
     }
 
     private static (XiaomiGateway2 Gateway, Mock<IMiioTransport> Miio, Mock<IGateway2Transport> Udp) CreateGateway(
-        bool reply = true, bool keyAvailable = true, string replySid = Sid)
+        bool reply = true, bool keyAvailable = true, string replySid = Sid, TimeSpan? discoveryTimeout = null)
     {
         var miio = new Mock<IMiioTransport>();
         miio.Setup(x => x.SendMessageAsync(It.IsAny<string>())).ReturnsAsync(keyAvailable
@@ -120,7 +123,8 @@ public class Gateway2CheckerTests
             JsonSerializer.Serialize(new { cmd = "read_ack", sid = Sid, model = "gateway", data = "{}" })));
         var gateway = new XiaomiGateway2(miio.Object, udp.Object, Sid, loggerFactory: NullLoggerFactory.Instance)
         {
-            DiscoveryTimeout = TimeSpan.FromMilliseconds(40),
+            // The mock delivers synchronously, but the gateway processes replies on a background task.
+            DiscoveryTimeout = discoveryTimeout ?? TimeSpan.FromSeconds(2),
             ReadAnswerTimeout = TimeSpan.FromMilliseconds(10),
             ReadDeviceInterval = TimeSpan.Zero,
             ReadAttempts = 1

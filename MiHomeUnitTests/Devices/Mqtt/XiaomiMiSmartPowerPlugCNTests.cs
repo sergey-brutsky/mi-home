@@ -63,6 +63,25 @@ public class XiaomiMiSmartPowerPlugCNTests : MqttDeviceTestBase
     }
 
     [Fact]
+    public void Initial_Off_Is_Known_Without_A_State_Change_Event()
+    {
+        using var plug = CreatePlug();
+        var changes = 0;
+        plug.OnStateChangeAsync += () => { changes++; return Task.CompletedTask; };
+
+        plug.State.Should().Be(XiaomiMiSmartPowerPlugCN.PlugState.Off);
+        plug.HasKnownState.Should().BeFalse();
+        plug.SetInitialProperty("neutral_0", JsonValue.Create("unknown"));
+        plug.HasKnownState.Should().BeFalse();
+
+        plug.SetInitialProperty("neutral_0", JsonValue.Create("off"));
+
+        plug.HasKnownState.Should().BeTrue();
+        plug.State.Should().Be(XiaomiMiSmartPowerPlugCN.PlugState.Off);
+        changes.Should().Be(0);
+    }
+
+    [Fact]
     public void Check_OnStateChange_Event_Only_On_Real_Change()
     {
         var plug = CreatePlug();

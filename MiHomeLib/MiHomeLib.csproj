@@ -5,10 +5,16 @@
     <PackageId>MiHomeLib</PackageId>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
-    <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarious</Description>
+    <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarios</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-3.1.0: Added MiHomeSetup, a separate .NET 10 console tool in the repository for checking and preparing supported gateways, with make gw check/setup commands and automatic model detection. 
+3.2.0
+- Added support for trimming and Native AOT in standard MiHomeLib scenarios on .NET 10. 
+- Added XML documentation for IntelliSense and a SourceLink symbol package for debugging.
+- Added correctly spelled Sensitivity APIs and Opple WirelessSwitch types. The original names remain available and are marked obsolete.
+- Protected miIO helpers that serialize arbitrary objects now carry trimming and Native AOT warnings on .NET 10.
+- Added hardware tests, recorded message replay, and CI checks on Linux, Windows, and macOS.
+
 Gateway setup guide: https://github.com/sergey-brutsky/mi-home/wiki/Gateway-Setup
 When upgrading from 2.x, review the 3.0 breaking changes and migration guide:
 Release notes: https://github.com/sergey-brutsky/mi-home/wiki/Release-Notes-3.0
@@ -23,9 +29,35 @@ Migration guide: https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>3.1.0</Version>
+    <Version>3.2.0</Version>
     <LangVersion>14</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>3.1.0</PackageValidationBaselineVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="PublicAPI.Shipped.txt" />
+    <AdditionalFiles Include="PublicAPI.Unshipped.txt" />
+    <ProjectReference Include="../MiHomeLib.Generators/MiHomeLib.Generators.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
   </ItemGroup>

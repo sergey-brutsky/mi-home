@@ -14,7 +14,11 @@ jobs:
       contents: read
       checks: write
     name: 'Build & Test'
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v5
     - name: Setup dotnet core
@@ -26,15 +30,16 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --verbosity normal --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=true  /p:CoverletOutput=./TestResults/ /p:CoverletOutputFormat=cobertura MiHomeUnitTests
+      run: dotnet test --verbosity normal --logger "trx;LogFileName=test-results.trx" /p:CollectCoverage=${{ matrix.os == 'ubuntu-latest' }}  /p:CoverletOutput=./TestResults/ /p:CoverletOutputFormat=cobertura MiHomeUnitTests
     - name: Test Report
       uses: dorny/test-reporter@v1
-      if: success()
+      if: matrix.os == 'ubuntu-latest' && success()
       with:
         name: xUnit Tests
         path: MiHomeUnitTests/TestResults/test-results.trx
         reporter: dotnet-trx
     - name: Get test report results with precise percentage
+      if: matrix.os == 'ubuntu-latest' && success()
       run: |
         python3 <<'PY'
         import os
@@ -58,8 +63,10 @@ jobs:
                 environment.write(f"{name}={value}\n")
         PY
     - name: Print test results
+      if: matrix.os == 'ubuntu-latest' && success()
       run: echo "${{ env.PASSED }}/${{ env.TOTAL }} tests passed"
     - name: Create the tests badge
+      if: matrix.os == 'ubuntu-latest' && success()
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
@@ -69,6 +76,7 @@ jobs:
         message: ${{ env.PASSED }} passed ${{ env.FAILED }} failed
         color: green
     - name: Create code cov badge
+      if: matrix.os == 'ubuntu-latest' && success()
       uses: schneegans/dynamic-badges-action@v1.7.0
       with:
         auth: ${{ secrets.GIST_SECRET }}
@@ -80,3 +88,19 @@ jobs:
         namedLogo: umbrel
         logoColor: red
 
+  trimmed_smoke:
+    name: 'Trimmed application smoke test'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v5
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - name: Restore trimmed consumer
+      run: dotnet restore TrimSmokeTests -r linux-x64
+    - name: Publish trimmed consumer
+      run: dotnet publish TrimSmokeTests --no-restore -c Release -f net10.0 -r linux-x64 -p:PublishTrimmed=true -o artifacts/trimmed
+    - name: Run trimmed consumer
+      run: ./artifacts/trimmed/TrimSmokeTests

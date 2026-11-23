@@ -3,6 +3,7 @@ using MiHomeLib.XiaomiGateway2;
 using System;
 using System.Globalization;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MiHomeLib.MqttGateway;
@@ -49,10 +50,15 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
 
     private ZigBeeTransport _zigBeeTransport;
     private IGateway2Writer _gateway2;
+    private const PlugState UnknownState = (PlugState)(-1);
+    private volatile PlugState _state = UnknownState;
 
     public override string DeviceId { get; }
     public int ShortId { get; }
-    public PlugState State { get; private set; }
+    public PlugState State => _state == PlugState.On ? PlugState.On : PlugState.Off;
+
+    /// <summary>True after the gateway returns or reports a valid on/off state.</summary>
+    public bool HasKnownState => _state != UnknownState;
 
     /// <summary>
     /// Load power in watts
@@ -139,8 +145,23 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
 
         // Order of the initial properties matters, the gateway answers in the same order
         map.LumiMqtt(STATE_RES_NAME, "neutral_0",
-            value => UpdateState(value.ReadInt32() == 1 ? PlugState.On : PlugState.Off),
-            value => State = value.GetValue<string>() == "on" ? PlugState.On : PlugState.Off);
+            value =>
+            {
+                switch (value.ReadInt32())
+                {
+                    case 0: UpdateState(PlugState.Off); break;
+                    case 1: UpdateState(PlugState.On); break;
+                }
+            },
+            value =>
+            {
+                if (value is not JsonValue json || !json.TryGetValue<string>(out var status)) return;
+                switch (status)
+                {
+                    case "off": _state = PlugState.Off; break;
+                    case "on": _state = PlugState.On; break;
+                }
+            });
         map.LumiMqtt("0.12.85", "load_power",
             value => UpdateLoadPower(value.ReadSingle()),
             value => LoadPower = value.ReadSingle());
@@ -253,10 +274,9 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
 
     private void UpdateState(PlugState state)
     {
-        if (state == State) return; // No need to emit event when state is already actual
-
-        State = state;
-        RaiseEvent(OnStateChangeAsync);
+        var previous = State;
+        _state = state;
+        if (state != previous) RaiseEvent(OnStateChangeAsync);
     }
 
     private void UpdateLoadPower(float value) => SetAndRaise(LoadPower, () => LoadPower = value, OnLoadPowerChangeAsync);

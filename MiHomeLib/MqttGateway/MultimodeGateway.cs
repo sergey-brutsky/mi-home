@@ -70,6 +70,10 @@ public class MultimodeGateway : MqttGatewayBase
     public MultimodeGateway(string ip, string token, string did = "", int port = 1883) : this(ip, token, did, port, null) { }
 
     /// <param name="loggerFactory">Used by the gateway and all its devices; null takes the factory set by MiHomeLogging.SetLoggerFactory</param>
+    /// <param name="did">Gateway device identifier.</param>
+    /// <param name="ip">Gateway IP address.</param>
+    /// <param name="port">Gateway service port.</param>
+    /// <param name="token">Gateway miIO token.</param>
     public MultimodeGateway(string ip, string token, string did, int port, ILoggerFactory loggerFactory) :
         this(
                 did,

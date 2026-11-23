@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using MiHomeLib.Devices;
@@ -11,7 +10,7 @@ namespace MiHomeLib.Protocols;
 internal static class ProtocolDeviceRegistry
 {
     private static readonly IReadOnlyList<Registration> Registrations =
-        ValidateRegistrations(typeof(ProtocolDeviceRegistry).Assembly.GetTypes());
+        ValidateRegistrations(ProtocolDeviceCatalog.Entries);
 
     private static readonly Dictionary<(DeviceProtocol, string), Registration> Models = Registrations
         .ToDictionary(x => (x.Metadata.Protocol, x.Metadata.Model), x => x);
@@ -19,39 +18,25 @@ internal static class ProtocolDeviceRegistry
         .Where(x => x.Metadata.Protocol is DeviceProtocol.LumiBle or DeviceProtocol.LumiMesh)
         .ToDictionary(x => (x.Metadata.Protocol, x.Metadata.Pdid), x => x);
 
-    internal static IReadOnlyList<Registration> ValidateRegistrations(IEnumerable<Type> types)
+    internal static IReadOnlyList<Registration> ValidateRegistrations(IEnumerable<ProtocolDeviceEntry> entries)
     {
         var registrations = new List<Registration>();
         var models = new HashSet<(DeviceProtocol, string)>();
         var pdids = new HashSet<(DeviceProtocol, int)>();
-        foreach (var type in types)
-        foreach (var metadata in type.GetCustomAttributes(typeof(ProtocolDeviceModelAttribute), false).Cast<ProtocolDeviceModelAttribute>())
+        foreach (var entry in entries)
         {
-            var bleOrMesh = metadata.Protocol is DeviceProtocol.LumiBle or DeviceProtocol.LumiMesh;
-            var parameters = bleOrMesh
-                ? new[] { typeof(string), typeof(ILoggerFactory) }
-                : new[] { typeof(string), typeof(int), typeof(ILoggerFactory) };
-            var constructor = type.GetConstructor(parameters);
-            if (type.IsAbstract || !typeof(ProtocolMappedDeviceBase).IsAssignableFrom(type) || constructor is null)
-                throw new InvalidOperationException($"Device '{type.FullName}' has an invalid base type or constructor for {metadata.Protocol}.");
-            if (string.IsNullOrEmpty(metadata.Model) || !models.Add((metadata.Protocol, metadata.Model)))
-                throw new InvalidOperationException($"Duplicate or empty model '{metadata.Model}' for {metadata.Protocol}.");
-            if (bleOrMesh && (metadata.Pdid <= 0 || !pdids.Add((metadata.Protocol, metadata.Pdid))))
-                throw new InvalidOperationException($"Duplicate or invalid PDID '{metadata.Pdid}' for {metadata.Protocol}.");
-            var id = Expression.Parameter(typeof(string), "id");
-            var logs = Expression.Parameter(typeof(ILoggerFactory), "loggerFactory");
-            if (bleOrMesh)
+            var type = entry.DeviceType;
+            foreach (var metadata in type.GetCustomAttributes(typeof(ProtocolDeviceModelAttribute), false).Cast<ProtocolDeviceModelAttribute>())
             {
-                var factory = Expression.Lambda<Func<string, ILoggerFactory, GatewaySubDeviceBase>>(
-                    Expression.New(constructor, id, logs), id, logs).Compile();
-                registrations.Add(new Registration(metadata, null, factory));
-            }
-            else
-            {
-                var shortId = Expression.Parameter(typeof(int), "shortId");
-                var factory = Expression.Lambda<Func<string, int, ILoggerFactory, GatewaySubDeviceBase>>(
-                    Expression.New(constructor, id, shortId, logs), id, shortId, logs).Compile();
-                registrations.Add(new Registration(metadata, factory, null));
+                var bleOrMesh = metadata.Protocol is DeviceProtocol.LumiBle or DeviceProtocol.LumiMesh;
+                if (type.IsAbstract || !typeof(ProtocolMappedDeviceBase).IsAssignableFrom(type) ||
+                    (bleOrMesh ? entry.CreateByPdid is null : entry.Create is null))
+                    throw new InvalidOperationException($"Device '{type.FullName}' has an invalid base type or constructor for {metadata.Protocol}.");
+                if (string.IsNullOrEmpty(metadata.Model) || !models.Add((metadata.Protocol, metadata.Model)))
+                    throw new InvalidOperationException($"Duplicate or empty model '{metadata.Model}' for {metadata.Protocol}.");
+                if (bleOrMesh && (metadata.Pdid <= 0 || !pdids.Add((metadata.Protocol, metadata.Pdid))))
+                    throw new InvalidOperationException($"Duplicate or invalid PDID '{metadata.Pdid}' for {metadata.Protocol}.");
+                registrations.Add(new Registration(metadata, bleOrMesh ? null : entry.Create, bleOrMesh ? entry.CreateByPdid : null));
             }
         }
         return registrations;

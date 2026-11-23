@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
 [assembly: InternalsVisibleTo("MiHomeSetup")]
+[assembly: InternalsVisibleTo("TrimSmokeTests")]
 // Lets Moq mock internal interfaces such as IGateway2Transport in the tests
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
@@ -50,7 +51,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     {
         // Match python-miio's json.dumps separators without modifying string values.
         if (request is JsonObject obj)
-            return "{" + string.Join(", ", obj.Select(item => JsonSerializer.Serialize(item.Key) + ": " +
+            return "{" + string.Join(", ", obj.Select(item => JsonSerializer.Serialize(item.Key, MiHomeJsonContext.Default.String) + ": " +
                 (item.Value is null ? "null" : FormatGateway2Request(item.Value)))) + "}";
         if (request is JsonArray array)
             return "[" + string.Join(", ", array.Select(item => item is null ? "null" : FormatGateway2Request(item))) + "]";
@@ -161,7 +162,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         {
             ["id"] = id,
             ["method"] = method,
-            ["params"] = JsonSerializer.SerializeToNode(parameters, MiioJson.Options),
+            ["params"] = MiioParameters.ToNode(parameters)?.DeepClone(),
         };
         return SendRequestAsync(UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString(), request, id, null, retryPolicy);
     }

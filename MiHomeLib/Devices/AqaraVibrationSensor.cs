@@ -17,6 +17,14 @@ public sealed class AqaraVibrationSensor : LumiBatteryDeviceBase, IProtocolMappe
     public const string XIAOMI_GATEWAY2_MODEL = "vibration";
     public const string LUMI_MQTT_MODEL = "lumi.vibration.aq1";
 
+    public enum SensitivityState
+    {
+        Low = 21,
+        Middle = 11,
+        High = 1,
+    }
+
+    [Obsolete("Use SensitivityState. SensivityState will be removed in the next major version")]
     public enum SensivityState
     {
         Low = 21,
@@ -116,10 +124,19 @@ public sealed class AqaraVibrationSensor : LumiBatteryDeviceBase, IProtocolMappe
     /// <summary>
     /// Supported by Lumi MQTT gateways only
     /// </summary>
-    public void SetSensivity(SensivityState state) => RunSync(() => SetSensivityAsync(state));
+    [Obsolete("Use SetSensitivity. SetSensivity will be removed in the next major version")]
+#pragma warning disable CS0618
+    public void SetSensivity(SensivityState state) => SetSensitivity((SensitivityState)(int)state);
 
-    /// <inheritdoc cref="SetSensivity"/>
-    public Task SetSensivityAsync(SensivityState state)
+    [Obsolete("Use SetSensitivityAsync. SetSensivityAsync will be removed in the next major version")]
+    public Task SetSensivityAsync(SensivityState state) => SetSensitivityAsync((SensitivityState)(int)state);
+#pragma warning restore CS0618
+
+    /// <summary>Sets sensitivity on Lumi MQTT gateways.</summary>
+    public void SetSensitivity(SensitivityState state) => RunSync(() => SetSensitivityAsync(state));
+
+    /// <inheritdoc cref="SetSensitivity"/>
+    public Task SetSensitivityAsync(SensitivityState state)
     {
         try
         {

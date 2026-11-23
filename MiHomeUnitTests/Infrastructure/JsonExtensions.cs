@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace MiHomeLib.Helpers;
+namespace MiHomeUnitTests.Infrastructure;
 
 internal static class JsonExtensions
 {

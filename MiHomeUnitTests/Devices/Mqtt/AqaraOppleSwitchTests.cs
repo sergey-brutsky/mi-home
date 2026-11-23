@@ -24,8 +24,8 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
     }
 
     [Theory]
-    [InlineData(AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
-    [InlineData(AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleFourButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
     public void Initial_Properties_And_Reports_Use_Common_Diagnostics(string model)
     {
         var sw = Create(model);
@@ -47,21 +47,21 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
     }
 
     [Theory]
-    [InlineData(AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
-    [InlineData(AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleFourButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
     public void Unknown_Click_Is_Ignored_And_Valid_Reports_Are_Not_Deduplicated(string model)
     {
         var sw = Create(model);
         var count = 0;
         Func<ClickArg, Task> handler = _ => { count++; return Task.CompletedTask; };
-        if (sw is AqaraOppleTwoButtonsWirelesSwitch two) two.OnButton1ClickAsync += handler;
-        else ((AqaraOppleFourButtonsWirelesSwitch)sw).OnButton1ClickAsync += handler;
+        if (sw is AqaraOppleTwoButtonsWirelessSwitch two) two.OnButton1ClickAsync += handler;
+        else ((AqaraOppleFourButtonsWirelessSwitch)sw).OnButton1ClickAsync += handler;
         foreach (var value in new[] { 99, 1, 1 })
             sw.ParseData(System.Text.Json.JsonSerializer.Serialize(new[] { new { res_name = "13.1.85", value } }));
         count.Should().Be(2);
     }
 
-    private static readonly Dictionary<int, Action<AqaraOppleFourButtonsWirelesSwitch, Func<ClickArg, Task>>> Subscribe = new()
+    private static readonly Dictionary<int, Action<AqaraOppleFourButtonsWirelessSwitch, Func<ClickArg, Task>>> Subscribe = new()
     {
         [1] = (sw, h) => sw.OnButton1ClickAsync += h,
         [2] = (sw, h) => sw.OnButton2ClickAsync += h,
@@ -80,14 +80,14 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
 
     private static void SubscribeButton(AqaraOppleWirelesSwitch sw, int button, Func<ClickArg, Task> handler)
     {
-        if (sw is AqaraOppleFourButtonsWirelesSwitch four) Subscribe[button](four, handler);
-        else if (button == 1) ((AqaraOppleTwoButtonsWirelesSwitch)sw).OnButton1ClickAsync += handler;
-        else ((AqaraOppleTwoButtonsWirelesSwitch)sw).OnButton2ClickAsync += handler;
+        if (sw is AqaraOppleFourButtonsWirelessSwitch four) Subscribe[button](four, handler);
+        else if (button == 1) ((AqaraOppleTwoButtonsWirelessSwitch)sw).OnButton1ClickAsync += handler;
+        else ((AqaraOppleTwoButtonsWirelessSwitch)sw).OnButton2ClickAsync += handler;
     }
 
     public static IEnumerable<object[]> AllButtonClicks =>
-        from model in new[] { AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL, AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL }
-        from button in Enumerable.Range(1, model == AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL ? 2 : 4)
+        from model in new[] { AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL, AqaraOppleFourButtonsWirelessSwitch.LUMI_MQTT_MODEL }
+        from button in Enumerable.Range(1, model == AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL ? 2 : 4)
         from click in Clicks
         select new object[] { model, button, click.value, click.arg };
 
@@ -97,7 +97,7 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
     {
         var sw = Create(model);
         var received = new List<(int, ClickArg)>();
-        var buttons = sw is AqaraOppleTwoButtonsWirelesSwitch ? 2 : 4;
+        var buttons = sw is AqaraOppleTwoButtonsWirelessSwitch ? 2 : 4;
         for (var n = 1; n <= buttons; n++)
         {
             var subscribed = n;
@@ -109,8 +109,8 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
     }
 
     [Theory]
-    [InlineData(AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
-    [InlineData(AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(AqaraOppleFourButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
     public void All_Diagnostics_Update_Before_Events_And_Report_Previous_Values(string model)
     {
         var sw = Create(model);
@@ -145,7 +145,7 @@ public class AqaraOppleSwitchTests: ProtocolDeviceTestBase
     [Fact]
     public void Two_Button_Model_Ignores_Absent_Buttons_And_Continues_Parsing()
     {
-        var sw = Create(AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL);
+        var sw = Create(AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL);
         var clicks = new List<ClickArg>();
         SubscribeButton(sw, 1, click => { clicks.Add(click); return Task.CompletedTask; });
         sw.ParseData(System.Text.Json.JsonSerializer.Serialize(new[]

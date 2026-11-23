@@ -224,8 +224,8 @@ public class MqttGatewayDiscoveryTests : MqttGatewayTestBase
     }
 
     [Theory]
-    [InlineData(MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
-    [InlineData(MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(MiHomeLib.Devices.AqaraOppleTwoButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
+    [InlineData(MiHomeLib.Devices.AqaraOppleFourButtonsWirelessSwitch.LUMI_MQTT_MODEL)]
     public async Task Opple_Discovery_And_Mqtt_Reports_Reach_The_Device(string model)
     {
         const string did = "lumi.opple";
@@ -235,10 +235,10 @@ public class MqttGatewayDiscoveryTests : MqttGatewayTestBase
         Gateway.OnDeviceDiscoveredAsync += found =>
         {
             device = (MiHomeLib.Devices.AqaraOppleWirelesSwitch)found;
-            if (device is MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch two)
+            if (device is MiHomeLib.Devices.AqaraOppleTwoButtonsWirelessSwitch two)
                 two.OnButton2ClickAsync += click => { clicks.Add(click); return Task.CompletedTask; };
             else
-                ((MiHomeLib.Devices.AqaraOppleFourButtonsWirelesSwitch)device).OnButton4ClickAsync += click => { clicks.Add(click); return Task.CompletedTask; };
+                ((MiHomeLib.Devices.AqaraOppleFourButtonsWirelessSwitch)device).OnButton4ClickAsync += click => { clicks.Add(click); return Task.CompletedTask; };
             return Task.CompletedTask;
         };
         await Gateway.DiscoverDevicesAsync();
@@ -248,7 +248,7 @@ public class MqttGatewayDiscoveryTests : MqttGatewayTestBase
         device.BatteryPercent.Should().Be(90);
         device.LinkQuality.Should().Be(120);
         device.ChipTemperature.Should().Be(25);
-        var resource = device is MiHomeLib.Devices.AqaraOppleTwoButtonsWirelesSwitch ? "13.2.85" : "13.4.85";
+        var resource = device is MiHomeLib.Devices.AqaraOppleTwoButtonsWirelessSwitch ? "13.2.85" : "13.4.85";
         RaiseZigbeeReportEvent(did, 1700000000000, [(resource, 3)]);
         RaiseZigbeeHeartbeatEvent(did, 1700000001000, [("8.0.2001", 75)]);
         clicks.Should().Equal(MiHomeLib.Devices.AqaraOppleWirelesSwitch.ClickArg.TripleClick);

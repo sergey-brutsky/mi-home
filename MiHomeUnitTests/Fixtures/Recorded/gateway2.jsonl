@@ -1,0 +1,6 @@
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"magnet\",\"sid\":\"158d00011c0754\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":3005,\\\"status\\\":\\\"close\\\"}\"}"}
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"motion\",\"sid\":\"158d00015a9b17\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":2905}\"}"}
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"plug\",\"sid\":\"158d00015dc662\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":3600,\\\"status\\\":\\\"on\\\",\\\"inuse\\\":\\\"1\\\",\\\"power_consumed\\\":\\\"1638331\\\",\\\"load_power\\\":\\\"82.59\\\"}\"}"}
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"sensor_ht\",\"sid\":\"158d000156a94b\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":2775,\\\"temperature\\\":\\\"1050\\\",\\\"humidity\\\":\\\"5603\\\"}\"}"}
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"sensor_wleak.aq1\",\"sid\":\"158d0001d545d0\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":2985}\"}"}
+{"gateway": "XiaomiGateway2", "topic": null, "message": "{\"cmd\":\"read_ack\",\"model\":\"smoke\",\"sid\":\"158d0001d8f839\",\"short_id\":0,\"data\":\"{\\\"voltage\\\":3065,\\\"alarm\\\":\\\"0\\\"}\"}"}

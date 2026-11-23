@@ -1,3 +1,4 @@
+using MiHomeLib.Helpers;
 using MiHomeLib.MiioDevices.Internal;
 using MiHomeLib.Devices;
 using MiHomeLib.Protocols;
@@ -19,23 +20,22 @@ namespace MiHomeLib.XiaomiGateway2;
 
 public partial class XiaomiGateway2
 {
-    private static readonly JsonSerializerOptions RadioJsonOptions = new() { PropertyNameCaseInsensitive = true };
     /// <summary>
-    /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
+    /// Get list or radio channels from gateway in format {id: &lt;int&gt;, url: &lt;url&gt;}
     /// </summary>
     /// <returns>List of RadioChannel</returns>
     public List<RadioChannel> GetRadioChannels() => RunSync(GetRadioChannelsAsync);
 
     /// <summary>
-    /// Get list or radio channels from gateway in format {id: <int>, url: <url>}
+    /// Get list or radio channels from gateway in format {id: &lt;int&gt;, url: &lt;url&gt;}
     /// </summary>
     /// <returns>List of RadioChannel</returns>
     public async Task<List<RadioChannel>> GetRadioChannelsAsync()
     {
-        var response = await RequestObjectAsync("get_channels", new { start = 0 }).ConfigureAwait(false);
+        var response = await RequestObjectAsync("get_channels", new RadioStart(0)).ConfigureAwait(false);
         using var document = MiioResponseReader.Parse(response, "Unable to get radio channels");
         var channels = document.RootElement.GetProperty("result").GetProperty("chs");
-        return channels.Deserialize<List<RadioChannel>>(RadioJsonOptions);
+        return channels.Deserialize(MiHomeJsonContext.Default.ListRadioChannel);
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public partial class XiaomiGateway2
         if ((await GetRadioChannelsAsync().ConfigureAwait(false)).Any(x => x.Id == channelId))
             throw new ArgumentException($"Radio channel with id {channelId} already exists, choose another id", nameof(channelId));
 
-        var result = await RequestObjectAsync("add_channels", new { chs = new List<RadioChannel> { new() { Id = channelId, Url = channelUrl, Type = 0 } } }).ConfigureAwait(false);
+        var result = await RequestObjectAsync("add_channels", new RadioChannels(new List<RadioChannel> { new() { Id = channelId, Url = channelUrl, Type = 0 } })).ConfigureAwait(false);
 
         CheckMessage(result, "Unable to add radio channel");
     }
@@ -75,7 +75,7 @@ public partial class XiaomiGateway2
 
         radioChannels.RemoveAll(x => x.Id != channelId);
 
-        var result = await RequestObjectAsync("remove_channels", new { chs = radioChannels }).ConfigureAwait(false);
+        var result = await RequestObjectAsync("remove_channels", new RadioChannels(radioChannels)).ConfigureAwait(false);
 
         CheckMessage(result, $"Unable to remove radio channel with id {channelId}");
     }
@@ -91,7 +91,7 @@ public partial class XiaomiGateway2
     public async Task RemoveAllRadioChannelsAsync()
     {
         var radioChannels = await GetRadioChannelsAsync().ConfigureAwait(false);
-        var result = await RequestObjectAsync("remove_channels", new { chs = radioChannels }).ConfigureAwait(false);
+        var result = await RequestObjectAsync("remove_channels", new RadioChannels(radioChannels)).ConfigureAwait(false);
         CheckMessage(result, "Unable to remove all radio channels");
     }
 
