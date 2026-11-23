@@ -22,5 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiHomeLib\MiHomeLib.csproj" />
+    <ProjectReference Include="..\MiHomeSetup\MiHomeSetup.csproj" />
   </ItemGroup>
 </Project>
