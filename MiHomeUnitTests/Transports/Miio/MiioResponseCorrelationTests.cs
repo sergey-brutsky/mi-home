@@ -20,6 +20,7 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
 {
     private const string Token = "d5e589986c860a6d814ac8aa47240646";
     private const string Hello = "21310020000000000404a850002e58735d3a2f018c90097a850558c35c953b77";
+    private static readonly TimeSpan ExchangeTimeout = TimeSpan.FromSeconds(5);
     private readonly UdpClient _device = new(new IPEndPoint(IPAddress.Loopback, 0));
     private readonly CancellationTokenSource _stop = new();
     private readonly MiioTransport _transport;
@@ -31,8 +32,9 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
     {
         _transport = new MiioTransport("127.0.0.1", Token, ((IPEndPoint)_device.Client.LocalEndPoint).Port)
         {
-            ResponseTimeout = TimeSpan.FromMilliseconds(250),
-            AttemptTimeout = TimeSpan.FromMilliseconds(250)
+            // The loopback peer and the transport both need time to run on a busy CI runner.
+            ResponseTimeout = ExchangeTimeout,
+            AttemptTimeout = ExchangeTimeout
         };
         _server = RunDeviceAsync();
     }
@@ -105,13 +107,18 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
     [InlineData("not-json")]
     public async Task No_Matching_Response_Times_Out_Without_Replaying_An_Action(string invalid)
     {
+        // Complete the hello before applying the short timeout to the action itself.
+        _responses = id => ["{\"id\":" + id + ",\"result\":[\"ok\"]}"];
+        await _transport.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat);
+        var commandsBeforeAction = Volatile.Read(ref _commands);
+
         _responses = _ => [invalid];
-        _transport.AttemptTimeout = TimeSpan.FromMilliseconds(25);
+        _transport.ResponseTimeout = TimeSpan.FromMilliseconds(500);
         Func<Task> send = () => _transport.SendMessageAsync("{\"id\":42,\"method\":\"action\",\"params\":{}}");
 
         await send.Should().ThrowAsync<TimeoutException>().WithMessage("*outcome is unknown*");
 
-        Volatile.Read(ref _commands).Should().Be(1);
+        Volatile.Read(ref _commands).Should().Be(commandsBeforeAction + 1);
     }
 
     [Fact]

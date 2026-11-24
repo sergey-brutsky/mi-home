@@ -97,7 +97,7 @@ public partial class XiaomiGateway2
 
             if (!sids.Any(_awaitedReads.ContainsKey)) return;
 
-            await Task.WhenAny(allAnswered.Task, Task.Delay(ReadAnswerTimeout, _lifetimeToken)).ConfigureAwait(false);
+            await Task.WhenAny(allAnswered.Task, ReadAnswerDelay(ReadAnswerTimeout, _lifetimeToken)).ConfigureAwait(false);
             ThrowIfMessageBufferFailed();
         }
 

@@ -247,8 +247,11 @@ public sealed class MiioTransportRetryTests : IAsyncLifetime
     [InlineData("vendor_unknown")]
     public async Task Lost_Nonrepeatable_Response_Does_Not_Execute_The_Command_Twice(string method)
     {
-        _transport.ResponseTimeout = TimeSpan.FromMilliseconds(250);
-        _transport.AttemptTimeout = TimeSpan.FromMilliseconds(50);
+        var exchangeTimeout = _transport.ResponseTimeout;
+        _transport.AttemptTimeout = exchangeTimeout;
+        await _transport.SendMessageAsync("{\"id\":9,\"method\":\"get_prop\",\"params\":[]}");
+
+        _transport.ResponseTimeout = TimeSpan.FromMilliseconds(500);
         var power = false;
         _answer = (_, _) => { power = !power; return []; };
         object parameters = method == "set_properties"
@@ -259,10 +262,14 @@ public sealed class MiioTransportRetryTests : IAsyncLifetime
         await send.Should().ThrowAsync<TimeoutException>().WithMessage("*outcome is unknown*");
 
         power.Should().BeTrue();
-        _requestIds.Should().ContainSingle();
+        _requestIds.Should().Equal(9, 10);
+        _hellos.Should().Be(1);
+
+        // Recovery gets a full exchange window, so the safe read has no early retry deadline.
+        _transport.ResponseTimeout = exchangeTimeout;
         _answer = (_, id) => [id];
         await _transport.SendMessageAsync("{\"id\":20,\"method\":\"get_prop\",\"params\":[]}");
-        _requestIds.Should().Equal(new[] { 10, 20 }, "the failed action must not be replayed during recovery");
+        _requestIds.Should().Equal(new[] { 9, 10, 20 }, "the failed action must not be replayed during recovery");
         _hellos.Should().Be(2);
         power.Should().BeTrue();
     }
