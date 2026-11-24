@@ -92,6 +92,7 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
 
     internal TimeSpan ReadDeviceInterval { get; set; } = TimeSpan.FromMilliseconds(25);
     internal TimeSpan ReadAnswerTimeout { get; set; } = TimeSpan.FromSeconds(1);
+    internal Func<TimeSpan, CancellationToken, Task> ReadAnswerDelay { get; set; } = Task.Delay;
     internal int ReadAttempts { get; set; } = 3;
     // Sids whose read request has not been answered yet
     private readonly ConcurrentDictionary<string, byte> _awaitedReads = new();

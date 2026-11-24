@@ -7,6 +7,7 @@ using Moq;
 using Xunit;
 using AutoFixture;
 using MiHomeLib.XiaomiGateway2;
+using System.Threading;
 using System.Threading.Tasks;
 using System;
 using System.Text.Json;
@@ -424,12 +425,32 @@ public class Gateway2DiscoveryTests : Gateway2TestBase
         var discovered = new List<string>();
         _gateway.OnDeviceDiscoveredAsync += d => { discovered.Add(d.DeviceId); return Task.CompletedTask; };
 
+        var firstWaitStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstWaitExpired = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstRepliesProcessed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _gateway.ReadAnswerDelay = (_, cancellationToken) => firstWaitStarted.TrySetResult()
+            ? firstWaitExpired.Task.WaitAsync(cancellationToken)
+            : Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+        _gateway.OnIlluminationChangeAsync += _ =>
+        {
+            firstRepliesProcessed.TrySetResult();
+            return Task.CompletedTask;
+        };
+
         SetupIdList(lostSid, answeringSid);
         SetupReadAnswers(_gatewaySid, ReadAck(_gatewaySid, "gateway", "{\"rgb\":0}"), 1);
         SetupReadAnswers(lostSid, ReadAck(lostSid, "sensor_wleak.aq1", "{\"voltage\":3015}"), 2);
         SetupReadAnswers(answeringSid, ReadAck(answeringSid, "sensor_ht", "{\"voltage\":3025}"), 1);
 
-        await _gateway.DiscoverDevicesAsync();
+        var testTimeout = TimeSpan.FromSeconds(5);
+        var discovery = _gateway.DiscoverDevicesAsync();
+        await firstWaitStarted.Task.WaitAsync(testTimeout);
+
+        // Queue the report behind the first replies so their acknowledgements are recorded before expiring the wait.
+        RaiseGatewayMessage("report", _gatewaySid, "{\"illumination\":1}");
+        await firstRepliesProcessed.Task.WaitAsync(testTimeout);
+        firstWaitExpired.SetResult();
+        await discovery.WaitAsync(testTimeout);
 
         discovered.Should().Contain([lostSid, answeringSid], "the device that missed the first read is found by the repeated one");
         VerifyReads(lostSid, 2);
