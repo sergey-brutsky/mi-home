@@ -47,6 +47,8 @@ jobs:
       matrix:
         include:
         - os: windows-latest
+          framework: net461
+        - os: windows-latest
           framework: net462
         - os: ubuntu-latest
           framework: net8.0

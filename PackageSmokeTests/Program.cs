@@ -11,7 +11,9 @@ internal static class Program
             throw new InvalidOperationException("Unexpected property response from the packaged library.");
         var framework = ((System.Runtime.Versioning.TargetFrameworkAttribute)Attribute.GetCustomAttribute(
             typeof(MiioDevice).Assembly, typeof(System.Runtime.Versioning.TargetFrameworkAttribute))).FrameworkName;
-#if NET462
+#if NET461
+        const string expected = ".NETFramework,Version=v4.6.1";
+#elif NET462
         const string expected = ".NETFramework,Version=v4.6.2";
 #elif NET8_0
         const string expected = ".NETStandard,Version=v2.0";

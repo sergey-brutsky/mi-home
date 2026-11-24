@@ -1,19 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Title>MiHomeLib</Title>
-    <TargetFrameworks>netstandard2.0;net462;net10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net462;net10.0</TargetFrameworks>
     <PackageId>MiHomeLib</PackageId>
     <MinClientVersion>2.6</MinClientVersion>
     <Authors>Sergey Brutsky</Authors>
     <Description>C# library for using xiaomi/aqara smart gateways/devices in your scenarios</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>
-3.2.0
-- Added support for trimming and Native AOT in standard MiHomeLib scenarios on .NET 10. 
-- Added XML documentation for IntelliSense and a SourceLink symbol package for debugging.
-- Added correctly spelled Sensitivity APIs and Opple WirelessSwitch types. The original names remain available and are marked obsolete.
-- Protected miIO helpers that serialize arbitrary objects now carry trimming and Native AOT warnings on .NET 10.
-- Added hardware tests, recorded message replay, and CI checks on Linux, Windows, and macOS.
+3.2.1
+- Added .NET Framework 4.6.1 support (net461). Verified the packaged assembly on Windows Server 2012 R2.
+
+Supported targets: .NET Standard 2.0, .NET Framework 4.6.1 and 4.6.2, and .NET 10.
 
 Gateway setup guide: https://github.com/sergey-brutsky/mi-home/wiki/Gateway-Setup
 When upgrading from 2.x, review the 3.0 breaking changes and migration guide:
@@ -29,7 +27,7 @@ Migration guide: https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0
     <PackageIcon>gateway.jpeg</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>3.2.0</Version>
+    <Version>3.2.1</Version>
     <LangVersion>14</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -38,7 +36,7 @@ Migration guide: https://github.com/sergey-brutsky/mi-home/wiki/Migration-3.0
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EnablePackageValidation>true</EnablePackageValidation>
-    <PackageValidationBaselineVersion>3.1.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>3.2.0</PackageValidationBaselineVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
