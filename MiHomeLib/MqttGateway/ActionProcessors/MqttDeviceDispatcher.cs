@@ -20,6 +20,7 @@ internal sealed class MqttDeviceDispatcher(
     {
         if (!devices.TryGet(did, out var device))
         {
+            MiHomeMetrics.RecordMessageDropped("Mqtt", "unknown_device");
             if (expectedUnknown)
                 logger.LogDebug("Did '{Did}' is unknown. Skipping '{Action}' command for this device.", did, action);
             else
@@ -28,10 +29,7 @@ internal sealed class MqttDeviceDispatcher(
         }
 
         if (apply is not null)
-        {
-            device.LastTimeMessageReceived = MessageReception.UtcNow;
-            device.LastMessageSourceTimeUtc = timestamp?.ToUniversalTime();
-        }
+            device.MarkMessageReceived(MessageReception.UtcNow, timestamp?.ToUniversalTime());
         apply?.Invoke(device);
     }
 }

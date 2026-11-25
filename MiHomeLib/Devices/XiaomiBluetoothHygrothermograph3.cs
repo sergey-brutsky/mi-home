@@ -11,7 +11,7 @@ namespace MiHomeLib.Devices;
 /// Xiaomi TH Sensor 3 (MJWSD05MMC)
 /// </summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
-public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice
+public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice, ITemperatureSensor, IHumiditySensor, IBatteryPowered
 {
     public const string MARKET_MODEL = "MJWSD05MMC";
     public const string MODEL = "miaomiaoce.sensor_ht.t9";
@@ -46,7 +46,7 @@ public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase,
             {
                 BatteryPercent = result;
                 _hasBatteryReport = true;
-                RaiseEvent(OnBatteryPercentChangeAsync, oldBatteryPercent);
+                RaiseEvent(nameof(OnBatteryPercentChangeAsync), OnBatteryPercentChangeAsync, oldBatteryPercent);
             }
         });
 
@@ -58,7 +58,7 @@ public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase,
             {
                 Temperature = result;
                 _hasTemperatureReport = true;
-                RaiseEvent(OnTemperatureChangeAsync, oldTemperature);
+                RaiseEvent(nameof(OnTemperatureChangeAsync), OnTemperatureChangeAsync, oldTemperature);
             }
         });
 
@@ -70,7 +70,7 @@ public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase,
             {
                 Humidity = result;
                 _hasHumidityReport = true;
-                RaiseEvent(OnHumidityChangeAsync, oldHumidity);
+                RaiseEvent(nameof(OnHumidityChangeAsync), OnHumidityChangeAsync, oldHumidity);
             }
         });
     }
@@ -78,6 +78,7 @@ public sealed class XiaomiBluetoothHygrothermograph3 : ProtocolMappedDeviceBase,
     public float Temperature { get; private set; }
     public byte Humidity { get; private set; }
     public byte BatteryPercent { get; private set; }
+    float IHumiditySensor.Humidity => Humidity;
 
     /// <summary>
     /// Raised on every report, including unchanged values. The previous value is passed as an argument; the new value is in the property.

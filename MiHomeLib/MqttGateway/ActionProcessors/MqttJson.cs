@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using MiHomeLib.Helpers;
 
 namespace MiHomeLib.MqttGateway.ActionProcessors;
 
@@ -44,6 +45,7 @@ internal static class MqttJson
         catch (Exception exception) when (exception is JsonException or FormatException or
             InvalidOperationException or KeyNotFoundException or OverflowException or ArgumentException)
         {
+            MiHomeMetrics.RecordMessageDropped("Mqtt", "malformed");
             logger.LogWarning("Invalid MQTT data for '{Action}'. Processing is skipped: {Reason}", action, exception.Message);
             value = default;
             return false;

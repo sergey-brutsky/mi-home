@@ -27,6 +27,9 @@ public abstract class ProtocolMappedDeviceBase : GatewaySubDeviceBase
     {
         _protocol = protocol;
         Model = model;
+        InitializeAvailabilityTimeout(protocol is DeviceProtocol.XiaomiGateway2 or DeviceProtocol.LumiMqtt
+            ? TimeSpan.FromHours(3)
+            : null);
         _map = new ProtocolDeviceMap();
         ConfigureProtocolMap(_map);
     }

@@ -41,11 +41,11 @@ public sealed class PtxWirelessSwitchBle : ProtocolMappedDeviceBase, IProtocolMa
 
     private protected override void ConfigureProtocolMap(ProtocolDeviceMap map)
     {
-        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.SingleClick, _ => RaiseEvent(OnClickAsync, ClickArg.SingleClick));
-        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.DoubleClick, _ => RaiseEvent(OnClickAsync, ClickArg.DoubleClick));
-        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.LongPressClick, _ => RaiseEvent(OnClickAsync, ClickArg.LongPressClick));
+        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.SingleClick, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.SingleClick));
+        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.DoubleClick, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.DoubleClick));
+        map.LumiBleMiSpecEvent(CLICK_SIID, (int)ClickArg.LongPressClick, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.LongPressClick));
         // Preserve the existing service-level interpretation until real logs identify its event IDs.
-        map.LumiBleMiSpecServiceEvent(LOW_BATTERY_SIID, _ => RaiseEvent(OnLowBatteryAsync));
+        map.LumiBleMiSpecServiceEvent(LOW_BATTERY_SIID, _ => RaiseEvent(nameof(OnLowBatteryAsync), OnLowBatteryAsync));
     }
     /// <summary>
     /// Value of click type passed as a parameter

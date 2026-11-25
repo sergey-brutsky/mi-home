@@ -41,7 +41,7 @@ internal static class TelnetActivator
     {
         output ??= TextWriter.Null;
         token.ThrowIfCancellationRequested();
-        var response = await miio.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat).WaitAsync(token);
+        var response = await miio.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat, token).WaitAsync(token);
         using var info = JsonDocument.Parse(response);
         if (info.RootElement.ValueKind != JsonValueKind.Object || !info.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Object)
             throw new InvalidDataException("miIO.info did not return gateway information. Verify the miIO token and connectivity.");
@@ -70,7 +70,7 @@ internal static class TelnetActivator
         var acknowledged = false;
         try
         {
-            var reply = await miio.RequestAsync(method, parameters!, MiioRetryPolicy.DoNotRepeat).WaitAsync(token);
+            var reply = await miio.RequestAsync(method, parameters!, MiioRetryPolicy.DoNotRepeat, token).WaitAsync(token);
             using var document = JsonDocument.Parse(reply);
             acknowledged = document.RootElement.ValueKind == JsonValueKind.Object &&
                 document.RootElement.TryGetProperty("result", out var answer) &&

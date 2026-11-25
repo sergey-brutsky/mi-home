@@ -21,7 +21,7 @@ namespace MiHomeLib.XiaomiGateway2;
 /// <summary>
 /// Xiaomi Gateway (CN) DGNWG02LM
 /// </summary>
-public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
+public partial class XiaomiGateway2 : MiioDevice, IDisposable, IAsyncDisposable, IGateway2Writer, IEventTaskTracker
 {
     public const string MARKET_MODEL = "DGNWG02LM";
     public const string MODEL = "lumi.gateway.v3";
@@ -76,6 +76,9 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
     private readonly SemaphoreSlim _messagesAvailable = new(0);
     private readonly object _messagesLock = new();
     private Task _messageLoop = Task.CompletedTask;
+    private Task _availabilityLoop = Task.CompletedTask;
+    internal Func<DateTime> UtcNow { get; set; } = () => DateTime.UtcNow;
+    internal TimeSpan AvailabilityCheckInterval { get; set; } = TimeSpan.FromMinutes(1);
     internal Task MessageProcessingCompletion => _messageLoop;
     private int _disposed;
     // Requested on the first write command and cached, null until then: reading devices,
@@ -86,9 +89,14 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
     // Set while DiscoverDevicesAsync waits for the gateway to answer, null otherwise
     // its result is the task reading the devices, started once the gateway has answered
     private TaskCompletionSource<Task> _asyncDiscovery;
+    private CancellationTokenSource _discoveryCancellation;
     internal TimeSpan DiscoveryTimeout { get; set; } = TimeSpan.FromSeconds(10);
     private readonly IGateway2Transport _messageTransport;
     private readonly GatewayDevices _devices = new();
+    private readonly ConcurrentDictionary<Task, byte> _pendingEvents = new();
+    private readonly object _gatewayAvailabilityLock = new();
+    private DateTime? _lastGatewayMessageUtc;
+    private int _gatewayAvailabilityState = -1;
 
     internal TimeSpan ReadDeviceInterval { get; set; } = TimeSpan.FromMilliseconds(25);
     internal TimeSpan ReadAnswerTimeout { get; set; } = TimeSpan.FromSeconds(1);
@@ -96,6 +104,7 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
     internal int ReadAttempts { get; set; } = 3;
     // Sids whose read request has not been answered yet
     private readonly ConcurrentDictionary<string, byte> _awaitedReads = new();
+    internal int AwaitedReadCount => _awaitedReads.Count;
     private TaskCompletionSource<bool> _allReadsAnswered;
     public enum Sound
     {
@@ -127,6 +136,28 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
         Custom3 = 10003,
     }
     public event Func<GatewaySubDeviceBase, Task> OnDeviceDiscoveredAsync = (_) => Task.CompletedTask;
+    /// <summary>
+    /// Raised for every event of every sub-device after it has been discovered.
+    /// Handlers of the device itself and of this event run concurrently.
+    /// </summary>
+    public event Func<DeviceEvent, Task> OnDeviceEventAsync = _ => Task.CompletedTask;
+    /// <summary>
+    /// Null until the first message from the gateway itself; then false when the gateway has sent nothing
+    /// for <see cref="GatewayAvailabilityTimeout"/>. It remains null when multicast cannot reach this machine.
+    /// </summary>
+    public bool? IsAvailable => Volatile.Read(ref _gatewayAvailabilityState) switch
+    {
+        -1 => null,
+        0 => false,
+        1 => true,
+        _ => null
+    };
+
+    /// <summary>How long the gateway may stay silent before it is reported unavailable. Defaults to one minute.</summary>
+    public TimeSpan GatewayAvailabilityTimeout { get; set; } = TimeSpan.FromMinutes(1);
+
+    /// <summary>Raised when gateway availability changes between true and false.</summary>
+    public event Func<bool, Task> OnAvailabilityChangedAsync = _ => Task.CompletedTask;
     public XiaomiGateway2(string ip, string token, string gatewaySid = null)
         : this(ip, token, gatewaySid, null) { }
 
@@ -192,6 +223,43 @@ public partial class XiaomiGateway2 : MiioDevice, IDisposable, IGateway2Writer
             _messageTransport.Dispose,
             _devices.DisposeAll,
             () => base.Dispose());
+    }
+
+    /// <summary>
+    /// Disposes the gateway and completes when its background work has stopped and running event handlers have returned;
+    /// no event handler is invoked after this method completes. Called from inside an event handler of this gateway or
+    /// one of its devices, it does not wait for handlers.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+            var devices = _devices.ToList();
+            Dispose();
+
+            var backgroundTasks = new List<Task> { _messageLoop, _availabilityLoop };
+            if (_messageTransport is UdpTransport udpTransport)
+                backgroundTasks.Add(udpTransport.Completion);
+            await WaitForTasksAsync(backgroundTasks).ConfigureAwait(false);
+
+            if (AsyncEvents.IsInsideEventHandlerFor(this)) return;
+            await WaitForTasksAsync(_pendingEvents.Keys.ToArray().Concat(devices.Select(device => device.WhenEventsCompleted())))
+                .ConfigureAwait(false);
+    }
+
+    void IEventTaskTracker.TrackEvent(Task task) => TrackEvent(task);
+
+    private void TrackEvent(Task task)
+    {
+            if (task.IsCompleted) return;
+            _pendingEvents.TryAdd(task, 0);
+            _ = task.ContinueWith(completed => _pendingEvents.TryRemove(completed, out _),
+                CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+    }
+
+    private async Task WaitForTasksAsync(IEnumerable<Task> tasks)
+    {
+            try { await Task.WhenAll(tasks).ConfigureAwait(false); }
+            catch (OperationCanceledException) { }
+            catch (Exception exception) { _logger.LogDebug(exception, "A gateway background task failed during disposal."); }
     }
 
     private void StopMessageProcessing()

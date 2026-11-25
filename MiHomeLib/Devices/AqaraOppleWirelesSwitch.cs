@@ -37,10 +37,10 @@ public abstract class AqaraOppleWirelesSwitch : LumiBatteryDeviceBase
         MapBattery(map, gateway2Voltage: false);
     }
 
-    private protected void RaiseClick(int value, Func<ClickArg, Task> handler)
+    private protected void RaiseClick(int value, string eventName, Func<ClickArg, Task> handler)
     {
         if (Enum.IsDefined(typeof(ClickArg), value))
-            RaiseEvent(handler, (ClickArg)value);
+            RaiseEvent(eventName, handler, (ClickArg)value); // device-event: event name supplied by caller
         else
             _logger.LogWarning("Click code '{Code}' is not supported yet.", value);
     }

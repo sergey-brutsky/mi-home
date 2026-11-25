@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>RTCGQ02LM BLE motion and light sensor used by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
-public sealed class XiaomiSmartHumanBodySensor2 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice
+public sealed class XiaomiSmartHumanBodySensor2 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice, IBatteryPowered
 {
     public const string MARKET_MODEL = "RTCGQ02LM";
     public const string MODEL = "lumi.motion.bmgl01";
@@ -69,7 +69,7 @@ public sealed class XiaomiSmartHumanBodySensor2 : ProtocolMappedDeviceBase, IPro
             if (motion == Motion) return;
             var oldMotion = Motion;
             Motion = motion;
-            RaiseEvent(OnMotionDetectedAsync, oldMotion);
+            RaiseEvent(nameof(OnMotionDetectedAsync), OnMotionDetectedAsync, oldMotion);
         });
         map.LumiBle(LIGHT_EID, data =>
         {
@@ -78,12 +78,12 @@ public sealed class XiaomiSmartHumanBodySensor2 : ProtocolMappedDeviceBase, IPro
             if (light == Light) return;
             var oldLight = Light;
             Light = light;
-            RaiseEvent(OnLightChangeAsync, oldLight);
+            RaiseEvent(nameof(OnLightChangeAsync), OnLightChangeAsync, oldLight);
         });
         map.LumiBle(IDLE_TIME_EID, data =>
         {
             var seconds = BleValueDecoder.DecodeUnsignedLittleEndian(data.ReadString(), 4);
-            RaiseEvent(OnNoMotionDetectedAsync, (NoMotionState)seconds);
+            RaiseEvent(nameof(OnNoMotionDetectedAsync), OnNoMotionDetectedAsync, (NoMotionState)seconds);
         });
         map.LumiBle(4106, data =>
         {
@@ -91,7 +91,7 @@ public sealed class XiaomiSmartHumanBodySensor2 : ProtocolMappedDeviceBase, IPro
             var oldBattery = BatteryPercent;
             BatteryPercent = battery;
             _hasBatteryReport = true;
-            RaiseEvent(OnBatteryPercentChangeAsync, oldBattery);
+            RaiseEvent(nameof(OnBatteryPercentChangeAsync), OnBatteryPercentChangeAsync, oldBattery);
         });
     }
 

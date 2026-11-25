@@ -109,13 +109,13 @@ public abstract class MotionSensorBase : LumiBatteryDeviceBase
     private void UpdateGateway2NoMotion(JsonElement value)
     {
         if (TryGetGateway2Int(value, out var seconds))
-            RaiseEvent(OnNoMotionAsync, seconds);
+            RaiseEvent(nameof(OnNoMotionAsync), OnNoMotionAsync, seconds);
     }
 
     private void RaiseMotion()
     {
         MotionDate = DateTime.Now;
-        RaiseEvent(OnMotionAsync);
+        RaiseEvent(nameof(OnMotionAsync), OnMotionAsync);
     }
 
     // Every motion restarts the countdown before invoking client handlers.
@@ -134,7 +134,7 @@ public abstract class MotionSensorBase : LumiBatteryDeviceBase
                 StartNoMotionTimer(seconds, timer, generation);
             }
         }
-        RaiseEvent(OnMotionAsync);
+        RaiseEvent(nameof(OnMotionAsync), OnMotionAsync);
     }
 
     private void StartNoMotionTimer(int seconds, ITimer timer, long generation)
@@ -148,7 +148,7 @@ public abstract class MotionSensorBase : LumiBatteryDeviceBase
                 reported = true;
                 timer.Stop();
             }
-            RaiseEvent(OnNoMotionAsync, seconds);
+            RaiseEvent(nameof(OnNoMotionAsync), OnNoMotionAsync, seconds);
         });
     }
 

@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>MCCGQ02HL BLE contact and light sensor used by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
-public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice
+public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtocolMappedBleDevice, IBatteryPowered, IContactSensor
 {
     public const string MARKET_MODEL = "MCCGQ02HL";
     public const string MODEL = "isa.magnet.dw2hl";
@@ -33,6 +33,12 @@ public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtoco
     public override string DeviceId { get; }
     public string Mac { get; private set; }
     public byte BatteryPercent { get; private set; }
+    bool? IContactSensor.IsOpen => Contact switch
+    {
+        ContactState.Open or ContactState.NotClosedAfterConfiguredTimeout => true,
+        ContactState.Closed => false,
+        _ => null,
+    };
 
     /// <summary>Raised on every battery report, including unchanged values. Passes the previous value, the new value is in BatteryPercent.</summary>
     public event Func<byte, Task> OnBatteryPercentChangeAsync = _ => Task.CompletedTask;
@@ -53,7 +59,7 @@ public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtoco
             if (contact == Contact) return;
             var oldContact = Contact;
             Contact = contact;
-            RaiseEvent(OnContactChangeAsync, oldContact);
+            RaiseEvent(nameof(OnContactChangeAsync), OnContactChangeAsync, oldContact);
         });
         map.LumiBle(LIGHT_EID, value =>
         {
@@ -62,7 +68,7 @@ public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtoco
             if (light == Light) return;
             var oldLight = Light;
             Light = light;
-            RaiseEvent(OnLightChangeAsync, oldLight);
+            RaiseEvent(nameof(OnLightChangeAsync), OnLightChangeAsync, oldLight);
         });
         map.LumiBle(4106, value =>
         {
@@ -70,7 +76,7 @@ public sealed class XiaomiDoorWindowSensor2 : ProtocolMappedDeviceBase, IProtoco
             var oldBattery = BatteryPercent;
             BatteryPercent = battery;
             _hasBatteryReport = true;
-            RaiseEvent(OnBatteryPercentChangeAsync, oldBattery);
+            RaiseEvent(nameof(OnBatteryPercentChangeAsync), OnBatteryPercentChangeAsync, oldBattery);
         });
     }
 

@@ -96,9 +96,12 @@ Use MiHomeSetup to check readiness and prepare a supported gateway for the libra
 
 For `make gw check/setup` commands, supported firmware, credentials, reboot behavior and troubleshooting, follow the **[gateway setup guide in the wiki](https://github.com/sergey-brutsky/mi-home/wiki/Gateway-Setup)**. `check` is read-only; `setup` changes gateway access and may restart MQTT services.
 
+For a long-running .NET Worker Service example with gateway registration, device events, and graceful shutdown, see the [Worker Service guide](https://github.com/sergey-brutsky/mi-home/wiki/Worker-Service).
+
 ## <a name="basic-scenario">Basic scenarios</a>
 
 Subscribe during discovery and keep the gateway alive while listening. These console examples wait for Enter before disposing the gateway.
+In async methods, `await using` waits for background work and active event handlers to finish; synchronous `using` remains available.
 
 Xiaomi Gateway 2
 
@@ -111,7 +114,7 @@ public static class Gateway2Example
 {
     public static async Task RunAsync(string ip, string token)
     {
-        using var gateway = new XiaomiGateway2(ip, token);
+        await using var gateway = new XiaomiGateway2(ip, token);
         gateway.OnDeviceDiscoveredAsync += device =>
         {
             Console.WriteLine(device);
@@ -134,7 +137,7 @@ public static class MultimodeExample
 {
     public static async Task RunAsync(string ip, string token, string did)
     {
-        using var gateway = new MultimodeGateway(ip, token, did);
+        await using var gateway = new MultimodeGateway(ip, token, did);
         gateway.OnDeviceDiscoveredAsync += device =>
         {
             Console.WriteLine(device);
@@ -157,7 +160,7 @@ public static class Multimode2GlobalExample
 {
     public static async Task RunAsync(string ip, string token, string did)
     {
-        using var gateway = new MultimodeGateway2Global(ip, token, did);
+        await using var gateway = new MultimodeGateway2Global(ip, token, did);
         gateway.OnDeviceDiscoveredAsync += device =>
         {
             Console.WriteLine(device);
@@ -180,7 +183,7 @@ public static class Multimode2ChinaExample
 {
     public static async Task RunAsync(string ip, string token, string did)
     {
-        using var gateway = new MultimodeGateway2China(ip, token, did);
+        await using var gateway = new MultimodeGateway2China(ip, token, did);
         gateway.OnDeviceDiscoveredAsync += device =>
         {
             Console.WriteLine(device);
@@ -203,7 +206,7 @@ public static class HubE1Example
 {
     public static async Task RunAsync(string ip, string token, string did)
     {
-        using var gateway = new AqaraHubE1China(ip, token, did);
+        await using var gateway = new AqaraHubE1China(ip, token, did);
         gateway.OnDeviceDiscoveredAsync += device =>
         {
             Console.WriteLine(device);
@@ -214,6 +217,75 @@ public static class HubE1Example
     }
 }
 ```
+## All device events in one place
+
+Subscribe to `OnDeviceEventAsync` to receive events from every discovered sub-device connected to a gateway:
+
+```csharp
+gateway.OnDeviceEventAsync += deviceEvent =>
+{
+    Console.WriteLine($"{deviceEvent.Device.DeviceId}: {deviceEvent.EventName} " +
+        $"({string.Join(", ", deviceEvent.Arguments)})");
+    return Task.CompletedTask;
+};
+```
+
+`Arguments` contains the values passed to the device-specific event handlers. For value changes, it contains the
+previous value; the new value is available from the device property. The device-specific and gateway event handlers
+run concurrently.
+
+## Device availability
+
+Zigbee devices default to a three-hour silence timeout; BLE and Mesh devices have availability checking disabled by
+default. Set `AvailabilityTimeout` to customize it or `null` to disable checking:
+
+```csharp
+gateway.OnDeviceDiscoveredAsync += device =>
+{
+    device.AvailabilityTimeout = TimeSpan.FromMinutes(90);
+    device.OnAvailabilityChangedAsync += available =>
+    {
+        Console.WriteLine($"{device.DeviceId} available: {available}");
+        return Task.CompletedTask;
+    };
+    return Task.CompletedTask;
+};
+```
+
+`XiaomiGateway2.IsAvailable` stays `null` until a message from the gateway itself reaches the client, then changes to
+`false` after the gateway is silent for `GatewayAvailabilityTimeout` (one minute by default). Its heartbeat is sent
+over multicast, so it remains `null` if multicast does not reach the machine, for example over a VPN. The three-hour
+Zigbee timeout is a conservative estimate and should be validated with the actual devices and gateway firmware.
+
+## Device capabilities
+
+Capability interfaces let application code work with device features without checking concrete device types:
+
+```csharp
+foreach (var device in gateway.GetDevices())
+{
+    if (device is ITemperatureSensor sensor)
+        Console.WriteLine($"{sensor.Temperature}°C");
+    if (device is ISwitchable switchable)
+        await switchable.TurnOnAsync();
+}
+```
+
+| Interface | Device feature |
+|:---|:---|
+| `ITemperatureSensor` | Temperature |
+| `IHumiditySensor` | Relative humidity |
+| `IPressureSensor` | Pressure |
+| `IBatteryPowered` | Battery percentage |
+| `ILinkQualityReporter` | Link quality |
+| `IPowerMeter` | Current load power |
+| `IContactSensor` | Open/closed contact state |
+| `ISmokeSensor` | Smoke alarm state |
+| `ISwitchable` | On/off state and control |
+
+Unknown contact, smoke, and switch states are exposed as `null` where supported by the device. Capability membership
+depends on the device model. Dual-channel switching controls and motion-sensor behavior are not generalized in this
+release, though the dual relay exposes its listed power-meter and link-quality properties.
 
 ## <a name="logging">Logging</a>
 
@@ -239,6 +311,41 @@ Install `Microsoft.Extensions.Logging.Console` to use `AddConsole`. Set a proces
 
 Levels: `Debug` shows every message received from the gateway, `Information` discovery and connection events, `Warning` messages or devices the library does not support yet. Each device logs under its own type name, e.g. `MiHomeLib.Devices.XiaomiSmartWirelessSwitch`, so logging can be enabled for one device only.
 
+
+
+## <a name="metrics">Metrics</a>
+
+MiHomeLib publishes metrics through `System.Diagnostics.Metrics`. Subscribe with a `MeterListener`; no OpenTelemetry
+dependency is required:
+
+```csharp
+using System.Diagnostics.Metrics;
+
+var listener = new MeterListener
+{
+    InstrumentPublished = (instrument, meterListener) =>
+    {
+        if (instrument.Meter.Name == MiHomeDiagnostics.MeterName)
+            meterListener.EnableMeasurementEvents(instrument);
+    }
+};
+listener.SetMeasurementEventCallback<double>((instrument, measurement, tags, _) =>
+    Console.WriteLine($"{instrument.Name}: {measurement}"));
+listener.SetMeasurementEventCallback<long>((instrument, measurement, tags, _) =>
+    Console.WriteLine($"{instrument.Name}: {measurement}"));
+listener.Start();
+```
+
+| Instrument | Unit | Tags |
+|:---|:---|:---|
+| `mihome.miio.request.duration` | `ms` | `method`, `outcome` (`success`, `timeout`, `error`) |
+| `mihome.miio.request.retries` | `{retry}` | `method` |
+| `mihome.mqtt.connection.lost` | `{event}` | — |
+| `mihome.mqtt.connection.restored` | `{event}` | — |
+| `mihome.messages.received` | `{message}` | `gateway` (`XiaomiGateway2`, `Mqtt`) |
+| `mihome.messages.dropped` | `{message}` | `gateway`, `reason` (`buffer_full`, `malformed`, `unsupported_model`, `unknown_device`, `unsupported_topic`) |
+| `mihome.devices.availability.changed` | `{change}` | `available` |
+
 ## <a name="documentation">Documentation</a>
 
 Check detailed documentation on how to work with different devices in the [project's WIKI](https://github.com/sergey-brutsky/mi-home/wiki)
@@ -246,3 +353,8 @@ Check detailed documentation on how to work with different devices in the [proje
 ## <a name="contribution">Contribution</a>
 
 Your pull requests are welcome to replenish the database of supported devices
+
+To add a MIoT device, download its instance JSON from `https://miot-spec.org/miot-spec-v2/instance?type=<urn>`,
+then run `dotnet run --project tools/MiotSpecImporter -- <path-to-instance.json>`. The importer works offline and prints
+`MiotProperty` attributes. Add them to a new `partial` class derived from `MiotGenericDevice`; implement enum properties
+and MIoT actions manually, then add tests for the device.

@@ -58,13 +58,13 @@ public sealed class XiaomiSmartWirelessSwitch : LumiBatteryDeviceBase
         };
 
         if (click.HasValue)
-            RaiseEvent(OnClickAsync, click.Value);
+            RaiseEvent(nameof(OnClickAsync), OnClickAsync, click.Value);
     }
 
     private void UpdateClick(int value)
     {
         if (Enum.IsDefined(typeof(ClickArg), value))
-            RaiseEvent(OnClickAsync, (ClickArg)value);
+            RaiseEvent(nameof(OnClickAsync), OnClickAsync, (ClickArg)value);
     }
 
 

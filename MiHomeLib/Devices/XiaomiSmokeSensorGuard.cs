@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>JTYJ-GD-03MI BLE smoke sensor used by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
-public sealed class XiaomiSmokeSensorGuard : ProtocolMappedDeviceBase, IProtocolMappedBleDevice
+public sealed class XiaomiSmokeSensorGuard : ProtocolMappedDeviceBase, IProtocolMappedBleDevice, IBatteryPowered, ISmokeSensor
 {
     public const string MARKET_MODEL = "JTYJ-GD-03MI";
     public const string MODEL = "lumi.sensor_smoke.mcn02";
@@ -27,6 +27,12 @@ public sealed class XiaomiSmokeSensorGuard : ProtocolMappedDeviceBase, IProtocol
     public string Mac { get; private set; }
     public SmokeState Smoke { get; private set; } = SmokeState.Unknown;
     public byte BatteryPercent { get; private set; }
+    bool? ISmokeSensor.IsSmokeDetected => Smoke switch
+    {
+        SmokeState.SmokeDetected => true,
+        SmokeState.NoSmokeDetected => false,
+        _ => null,
+    };
 
     /// <summary>Raised only when the smoke state changes. Passes the previous state, the new state is in Smoke.</summary>
     public event Func<SmokeState, Task> OnSmokeChangeAsync = _ => Task.CompletedTask;
@@ -51,7 +57,7 @@ public sealed class XiaomiSmokeSensorGuard : ProtocolMappedDeviceBase, IProtocol
 
             var oldSmoke = Smoke;
             Smoke = smoke;
-            RaiseEvent(OnSmokeChangeAsync, oldSmoke);
+            RaiseEvent(nameof(OnSmokeChangeAsync), OnSmokeChangeAsync, oldSmoke);
         });
         map.LumiBle(BATTERY_EID, value =>
         {
@@ -59,7 +65,7 @@ public sealed class XiaomiSmokeSensorGuard : ProtocolMappedDeviceBase, IProtocol
             var oldBattery = BatteryPercent;
             BatteryPercent = battery;
             _hasBatteryReport = true;
-            RaiseEvent(OnBatteryPercentChangeAsync, oldBattery);
+            RaiseEvent(nameof(OnBatteryPercentChangeAsync), OnBatteryPercentChangeAsync, oldBattery);
         });
     }
 

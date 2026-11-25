@@ -1,0 +1,45 @@
+MiHomeLib.Devices.DeviceEvent
+MiHomeLib.Devices.DeviceEvent.Arguments.get -> System.Collections.Generic.IReadOnlyList<object>
+MiHomeLib.Devices.DeviceEvent.Device.get -> MiHomeLib.Devices.GatewaySubDeviceBase
+MiHomeLib.Devices.DeviceEvent.EventName.get -> string
+MiHomeLib.Devices.DeviceEvent.TimestampUtc.get -> System.DateTime
+override MiHomeLib.Devices.DeviceEvent.ToString() -> string
+MiHomeLib.Devices.IBatteryPowered
+MiHomeLib.Devices.IBatteryPowered.BatteryPercent.get -> byte
+MiHomeLib.Devices.IContactSensor
+MiHomeLib.Devices.IContactSensor.IsOpen.get -> bool?
+MiHomeLib.Devices.GatewaySubDeviceBase.AvailabilityTimeout.get -> System.TimeSpan?
+MiHomeLib.Devices.GatewaySubDeviceBase.AvailabilityTimeout.set -> void
+MiHomeLib.Devices.GatewaySubDeviceBase.IsAvailable.get -> bool
+MiHomeLib.Devices.GatewaySubDeviceBase.OnAvailabilityChangedAsync -> System.Func<bool, System.Threading.Tasks.Task>
+MiHomeLib.Devices.IHumiditySensor
+MiHomeLib.Devices.IHumiditySensor.Humidity.get -> float
+MiHomeLib.Devices.ILinkQualityReporter
+MiHomeLib.Devices.ILinkQualityReporter.LinkQuality.get -> byte
+MiHomeLib.Devices.IPowerMeter
+MiHomeLib.Devices.IPowerMeter.LoadPower.get -> float
+MiHomeLib.Devices.IPressureSensor
+MiHomeLib.Devices.IPressureSensor.Pressure.get -> float
+MiHomeLib.Devices.ISmokeSensor
+MiHomeLib.Devices.ISmokeSensor.IsSmokeDetected.get -> bool?
+MiHomeLib.Devices.ISwitchable
+MiHomeLib.Devices.ISwitchable.IsOn.get -> bool?
+MiHomeLib.Devices.ISwitchable.ToggleAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.ISwitchable.TurnOffAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.ISwitchable.TurnOnAsync() -> System.Threading.Tasks.Task
+MiHomeLib.Devices.ITemperatureSensor
+MiHomeLib.Devices.ITemperatureSensor.Temperature.get -> float
+static MiHomeLib.MiioDevices.MiioDevice.GetDeviceIdByIpAsync(string ip, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string>
+static MiHomeLib.MiioDevices.MiioDiscovery.DiscoverAsync(System.TimeSpan? timeout, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MiHomeLib.MiioDevices.MiioDiscovery.DiscoveredDevice>>
+MiHomeLib.MiHomeDiagnostics
+const MiHomeLib.MiHomeDiagnostics.MeterName = "MiHomeLib" -> string
+MiHomeLib.MqttGateway.MqttGatewayBase.OnDeviceEventAsync -> System.Func<MiHomeLib.Devices.DeviceEvent, System.Threading.Tasks.Task>
+MiHomeLib.MqttGateway.MqttGatewayBase.DisposeAsync() -> System.Threading.Tasks.ValueTask
+MiHomeLib.MqttGateway.MqttGatewayBase.DiscoverDevicesAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DiscoverDevicesAsync(System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.DisposeAsync() -> System.Threading.Tasks.ValueTask
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GatewayAvailabilityTimeout.get -> System.TimeSpan
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.GatewayAvailabilityTimeout.set -> void
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.IsAvailable.get -> bool?
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.OnAvailabilityChangedAsync -> System.Func<bool, System.Threading.Tasks.Task>
+MiHomeLib.XiaomiGateway2.XiaomiGateway2.OnDeviceEventAsync -> System.Func<MiHomeLib.Devices.DeviceEvent, System.Threading.Tasks.Task>

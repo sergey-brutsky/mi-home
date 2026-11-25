@@ -1,7 +1,7 @@
 # Hardware tests
 
-Run this project separately from `MiHomeUnitTests`. The CI workflows build it as part of the solution.
-Hardware tests skip when their gateway is unconfigured.
+This opt-in project is excluded from `MiHome.sln` and CI test workflows. Run it manually, separately from
+`MiHomeUnitTests`; tests skip when their gateway is unconfigured.
 
 ## Configuration
 

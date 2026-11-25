@@ -54,7 +54,7 @@ public sealed class AqaraWaterLeakSensor : LumiBatteryDeviceBase
     private void UpdateMoisture(bool value)
     {
         Moisture = value;
-        RaiseEvent(OnMoistureChangeAsync, value);
+        RaiseEvent(nameof(OnMoistureChangeAsync), OnMoistureChangeAsync, value);
     }
 
 

@@ -98,9 +98,9 @@ public sealed class AqaraVibrationSensor : LumiBatteryDeviceBase, IProtocolMappe
         {
             switch (value.ReadString())
             {
-                case "vibrate": RaiseEvent(OnVibrationAsync); break;
-                case "tilt": RaiseEvent(OnTiltAsync); break;
-                case "free_fall": RaiseEvent(OnFreeFallAsync); break;
+                case "vibrate": RaiseEvent(nameof(OnVibrationAsync), OnVibrationAsync); break;
+                case "tilt": RaiseEvent(nameof(OnTiltAsync), OnTiltAsync); break;
+                case "free_fall": RaiseEvent(nameof(OnFreeFallAsync), OnFreeFallAsync); break;
             }
         });
         map.XiaomiGateway2("final_tilt_angle", value => { if (TryGetGateway2Int(value, out var angle)) UpdateFinalTiltAngle(angle); });
@@ -111,9 +111,9 @@ public sealed class AqaraVibrationSensor : LumiBatteryDeviceBase, IProtocolMappe
         {
             switch (value.ReadInt32())
             {
-                case 1: RaiseEvent(OnVibrationAsync); break;
-                case 2: RaiseEvent(OnTiltAsync); break;
-                case 3: RaiseEvent(OnFreeFallAsync); break;
+                case 1: RaiseEvent(nameof(OnVibrationAsync), OnVibrationAsync); break;
+                case 2: RaiseEvent(nameof(OnTiltAsync), OnTiltAsync); break;
+                case 3: RaiseEvent(nameof(OnFreeFallAsync), OnFreeFallAsync); break;
             }
         });
         map.LumiMqtt("0.2.85", value => UpdateFinalTiltAngle(value.ReadInt32()));
@@ -163,12 +163,12 @@ public sealed class AqaraVibrationSensor : LumiBatteryDeviceBase, IProtocolMappe
             return;
         }
 
-        SetAndRaise(Coordinates, () => Coordinates = (x, y, z), OnCoordinatesChangeAsync);
+        SetAndRaise(nameof(OnCoordinatesChangeAsync), Coordinates, () => Coordinates = (x, y, z), OnCoordinatesChangeAsync);
     }
 
-    private void UpdateFinalTiltAngle(int value) => SetAndRaise(FinalTiltAngle, () => FinalTiltAngle = value, OnFinalTiltAngleAsync);
+    private void UpdateFinalTiltAngle(int value) => SetAndRaise(nameof(OnFinalTiltAngleAsync), FinalTiltAngle, () => FinalTiltAngle = value, OnFinalTiltAngleAsync);
 
-    private void UpdateBedActivity(int value) => SetAndRaise(BedActivity, () => BedActivity = value, OnBedActivityAsync);
+    private void UpdateBedActivity(int value) => SetAndRaise(nameof(OnBedActivityAsync), BedActivity, () => BedActivity = value, OnBedActivityAsync);
 
 
 

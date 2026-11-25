@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MiHomeLib.MiioDevices.Internal;
@@ -14,6 +15,7 @@ internal interface IMiioRequests
     /// Sends {"id":..,"method":..,"params":..} and returns the raw answer
     /// </summary>
     Task<string> RequestAsync(string method, object parameters, MiioRetryPolicy retryPolicy);
+    Task<string> RequestAsync(string method, object parameters, MiioRetryPolicy retryPolicy, CancellationToken cancellationToken);
 }
 
 internal static class MiioJson

@@ -8,7 +8,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>SSM-U01 relay with neutral, supported by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class AqaraT1WithNeutral : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice
+public sealed class AqaraT1WithNeutral : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice, IPowerMeter, ISwitchable
 {
     public const string MARKET_MODEL = "SSM-U01";
     public const string LUMI_MQTT_MODEL = "lumi.switch.n0agl1";
@@ -54,12 +54,12 @@ public sealed class AqaraT1WithNeutral : ProtocolMappedDeviceBase, IProtocolMapp
             var state = value.ReadBoolean() ? RelayState.On : RelayState.Off;
             if (State == state) return;
             State = state;
-            RaiseEvent(OnStateChangeAsync);
+            RaiseEvent(nameof(OnStateChangeAsync), OnStateChangeAsync);
         });
         map.LumiMqttMiSpec(LOAD_POWER_RES.siid, LOAD_POWER_RES.piid,
-            value => SetAndRaise(LoadPower, () => LoadPower = value.ReadSingle(), OnLoadPowerChangeAsync));
+            value => SetAndRaise(nameof(OnLoadPowerChangeAsync), LoadPower, () => LoadPower = value.ReadSingle(), OnLoadPowerChangeAsync));
         map.LumiMqttMiSpec(POWER_CONSUMPTION_RES.siid, POWER_CONSUMPTION_RES.piid,
-            value => SetAndRaise(PowerConsumption, () => PowerConsumption = value.ReadSingle(), OnPowerConsumptionChangeAsync));
+            value => SetAndRaise(nameof(OnPowerConsumptionChangeAsync), PowerConsumption, () => PowerConsumption = value.ReadSingle(), OnPowerConsumptionChangeAsync));
     }
 
     private void SendWriteCommand((int siid, int piid) resource, int value)
@@ -72,6 +72,16 @@ public sealed class AqaraT1WithNeutral : ProtocolMappedDeviceBase, IProtocolMapp
     public float LoadPower { get; private set; }
     public float PowerConsumption { get; private set; }
     public RelayState State { get; private set; } = RelayState.Unknown;
+    bool? ISwitchable.IsOn => State switch
+    {
+        RelayState.On => true,
+        RelayState.Off => false,
+        _ => null,
+    };
+
+    Task ISwitchable.TurnOnAsync() => PowerOnAsync();
+    Task ISwitchable.TurnOffAsync() => PowerOffAsync();
+    Task ISwitchable.ToggleAsync() => ToggleStateAsync();
     /// <summary>Raised only when the relay state changes. The new state is in State.</summary>
     public event Func<Task> OnStateChangeAsync = () => Task.CompletedTask;
     /// <summary>

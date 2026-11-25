@@ -13,7 +13,7 @@ namespace MiHomeLib.Devices;
 /// Window and door contact sensor shared by Xiaomi Gateway 2 and Lumi MQTT gateways.
 /// Every event is raised on both kinds of gateways
 /// </summary>
-public abstract class WindowDoorSensorBase : LumiBatteryDeviceBase
+public abstract class WindowDoorSensorBase : LumiBatteryDeviceBase, IContactSensor
 {
     public enum DoorWindowContactState
     {
@@ -29,6 +29,7 @@ public abstract class WindowDoorSensorBase : LumiBatteryDeviceBase
     public override string DeviceId { get; }
     public int ShortId { get; }
     public DoorWindowContactState Contact { get; private set; }
+    bool? IContactSensor.IsOpen => Contact == DoorWindowContactState.Opened;
 
     /// <summary>
     /// "open" or "close", null until the first contact report
@@ -118,9 +119,9 @@ public abstract class WindowDoorSensorBase : LumiBatteryDeviceBase
         if (!parsed) return;
 
         if (seconds == 60)
-            RaiseEvent(NotClosedFor1MinuteAsync);
+            RaiseEvent(nameof(NotClosedFor1MinuteAsync), NotClosedFor1MinuteAsync);
         else if (seconds == 300)
-            RaiseEvent(NotClosedFor5MinutesAsync);
+            RaiseEvent(nameof(NotClosedFor5MinutesAsync), NotClosedFor5MinutesAsync);
     }
 
     private void UpdateLumiContact(JsonElement value)
@@ -151,14 +152,19 @@ public abstract class WindowDoorSensorBase : LumiBatteryDeviceBase
             else if (manageTimers && !wasOpened)
             {
                 var generation = ++_contactGeneration;
-                StartContactTimer(_oneMinuteTimer, generation, () => RaiseEvent(NotClosedFor1MinuteAsync));
+                StartContactTimer(_oneMinuteTimer, generation, () =>
+                    RaiseEvent(nameof(NotClosedFor1MinuteAsync), NotClosedFor1MinuteAsync));
                 if (!IsDisposed && generation == _contactGeneration)
-                    StartContactTimer(_fiveMinutesTimer, generation, () => RaiseEvent(NotClosedFor5MinutesAsync));
+                    StartContactTimer(_fiveMinutesTimer, generation, () =>
+                        RaiseEvent(nameof(NotClosedFor5MinutesAsync), NotClosedFor5MinutesAsync));
             }
         }
 
-        RaiseEvent(state == DoorWindowContactState.Opened ? OnOpenAsync : OnCloseAsync);
-        RaiseEvent(OnContactChangedAsync);
+        if (state == DoorWindowContactState.Opened)
+            RaiseEvent(nameof(OnOpenAsync), OnOpenAsync);
+        else
+            RaiseEvent(nameof(OnCloseAsync), OnCloseAsync);
+        RaiseEvent(nameof(OnContactChangedAsync), OnContactChangedAsync);
     }
 
     private void StartContactTimer(ITimer timer, long generation, Action raiseEvent)

@@ -48,5 +48,5 @@ public sealed class AqaraSmartHumanBodySensor : MotionSensorBase
         map.LumiMqtt("0.3.85", value => UpdateLux(value.ReadInt32()));
     }
 
-    private void UpdateLux(int value) => SetAndRaise(Lux, () => Lux = value, OnLuxChangeAsync);
+    private void UpdateLux(int value) => SetAndRaise(nameof(OnLuxChangeAsync), Lux, () => Lux = value, OnLuxChangeAsync);
 }

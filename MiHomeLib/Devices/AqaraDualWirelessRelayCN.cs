@@ -8,7 +8,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>LLKZMK11LM dual relay, supported by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class AqaraDualWirelessRelayCN : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice
+public sealed class AqaraDualWirelessRelayCN : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice, ILinkQualityReporter, IPowerMeter
 {
     public const string MARKET_MODEL = "LLKZMK11LM";
     public const string LUMI_MQTT_MODEL = "lumi.relay.c2acn01";
@@ -97,22 +97,22 @@ public sealed class AqaraDualWirelessRelayCN : ProtocolMappedDeviceBase, IProtoc
             value => UpdateChannel2(ToChannelState(value.ReadInt32())),
             value => Channel2 = StringToState(value.GetValue<string>()));
         map.LumiMqtt(VOLTAGE_RES_NAME, "load_voltage",
-            value => SetAndRaise(Voltage, () => Voltage = value.ReadInt32() / 1000f, OnVoltageChangeAsync),
+            value => SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value.ReadInt32() / 1000f, OnVoltageChangeAsync),
             value => Voltage = value.GetValue<int>() / 1000f);
         map.LumiMqtt(LOAD_POWER_RES_NAME, "load_power",
-            value => SetAndRaise(LoadPower, () => LoadPower = value.ReadSingle(), OnLoadPowerChangeAsync),
+            value => SetAndRaise(nameof(OnLoadPowerChangeAsync), LoadPower, () => LoadPower = value.ReadSingle(), OnLoadPowerChangeAsync),
             value => LoadPower = value.ReadSingle());
         map.LumiMqtt(INTERLOCK_RES_NAME, "enable_motor_mode",
             value => Interlock = ToInterlockState(value.ReadInt32()),
             value => Interlock = ToInterlockState(value.GetValue<int>()));
         map.LumiMqtt("8.0.2007", "lqi",
-            value => SetAndRaise(LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
+            value => SetAndRaise(nameof(OnLinkQualityChangeAsync), LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
             value => LinkQuality = checked((byte)value.GetValue<int>()));
         map.LumiMqtt("8.0.2006", "chip_temperature",
-            value => SetAndRaise(ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
+            value => SetAndRaise(nameof(OnChipTemperatureChangeAsync), ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
             value => ChipTemperature = checked((byte)value.GetValue<int>()));
-        map.LumiMqtt(ENERGY_RES_NAME, value => SetAndRaise(Energy, () => Energy = value.ReadSingle(), OnEnergyChangeAsync));
-        map.LumiMqtt(LOAD_CURRENT_RES_NAME, value => SetAndRaise(Current, () => Current = value.ReadSingle(), OnCurrentChangeAsync));
+        map.LumiMqtt(ENERGY_RES_NAME, value => SetAndRaise(nameof(OnEnergyChangeAsync), Energy, () => Energy = value.ReadSingle(), OnEnergyChangeAsync));
+        map.LumiMqtt(LOAD_CURRENT_RES_NAME, value => SetAndRaise(nameof(OnCurrentChangeAsync), Current, () => Current = value.ReadSingle(), OnCurrentChangeAsync));
         // Acknowledgement of a setting that is not exposed as a reported property.
         map.LumiMqtt(POWER_MEMORY_RES_NAME, _ => { });
     }
@@ -127,14 +127,14 @@ public sealed class AqaraDualWirelessRelayCN : ProtocolMappedDeviceBase, IProtoc
     {
         if (Channel1 == value) return;
         Channel1 = value;
-        RaiseEvent(OnChannel1StateChangeAsync);
+        RaiseEvent(nameof(OnChannel1StateChangeAsync), OnChannel1StateChangeAsync);
     }
 
     private void UpdateChannel2(ChannelState value)
     {
         if (Channel2 == value) return;
         Channel2 = value;
-        RaiseEvent(OnChannel2StateChangeAsync);
+        RaiseEvent(nameof(OnChannel2StateChangeAsync), OnChannel2StateChangeAsync);
     }
 
 

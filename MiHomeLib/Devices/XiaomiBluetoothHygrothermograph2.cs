@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices;
 
 /// <summary>LYWSD03MMC BLE temperature and humidity sensor used by Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiBle, MODEL, PDID)]
-public sealed class XiaomiBluetoothHygrothermograph2(string deviceId, ILoggerFactory loggerFactory) : ProtocolMappedDeviceBase(loggerFactory), IProtocolMappedBleDevice
+public sealed class XiaomiBluetoothHygrothermograph2(string deviceId, ILoggerFactory loggerFactory) : ProtocolMappedDeviceBase(loggerFactory), IProtocolMappedBleDevice, ITemperatureSensor, IHumiditySensor, IBatteryPowered
 {
     public const string MARKET_MODEL = "LYWSD03MMC";
     public const string MODEL = "miaomiaoce.sensor_ht";
@@ -43,17 +43,17 @@ public sealed class XiaomiBluetoothHygrothermograph2(string deviceId, ILoggerFac
 
     private protected override void ConfigureProtocolMap(ProtocolDeviceMap map)
     {
-        map.LumiBle(4100, value => SetAndRaise(Temperature, () =>
+        map.LumiBle(4100, value => SetAndRaise(nameof(OnTemperatureChangeAsync), Temperature, () =>
         {
             Temperature = BleValueDecoder.DecodeSignedTenths(value.ReadString());
             _hasTemperatureReport = true;
         }, OnTemperatureChangeAsync));
-        map.LumiBle(4102, value => SetAndRaise(Humidity, () =>
+        map.LumiBle(4102, value => SetAndRaise(nameof(OnHumidityChangeAsync), Humidity, () =>
         {
             Humidity = BleValueDecoder.DecodeSignedTenths(value.ReadString());
             _hasHumidityReport = true;
         }, OnHumidityChangeAsync));
-        map.LumiBle(4106, value => SetAndRaise(BatteryPercent, () =>
+        map.LumiBle(4106, value => SetAndRaise(nameof(OnBatteryPercentChangeAsync), BatteryPercent, () =>
         {
             BatteryPercent = BleValueDecoder.DecodeByte(value.ReadString(), "a battery value");
             _hasBatteryReport = true;

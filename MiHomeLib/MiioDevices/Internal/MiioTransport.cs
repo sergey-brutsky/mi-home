@@ -1,6 +1,7 @@
 using MiHomeLib.XiaomiGateway2;
 using MiHomeLib.Helpers;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("MiHomeUnitTests")]
+[assembly: InternalsVisibleTo("MiHomeBenchmarks")]
 [assembly: InternalsVisibleTo("MiHomeSetup")]
 [assembly: InternalsVisibleTo("TrimSmokeTests")]
 // Lets Moq mock internal interfaces such as IGateway2Transport in the tests
@@ -105,32 +107,38 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         SendDiscoverMessageAsync(destination, TimeSpan.FromMilliseconds(receiveTimeoutMs)).GetAwaiter().GetResult();
 
     internal static async Task<List<(string ip, string type, string serial, string token)>> SendDiscoverMessageAsync(
-        IPEndPoint destination, TimeSpan receiveTimeout)
+        IPEndPoint destination, TimeSpan receiveTimeout, CancellationToken cancellationToken = default)
     {
         if (receiveTimeout <= TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(receiveTimeout));
+        cancellationToken.ThrowIfCancellationRequested();
         using var socket = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
         socket.EnableBroadcast = true;
         var hello = HELLO_REQUEST.ToByteArray();
         await socket.SendAsync(hello, hello.Length, destination).ConfigureAwait(false);
-        using var timeoutCancellation = new CancellationTokenSource();
+        using var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         var deadline = Task.Delay(receiveTimeout, timeoutCancellation.Token);
         var devices = new List<(string ip, string type, string serial, string token)>();
         var seen = new HashSet<(string, string, string, string)>();
+        Task<UdpReceiveResult> pendingReceive = null;
         try
         {
             while (true)
             {
-                var receive = socket.ReceiveAsync();
-                if (await Task.WhenAny(receive, deadline).ConfigureAwait(false) != receive)
+                cancellationToken.ThrowIfCancellationRequested();
+                pendingReceive = socket.ReceiveAsync();
+                if (await Task.WhenAny(pendingReceive, deadline).ConfigureAwait(false) != pendingReceive)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     // Closing the socket releases the outstanding receive on every target framework.
                     socket.Close();
-                    try { await receive.ConfigureAwait(false); }
+                    try { await pendingReceive.ConfigureAwait(false); }
                     catch (SocketException) { }
                     catch (ObjectDisposedException) { }
+                    pendingReceive = null;
                     break;
                 }
-                var received = await receive.ConfigureAwait(false);
+                var received = await pendingReceive.ConfigureAwait(false);
+                pendingReceive = null;
                 try
                 {
                     var packet = new MiioPacket(received.Buffer);
@@ -142,7 +150,17 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             }
         }
         catch (SocketException) { }
-        finally { timeoutCancellation.Cancel(); }
+        finally
+        {
+            timeoutCancellation.Cancel();
+            socket.Close();
+            if (pendingReceive is not null)
+            {
+                try { await pendingReceive.ConfigureAwait(false); }
+                catch (SocketException) { }
+                catch (ObjectDisposedException) { }
+            }
+        }
         return devices;
     }
 
@@ -155,11 +173,16 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         var request = JsonNode.Parse(msg) as JsonObject;
         var requestId = request?["id"] is JsonValue idValue && idValue.TryGetValue<int>(out var id) ? id : (int?)null;
         return SendRequestAsync(msg, request, requestId, null, MiioRetry.ForMethod(
-            request?["method"] is JsonValue methodValue && methodValue.TryGetValue<string>(out var method) ? method : null));
+            request?["method"] is JsonValue methodValue && methodValue.TryGetValue<string>(out var method) ? method : null),
+            CancellationToken.None);
     }
 
     public Task<string> RequestAsync(string method, object parameters, MiioRetryPolicy retryPolicy)
+        => RequestAsync(method, parameters, retryPolicy, CancellationToken.None);
+
+    public Task<string> RequestAsync(string method, object parameters, MiioRetryPolicy retryPolicy, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var id = UseGateway2RequestFormat ? NextGateway2RequestId(ref _gateway2RequestId) : Interlocked.Increment(ref _requestId);
         var request = new JsonObject
         {
@@ -167,20 +190,33 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             ["method"] = method,
             ["params"] = MiioParameters.ToNode(parameters)?.DeepClone(),
         };
-        return SendRequestAsync(UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString(), request, id, null, retryPolicy);
+        return SendRequestAsync(UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString(), request, id, null, retryPolicy, cancellationToken);
     }
 
-    private async Task<string> SendRequestAsync(string msg, JsonObject request, int? requestId, int? attemptLimit, MiioRetryPolicy retryPolicy)
+    private async Task<string> SendRequestAsync(string msg, JsonObject request, int? requestId, int? attemptLimit,
+        MiioRetryPolicy retryPolicy, CancellationToken cancellationToken)
     {
-        await _requests.WaitAsync(_lifetimeToken).ConfigureAwait(false);
+        using var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken, cancellationToken);
+        var effectiveToken = linkedCancellation.Token;
+        var acquired = false;
         try
         {
-            _lifetimeToken.ThrowIfCancellationRequested();
-            return await ExchangeAsync(msg, request, requestId, attemptLimit, retryPolicy).ConfigureAwait(false);
+            await _requests.WaitAsync(effectiveToken).ConfigureAwait(false);
+            acquired = true;
+            effectiveToken.ThrowIfCancellationRequested();
+            return await ExchangeAsync(msg, request, requestId, attemptLimit, retryPolicy, effectiveToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException(cancellationToken);
         }
         catch (Exception) when (_lifetimeToken.IsCancellationRequested)
         {
             throw new OperationCanceledException(_lifetimeToken);
+        }
+        catch (OperationCanceledException) when (effectiveToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException(effectiveToken);
         }
         catch (TimeoutException)
         {
@@ -189,59 +225,84 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             _sinceDeviceStamp.Reset();
             throw;
         }
-        finally { _requests.Release(); }
+        finally
+        {
+            if (acquired) _requests.Release();
+        }
     }
 
-    private async Task<string> ExchangeAsync(string msg, JsonObject request, int? requestId, int? attemptLimit, MiioRetryPolicy retryPolicy)
+    private async Task<string> ExchangeAsync(string msg, JsonObject request, int? requestId, int? attemptLimit,
+        MiioRetryPolicy retryPolicy, CancellationToken cancellationToken)
     {
-        var deadline = GetUtcNow() + ResponseTimeout;
-        await SendHelloPacketIfNeededAsync(deadline).ConfigureAwait(false);
-
-        var repeat = retryPolicy == MiioRetryPolicy.SafeToRepeat;
-        if (!repeat) attemptLimit = 1;
-        var sentIds = new HashSet<int>();
-        var attempts = 0;
-
-        while (GetUtcNow() < deadline && (!attemptLimit.HasValue || attempts < attemptLimit.Value))
+        var stopwatch = Stopwatch.StartNew();
+        var method = request?["method"] is JsonValue methodValue &&
+            methodValue.TryGetValue<string>(out var methodName) ? methodName : "raw";
+        var outcome = "error";
+        try
         {
-            var text = msg;
-            if (requestId is not null)
+            var deadline = GetUtcNow() + ResponseTimeout;
+            await SendHelloPacketIfNeededAsync(deadline, cancellationToken).ConfigureAwait(false);
+
+            var repeat = retryPolicy == MiioRetryPolicy.SafeToRepeat;
+            if (!repeat) attemptLimit = 1;
+            var sentIds = new HashSet<int>();
+            var attempts = 0;
+
+            while (GetUtcNow() < deadline && (!attemptLimit.HasValue || attempts < attemptLimit.Value))
             {
-                var attemptId = attempts > 0 && UseGateway2RequestFormat
-                    ? NextGateway2RequestId(ref _gateway2RequestId) : unchecked(requestId.Value + attempts * RETRY_ID_STEP);
-                sentIds.Add(attemptId);
-                // The first attempt is sent as it is, only a repeated one gets a new id
-                if (attempts > 0)
+                cancellationToken.ThrowIfCancellationRequested();
+                var text = msg;
+                if (requestId is not null)
                 {
-                    request["id"] = attemptId;
-                    text = UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString();
+                    var attemptId = attempts > 0 && UseGateway2RequestFormat
+                        ? NextGateway2RequestId(ref _gateway2RequestId) : unchecked(requestId.Value + attempts * RETRY_ID_STEP);
+                    sentIds.Add(attemptId);
+                    // The first attempt is sent as it is, only a repeated one gets a new id
+                    if (attempts > 0)
+                    {
+                        request["id"] = attemptId;
+                        text = UseGateway2RequestFormat ? FormatGateway2Request(request) : request.ToJsonString();
+                    }
+                }
+
+                if (attempts > 0)
+                    MiHomeMetrics.RecordMiioRetry(method);
+                attempts++;
+                var bytes = initialPacket.BuildMessage(text, _cipher, CurrentDeviceStamp());
+                await _udpClient.SendAsync(bytes, bytes.Length, _endpoint).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var attemptEnd = repeat ? Min(GetUtcNow() + AttemptTimeout, deadline) : deadline;
+                while (await ReceiveUntilAsync(attemptEnd, cancellationToken).ConfigureAwait(false) is { } received)
+                {
+                    if (received.Length <= HELLO_LENGTH) continue; // a late answer to the hello
+
+                    var packet = new MiioPacket(received);
+                    var response = packet.GetResponseData(_cipher);
+                    if (!TryReadResponseId(response, out var responseId)) continue;
+                    // A numbered request requires an actual matching id, including ids of its earlier attempts.
+                    // Raw requests deliberately sent without an id retain compatibility with unnumbered object responses.
+                    if (requestId.HasValue && (!responseId.HasValue || !sentIds.Contains(responseId.Value))) continue;
+                    RememberDeviceStamp(packet.Stamp);
+                    outcome = "success";
+                    return response;
                 }
             }
 
-            attempts++;
-            var bytes = initialPacket.BuildMessage(text, _cipher, CurrentDeviceStamp());
-            await _udpClient.SendAsync(bytes, bytes.Length, _endpoint).ConfigureAwait(false);
-
-            var attemptEnd = repeat ? Min(GetUtcNow() + AttemptTimeout, deadline) : deadline;
-            while (await ReceiveUntilAsync(attemptEnd).ConfigureAwait(false) is { } received)
-            {
-                if (received.Length <= HELLO_LENGTH) continue; // a late answer to the hello
-
-                var packet = new MiioPacket(received);
-                var response = packet.GetResponseData(_cipher);
-                if (!TryReadResponseId(response, out var responseId)) continue;
-                // A numbered request requires an actual matching id, including ids of its earlier attempts.
-                // Raw requests deliberately sent without an id retain compatibility with unnumbered object responses.
-                if (requestId.HasValue && (!responseId.HasValue || !sentIds.Contains(responseId.Value))) continue;
-                RememberDeviceStamp(packet.Stamp);
-                return response;
-            }
+            if (!repeat && attempts > 0)
+                throw new TimeoutException(CreateTimeoutException(attempts).Message +
+                    " The command was sent once; its outcome is unknown. Check device state before sending it again.");
+            throw CreateTimeoutException(attempts);
         }
-
-        if (!repeat && attempts > 0)
-            throw new TimeoutException(CreateTimeoutException(attempts).Message +
-                " The command was sent once; its outcome is unknown. Check device state before sending it again.");
-        throw CreateTimeoutException(attempts);
+        catch (TimeoutException)
+        {
+            outcome = "timeout";
+            throw;
+        }
+        finally
+        {
+            MiHomeMetrics.RecordMiioRequestDuration(stopwatch.Elapsed.TotalMilliseconds, method, outcome);
+        }
     }
 
     private void RememberDeviceStamp(uint stamp)
@@ -283,10 +344,11 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     /// <summary>
     /// Returns the next datagram, or null if none arrives until the given time
     /// </summary>
-    private async Task<byte[]> ReceiveUntilAsync(DateTime until)
+    private async Task<byte[]> ReceiveUntilAsync(DateTime until, CancellationToken cancellationToken)
     {
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var remaining = until - GetUtcNow();
             if (remaining <= TimeSpan.Zero) return null;
 
@@ -296,8 +358,11 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
 
             using (var delayCancellation = new CancellationTokenSource())
             {
-                var completed = await Task.WhenAny(receive, WaitForReceiveTimeoutAsync(remaining, delayCancellation.Token)).ConfigureAwait(false);
+                using var linkedDelayCancellation = CancellationTokenSource.CreateLinkedTokenSource(delayCancellation.Token, cancellationToken);
+                var timeout = WaitForReceiveTimeoutAsync(remaining, linkedDelayCancellation.Token);
+                var completed = await Task.WhenAny(receive, timeout).ConfigureAwait(false);
                 delayCancellation.Cancel();
+                cancellationToken.ThrowIfCancellationRequested();
                 if (completed != receive) return null;
             }
 
@@ -320,7 +385,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         if (times < 1) throw new ArgumentOutOfRangeException(nameof(times));
         var request = JsonNode.Parse(msg) as JsonObject;
         var requestId = request?["id"] is JsonValue idValue && idValue.TryGetValue<int>(out var id) ? id : (int?)null;
-        return SendRequestAsync(msg, request, requestId, times, MiioRetryPolicy.SafeToRepeat).GetAwaiter().GetResult();
+        return SendRequestAsync(msg, request, requestId, times, MiioRetryPolicy.SafeToRepeat, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     public void Dispose()
@@ -333,8 +398,9 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         _udpClient?.Close();
     }
 
-    private async Task SendHelloPacketIfNeededAsync(DateTime deadline)
+    private async Task SendHelloPacketIfNeededAsync(DateTime deadline, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (initialPacket != null) return;
 
         var bytes = HELLO_REQUEST.ToByteArray();
@@ -342,11 +408,13 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
 
         while (GetUtcNow() < deadline)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             attempts++;
             await _udpClient.SendAsync(bytes, bytes.Length, _endpoint).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
 
             var attemptEnd = Min(GetUtcNow() + AttemptTimeout, deadline);
-            while (await ReceiveUntilAsync(attemptEnd).ConfigureAwait(false) is { } received)
+            while (await ReceiveUntilAsync(attemptEnd, cancellationToken).ConfigureAwait(false) is { } received)
             {
                 // hello response message must be 32 bytes, anything else is a late answer to an earlier request
                 if (received.Length != HELLO_LENGTH) continue;

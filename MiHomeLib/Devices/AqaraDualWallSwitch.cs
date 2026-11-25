@@ -195,19 +195,19 @@ public sealed class AqaraDualWallSwitch : ProtocolMappedDeviceBase, IProtocolMap
             return;
         }
 
-        RaiseEvent(OnButtonClickAsync, button, (ClickArg)code);
+        RaiseEvent(nameof(OnButtonClickAsync), OnButtonClickAsync, button, (ClickArg)code);
     }
 
     private void UpdateLeft(string status)
     {
         StatusLeft = status;
-        RaiseEvent(OnSwitchChannelLeftAsync, status);
+        RaiseEvent(nameof(OnSwitchChannelLeftAsync), OnSwitchChannelLeftAsync, status);
     }
 
     private void UpdateRight(string status)
     {
         StatusRight = status;
-        RaiseEvent(OnSwitchChannelRightAsync, status);
+        RaiseEvent(nameof(OnSwitchChannelRightAsync), OnSwitchChannelRightAsync, status);
     }
 
     public override string ToString()

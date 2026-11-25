@@ -35,8 +35,8 @@ public class TelnetActivatorTests
         using var output = new StringWriter();
         var miio = CreateMiio(model, firmware);
         object parameters = null;
-        miio.Setup(x => x.RequestAsync(method, It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat))
-            .Callback<string, object, MiioRetryPolicy>((_, value, _) => parameters = value)
+        miio.Setup(x => x.RequestAsync(method, It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()))
+            .Callback<string, object, MiioRetryPolicy, CancellationToken>((_, value, _, _) => parameters = value)
             .ReturnsAsync("{\"result\":[\"ok\"]}");
 
         await TelnetActivator.EnableAsync(model, miio.Object, () => 67283024, Key,
@@ -60,8 +60,8 @@ public class TelnetActivatorTests
                 Assert.EndsWith("; telnetd", json["command"].GetValue<string>());
             }
         }
-        miio.Verify(x => x.RequestAsync(method, It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
-        miio.Verify(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat), Times.Once);
+        miio.Verify(x => x.RequestAsync(method, It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
+        miio.Verify(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()), Times.Once);
         miio.VerifyNoOtherCalls();
     }
 
@@ -122,7 +122,7 @@ public class TelnetActivatorTests
     public async Task Lost_Acknowledgement_Does_Not_Replay_Activation_And_Port_Is_Checked(bool opens)
     {
         var miio = CreateMiio(Model, "1.5.4");
-        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat))
+        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new TimeoutException("Response lost"));
         var probes = 0;
         Task Enable() => TelnetActivator.EnableAsync(Model, miio.Object, () => 1, null,
@@ -130,7 +130,7 @@ public class TelnetActivatorTests
         if (opens) await Enable();
         else await Assert.ThrowsAsync<IOException>(Enable);
         Assert.Equal(opens ? 1 : 5, probes);
-        miio.Verify(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        miio.Verify(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -139,7 +139,7 @@ public class TelnetActivatorTests
     public async Task Acknowledgement_Alone_Does_Not_Prove_Telnet_Readiness(string response, string message)
     {
         var miio = CreateMiio(Model, "1.5.4");
-        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat)).ReturnsAsync(response);
+        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         var error = await Assert.ThrowsAsync<IOException>(() => TelnetActivator.EnableAsync(Model, miio.Object,
             () => 1, null, _ => Task.FromResult(false), CancellationToken.None, TimeSpan.Zero));
         Assert.Contains(message, error.Message);
@@ -164,10 +164,10 @@ public class TelnetActivatorTests
     public async Task Malformed_Activation_Acknowledgement_Still_Checks_The_Port(string response)
     {
         var miio = CreateMiio(Model, "1.5.4");
-        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat)).ReturnsAsync(response);
+        miio.Setup(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         await TelnetActivator.EnableAsync(Model, miio.Object, () => 1, null,
             _ => Task.FromResult(true), CancellationToken.None);
-        miio.Verify(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        miio.Verify(x => x.RequestAsync("set_ip_info", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -177,7 +177,7 @@ public class TelnetActivatorTests
     public async Task Incomplete_Gateway_Information_Stops_Activation(string response)
     {
         var miio = new Mock<IMiioRequests>(MockBehavior.Strict);
-        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat)).ReturnsAsync(response);
+        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         await Assert.ThrowsAsync<InvalidDataException>(() => TelnetActivator.EnableAsync(Model, miio.Object,
             () => 1, null, _ => Task.FromResult(true), CancellationToken.None));
         Assert.Single(miio.Invocations);
@@ -188,7 +188,7 @@ public class TelnetActivatorTests
     {
         using var cancellation = new CancellationTokenSource();
         var miio = CreateMiio(Model, "1.5.4");
-        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .Callback(cancellation.Cancel)
             .ReturnsAsync(JsonSerializer.Serialize(new { result = new { model = Model, fw_ver = "1.5.4" } }));
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => TelnetActivator.EnableAsync(Model, miio.Object,
@@ -206,7 +206,7 @@ public class TelnetActivatorTests
     {
         var miio = new Mock<IMiioRequests>(MockBehavior.Strict);
         var response = JsonSerializer.Serialize(new { result = new { model, fw_ver = firmware, mac } });
-        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat)).ReturnsAsync(response);
+        miio.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         return miio;
     }
 }

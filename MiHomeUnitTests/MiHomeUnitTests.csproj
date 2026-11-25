@@ -10,6 +10,7 @@
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
     <PackageReference Include="AutoFixture" Version="4.18.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.22" />
@@ -26,6 +27,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MiHomeLib\MiHomeLib.csproj" />
+    <ProjectReference Include="..\MiHomeEmulator\MiHomeEmulator.csproj" />
     <ProjectReference Include="..\MiHomeSetup\MiHomeSetup.csproj" />
+    <ProjectReference Include="..\MiHomeLib.Generators\MiHomeLib.Generators.csproj" />
+    <ProjectReference Include="..\tools\MiotSpecImporter\MiotSpecImporter.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Fixtures/MiotSpec/*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
