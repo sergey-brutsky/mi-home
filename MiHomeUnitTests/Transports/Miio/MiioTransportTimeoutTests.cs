@@ -1,9 +1,10 @@
 using MiHomeLib.MiioDevices.Internal;
 using System;
-using System.Diagnostics;
 using MiHomeLib.Helpers;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MiHomeLib.MiioDevices;
@@ -59,16 +60,36 @@ public class MiioTransportTimeoutTests : IDisposable
     [Fact]
     public async Task Hello_And_Command_Share_One_Response_Timeout()
     {
-        _transport.ResponseTimeout = TimeSpan.FromMilliseconds(600);
-        var elapsed = Stopwatch.StartNew();
+        var responseTimeout = TimeSpan.FromMilliseconds(600);
+        var helloDuration = TimeSpan.FromMilliseconds(400);
+        var testTimeout = TimeSpan.FromSeconds(10);
+        var utcTicks = DateTime.UnixEpoch.Ticks;
+        var waits = Channel.CreateUnbounded<(TimeSpan Duration, TaskCompletionSource Expire)>();
+        _transport.ResponseTimeout = responseTimeout;
+        _transport.GetUtcNow = () => new DateTime(Interlocked.Read(ref utcTicks), DateTimeKind.Utc);
+        _transport.WaitForReceiveTimeoutAsync = (duration, cancellationToken) =>
+        {
+            var expire = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            waits.Writer.TryWrite((duration, expire));
+            return expire.Task.WaitAsync(cancellationToken);
+        };
+
         var send = _transport.SendMessageAsync("{\"id\":1,\"method\":\"test\",\"params\":[]}");
-        var helloRequest = await _silentDevice.ReceiveAsync().WaitAsync(TimeSpan.FromSeconds(2));
-        await Task.Delay(400);
+        var helloRequest = await _silentDevice.ReceiveAsync().WaitAsync(testTimeout);
+        var helloWait = await waits.Reader.ReadAsync().AsTask().WaitAsync(testTimeout);
+        helloWait.Duration.Should().Be(responseTimeout);
+        Interlocked.Add(ref utcTicks, helloDuration.Ticks);
         await _silentDevice.SendAsync("21310020000000000404a850002e58735d3a2f018c90097a850558c35c953b77".ToByteArray(), helloRequest.RemoteEndPoint);
-        await _silentDevice.ReceiveAsync().WaitAsync(TimeSpan.FromSeconds(2));
-        Func<Task> wait = async () => await send.WaitAsync(TimeSpan.FromSeconds(2));
-        await wait.Should().ThrowAsync<TimeoutException>();
-        elapsed.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(900));
+
+        var command = await _silentDevice.ReceiveAsync().WaitAsync(testTimeout);
+        command.Buffer.Length.Should().BeGreaterThan(32);
+        var commandWait = await waits.Reader.ReadAsync().AsTask().WaitAsync(testTimeout);
+        commandWait.Duration.Should().Be(responseTimeout - helloDuration);
+
+        Interlocked.Add(ref utcTicks, commandWait.Duration.Ticks);
+        commandWait.Expire.SetResult();
+        Func<Task> wait = () => send.WaitAsync(testTimeout);
+        (await wait.Should().ThrowAsync<TimeoutException>()).WithMessage("*(1 attempts)*outcome is unknown*");
     }
 
     public void Dispose()

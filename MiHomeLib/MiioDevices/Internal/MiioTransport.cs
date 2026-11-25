@@ -79,6 +79,9 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     /// </summary>
     internal TimeSpan AttemptTimeout { get; set; } = TimeSpan.FromSeconds(2);
 
+    internal Func<DateTime> GetUtcNow { get; set; } = () => DateTime.UtcNow;
+    internal Func<TimeSpan, CancellationToken, Task> WaitForReceiveTimeoutAsync { get; set; } = Task.Delay;
+
     public MiioTransport(string ip, string token, int port = 54321)
     {
         _lifetimeToken = _lifetime.Token;
@@ -191,7 +194,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
 
     private async Task<string> ExchangeAsync(string msg, JsonObject request, int? requestId, int? attemptLimit, MiioRetryPolicy retryPolicy)
     {
-        var deadline = DateTime.UtcNow + ResponseTimeout;
+        var deadline = GetUtcNow() + ResponseTimeout;
         await SendHelloPacketIfNeededAsync(deadline).ConfigureAwait(false);
 
         var repeat = retryPolicy == MiioRetryPolicy.SafeToRepeat;
@@ -199,7 +202,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         var sentIds = new HashSet<int>();
         var attempts = 0;
 
-        while (DateTime.UtcNow < deadline && (!attemptLimit.HasValue || attempts < attemptLimit.Value))
+        while (GetUtcNow() < deadline && (!attemptLimit.HasValue || attempts < attemptLimit.Value))
         {
             var text = msg;
             if (requestId is not null)
@@ -219,7 +222,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             var bytes = initialPacket.BuildMessage(text, _cipher, CurrentDeviceStamp());
             await _udpClient.SendAsync(bytes, bytes.Length, _endpoint).ConfigureAwait(false);
 
-            var attemptEnd = repeat ? Min(DateTime.UtcNow + AttemptTimeout, deadline) : deadline;
+            var attemptEnd = repeat ? Min(GetUtcNow() + AttemptTimeout, deadline) : deadline;
             while (await ReceiveUntilAsync(attemptEnd).ConfigureAwait(false) is { } received)
             {
                 if (received.Length <= HELLO_LENGTH) continue; // a late answer to the hello
@@ -284,7 +287,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
     {
         while (true)
         {
-            var remaining = until - DateTime.UtcNow;
+            var remaining = until - GetUtcNow();
             if (remaining <= TimeSpan.Zero) return null;
 
             // UdpClient.ReceiveAsync ignores Socket.ReceiveTimeout and netstandard2.0 has no cancellable overload,
@@ -293,7 +296,7 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
 
             using (var delayCancellation = new CancellationTokenSource())
             {
-                var completed = await Task.WhenAny(receive, Task.Delay(remaining, delayCancellation.Token)).ConfigureAwait(false);
+                var completed = await Task.WhenAny(receive, WaitForReceiveTimeoutAsync(remaining, delayCancellation.Token)).ConfigureAwait(false);
                 delayCancellation.Cancel();
                 if (completed != receive) return null;
             }
@@ -337,12 +340,12 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
         var bytes = HELLO_REQUEST.ToByteArray();
         var attempts = 0;
 
-        while (DateTime.UtcNow < deadline)
+        while (GetUtcNow() < deadline)
         {
             attempts++;
             await _udpClient.SendAsync(bytes, bytes.Length, _endpoint).ConfigureAwait(false);
 
-            var attemptEnd = Min(DateTime.UtcNow + AttemptTimeout, deadline);
+            var attemptEnd = Min(GetUtcNow() + AttemptTimeout, deadline);
             while (await ReceiveUntilAsync(attemptEnd).ConfigureAwait(false) is { } received)
             {
                 // hello response message must be 32 bytes, anything else is a late answer to an earlier request
