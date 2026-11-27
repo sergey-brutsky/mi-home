@@ -57,7 +57,7 @@ internal static class GatewayModelDetector
     internal static async Task<GatewayInfo> ReadMiioInfoAsync(IMiioRequests transport, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var response = await transport.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat).WaitAsync(token);
+        var response = await transport.RequestAsync("miIO.info", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat, token).WaitAsync(token);
         using var document = JsonDocument.Parse(response);
         if (document.RootElement.ValueKind != JsonValueKind.Object ||
             !document.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Object ||

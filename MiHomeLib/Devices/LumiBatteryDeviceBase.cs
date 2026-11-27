@@ -10,7 +10,7 @@ namespace MiHomeLib.Devices;
 /// Battery and radio values of Aqara/Xiaomi Zigbee sensors: Xiaomi Gateway 2 reports the voltage only,
 /// Lumi MQTT gateways also the battery percent, the link quality and the chip temperature
 /// </summary>
-public abstract class LumiBatteryDeviceBase : ProtocolMappedDeviceBase
+public abstract class LumiBatteryDeviceBase : ProtocolMappedDeviceBase, IBatteryPowered, ILinkQualityReporter
 {
     /// <summary>
     /// Which battery values Lumi MQTT gateways are asked for at discovery. Values that are not asked for still come with reports
@@ -99,21 +99,21 @@ public abstract class LumiBatteryDeviceBase : ProtocolMappedDeviceBase
 
     private protected void UpdateVoltage(float value)
     {
-        SetAndRaise(Voltage, () => Voltage = value, OnVoltageChangeAsync);
+        SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value, OnVoltageChangeAsync);
     }
 
     private protected void UpdateBatteryPercent(byte value)
     {
-        SetAndRaise(BatteryPercent, () => BatteryPercent = value, OnBatteryPercentChangeAsync);
+        SetAndRaise(nameof(OnBatteryPercentChangeAsync), BatteryPercent, () => BatteryPercent = value, OnBatteryPercentChangeAsync);
     }
 
     private protected void UpdateLinkQuality(byte value)
     {
-        SetAndRaise(LinkQuality, () => LinkQuality = value, OnLinkQualityChangeAsync);
+        SetAndRaise(nameof(OnLinkQualityChangeAsync), LinkQuality, () => LinkQuality = value, OnLinkQualityChangeAsync);
     }
 
     private protected void UpdateChipTemperature(byte value)
     {
-        SetAndRaise(ChipTemperature, () => ChipTemperature = value, OnChipTemperatureChangeAsync);
+        SetAndRaise(nameof(OnChipTemperatureChangeAsync), ChipTemperature, () => ChipTemperature = value, OnChipTemperatureChangeAsync);
     }
 }

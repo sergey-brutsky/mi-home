@@ -53,10 +53,10 @@ public class GatewayModelDetectorTests
     public async Task Miio_Detection_Uses_Only_The_Read_Only_Info_Request(string model)
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"result\":{\"model\":\"" + model + "\"}}");
         Assert.Equal(model, (await GatewayModelDetector.ReadMiioInfoAsync(transport.Object, CancellationToken.None)).Model);
-        transport.Verify(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat), Times.Once);
+        transport.Verify(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()), Times.Once);
         transport.VerifyNoOtherCalls();
     }
 
@@ -64,7 +64,7 @@ public class GatewayModelDetectorTests
     public async Task Firmware_Is_Retained_For_Setup_Advice()
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"result\":{\"model\":\"lumi.gateway.mgl03\",\"fw_ver\":\"1.5.4_0090\"}}");
         var info = await GatewayModelDetector.ReadMiioInfoAsync(transport.Object, CancellationToken.None);
         Assert.Equal("1.5.4_0090", info.Firmware);
@@ -74,7 +74,7 @@ public class GatewayModelDetectorTests
     public async Task Gateway2_Mac_Is_Retained_To_Scope_Multicast_Discovery()
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"result\":{\"model\":\"lumi.gateway.v3\",\"mac\":\"34:CE:00:12:34:56\"}}");
         var info = await GatewayModelDetector.ReadMiioInfoAsync(transport.Object, CancellationToken.None);
         Assert.Equal("34ce00123456", Gateway2Checker.SidFromMac(info.Mac));
@@ -88,7 +88,7 @@ public class GatewayModelDetectorTests
     public async Task Incomplete_Miio_Info_Is_Rejected(string response)
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat)).ReturnsAsync(response);
+        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         await Assert.ThrowsAsync<InvalidDataException>(() => GatewayModelDetector.ReadMiioInfoAsync(transport.Object, CancellationToken.None));
     }
 
@@ -96,7 +96,7 @@ public class GatewayModelDetectorTests
     public async Task Unsupported_Miio_Model_Is_Rejected()
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("miIO.info", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"result\":{\"model\":\"unknown\"}}");
         await Assert.ThrowsAsync<ArgumentException>(() => GatewayModelDetector.ReadMiioInfoAsync(transport.Object, CancellationToken.None));
     }

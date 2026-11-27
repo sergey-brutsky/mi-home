@@ -1,0 +1,50 @@
+{
+  "services": [
+    {
+      "iid": 2,
+      "description": "Power",
+      "properties": [
+        {
+          "iid": 1,
+          "description": "current state",
+          "format": "bool",
+          "access": ["read", "write"]
+        },
+        {
+          "iid": 2,
+          "description": "mode",
+          "format": "uint8",
+          "access": ["read", "write"],
+          "value-list": [
+            { "value": 0, "description": "off" },
+            { "value": 1, "description": "on" }
+          ]
+        },
+        {
+          "iid": 3,
+          "description": "future value",
+          "format": "uint64",
+          "access": ["read"]
+        }
+      ]
+    },
+    {
+      "iid": 3,
+      "description": "Network",
+      "properties": [
+        {
+          "iid": 1,
+          "description": "current state",
+          "format": "string",
+          "access": ["write"]
+        },
+        {
+          "iid": 2,
+          "description": "alias",
+          "format": "string",
+          "access": ["read"]
+        }
+      ]
+    }
+  ]
+}

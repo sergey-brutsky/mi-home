@@ -99,6 +99,21 @@ public class MiioDiscoveryTests
         MiioTransport.SendDiscoverMessage((IPEndPoint)silent.Client.LocalEndPoint, 30).Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task Discovery_Can_Be_Canceled_And_Closes_Its_Socket()
+    {
+        using var device = new UdpClient(new IPEndPoint(IPAddress.Loopback, 0));
+        using var cancellation = new CancellationTokenSource();
+        var discover = MiioDiscovery.DiscoverAsync(
+            (IPEndPoint)device.Client.LocalEndPoint, TimeSpan.FromSeconds(5), cancellation.Token);
+        await device.ReceiveAsync().WaitAsync(TimeSpan.FromSeconds(1));
+
+        cancellation.Cancel();
+
+        Func<Task> wait = async () => await discover.WaitAsync(TimeSpan.FromSeconds(1));
+        await wait.Should().ThrowAsync<OperationCanceledException>();
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]

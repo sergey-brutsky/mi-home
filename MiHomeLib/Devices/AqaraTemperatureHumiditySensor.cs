@@ -7,7 +7,7 @@ namespace MiHomeLib.Devices;
 
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class AqaraTemperatureHumiditySensor : LumiBatteryDeviceBase
+public sealed class AqaraTemperatureHumiditySensor : LumiBatteryDeviceBase, ITemperatureSensor, IHumiditySensor, IPressureSensor
 {
     public const string MARKET_MODEL = "WSDCGQ11LM";
     public const string XIAOMI_GATEWAY2_MODEL = "weather.v1";
@@ -62,17 +62,17 @@ public sealed class AqaraTemperatureHumiditySensor : LumiBatteryDeviceBase
 
     internal void UpdateTemperature(float value)
     {
-        SetAndRaise(Temperature, () => Temperature = value, OnTemperatureChangeAsync);
+        SetAndRaise(nameof(OnTemperatureChangeAsync), Temperature, () => Temperature = value, OnTemperatureChangeAsync);
     }
 
     internal void UpdateHumidity(float value)
     {
-        SetAndRaise(Humidity, () => Humidity = value, OnHumidityChangeAsync);
+        SetAndRaise(nameof(OnHumidityChangeAsync), Humidity, () => Humidity = value, OnHumidityChangeAsync);
     }
 
     internal void UpdatePressure(float value)
     {
-        SetAndRaise(Pressure, () => Pressure = value, OnPressureChangeAsync);
+        SetAndRaise(nameof(OnPressureChangeAsync), Pressure, () => Pressure = value, OnPressureChangeAsync);
     }
 
 

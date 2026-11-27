@@ -11,18 +11,35 @@ internal static class HotspotClientsParser
     {
         JsonDocument document;
         try { document = JsonDocument.Parse(text); }
-        catch (JsonException) { document = JsonDocument.Parse(NormalizeQuotes(text)); }
+        catch (JsonException)
+        {
+            try { document = JsonDocument.Parse(NormalizeQuotes(text)); }
+            catch (JsonException exception)
+            {
+                throw new FormatException("Hotspot client response is not valid JSON.", exception);
+            }
+        }
         using (document)
         {
+            if (document.RootElement.ValueKind != JsonValueKind.Array)
+                throw new FormatException("Hotspot client response must be a JSON array.");
             var clients = new List<(string, string, string)>();
             foreach (var client in document.RootElement.EnumerateArray())
+            {
+                if (client.ValueKind != JsonValueKind.Object)
+                    throw new FormatException("A hotspot client must be a JSON object.");
                 clients.Add((ReadString(client, "ip"), ReadString(client, "mac"), ReadString(client, "name")));
+            }
             return clients.ToArray();
         }
     }
 
-    private static string ReadString(JsonElement item, string name) =>
-        item.GetProperty(name).GetString() ?? throw new FormatException($"Hotspot client field '{name}' is null.");
+    private static string ReadString(JsonElement item, string name)
+    {
+        if (!item.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.String)
+            throw new FormatException($"Hotspot client field '{name}' is missing or is not a string.");
+        return value.GetString();
+    }
 
     // Some firmware returns single-quoted strings. Only string delimiters are converted.
     private static string NormalizeQuotes(string text)

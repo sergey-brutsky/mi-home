@@ -13,7 +13,7 @@ namespace MiHomeLib.Devices;
 /// <summary>ZNCZ02LM smart plug shared by Xiaomi Gateway 2 and Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice, IProtocolMappedGateway2ManageableDevice
+public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice, IProtocolMappedGateway2ManageableDevice, ILinkQualityReporter, IPowerMeter, ISwitchable
 {
     public const string MARKET_MODEL = "ZNCZ02LM";
     public const string XIAOMI_GATEWAY2_MODEL = "plug";
@@ -56,6 +56,11 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
     public override string DeviceId { get; }
     public int ShortId { get; }
     public PlugState State => _state == PlugState.On ? PlugState.On : PlugState.Off;
+    bool? ISwitchable.IsOn => HasKnownState ? State == PlugState.On : null;
+
+    Task ISwitchable.TurnOnAsync() => PowerOnAsync();
+    Task ISwitchable.TurnOffAsync() => PowerOffAsync();
+    Task ISwitchable.ToggleAsync() => ToggleStateAsync();
 
     /// <summary>True after the gateway returns or reports a valid on/off state.</summary>
     public bool HasKnownState => _state != UnknownState;
@@ -167,10 +172,10 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
             value => LoadPower = value.ReadSingle());
         map.LumiMqttInitial("max_power", value => MaxPower = value.GetValue<int>());
         map.LumiMqtt("8.0.2007", "lqi",
-            value => SetAndRaise(LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
+            value => SetAndRaise(nameof(OnLinkQualityChangeAsync), LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
             value => LinkQuality = checked((byte)value.GetValue<int>()));
         map.LumiMqtt("8.0.2006", "chip_temperature",
-            value => SetAndRaise(ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
+            value => SetAndRaise(nameof(OnChipTemperatureChangeAsync), ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
             value => ChipTemperature = checked((byte)value.GetValue<int>()));
     }
 
@@ -276,10 +281,10 @@ public sealed class XiaomiMiSmartPowerPlugCN : ProtocolMappedDeviceBase, IProtoc
     {
         var previous = State;
         _state = state;
-        if (state != previous) RaiseEvent(OnStateChangeAsync);
+        if (state != previous) RaiseEvent(nameof(OnStateChangeAsync), OnStateChangeAsync);
     }
 
-    private void UpdateLoadPower(float value) => SetAndRaise(LoadPower, () => LoadPower = value, OnLoadPowerChangeAsync);
+    private void UpdateLoadPower(float value) => SetAndRaise(nameof(OnLoadPowerChangeAsync), LoadPower, () => LoadPower = value, OnLoadPowerChangeAsync);
 
 
 

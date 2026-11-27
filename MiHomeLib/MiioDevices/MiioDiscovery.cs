@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MiHomeLib.MiioDevices;
@@ -18,12 +19,24 @@ public static class MiioDiscovery
     public sealed record DiscoveredDevice(string Ip, string DeviceType, string Serial, string Token);
 
     /// <summary>Collects hello responses within the total timeout, which defaults to five seconds. Repeated identical metadata is returned once.</summary>
+#pragma warning disable RS0027 // Keep the existing optional overload source-compatible while exposing a required cancellation token overload.
     public static Task<IReadOnlyList<DiscoveredDevice>> DiscoverAsync(TimeSpan? timeout = null) =>
-        DiscoverAsync(new IPEndPoint(IPAddress.Broadcast, 54321), timeout ?? TimeSpan.FromSeconds(5));
+        DiscoverAsync(timeout, CancellationToken.None);
+#pragma warning restore RS0027
 
-    internal static async Task<IReadOnlyList<DiscoveredDevice>> DiscoverAsync(IPEndPoint destination, TimeSpan timeout)
+    /// <summary>Collects hello responses until the timeout expires or the operation is canceled.</summary>
+    /// <param name="timeout">The total discovery duration; defaults to five seconds when null.</param>
+    /// <param name="cancellationToken">Token used to cancel discovery.</param>
+    public static Task<IReadOnlyList<DiscoveredDevice>> DiscoverAsync(TimeSpan? timeout, CancellationToken cancellationToken) =>
+        DiscoverAsync(new IPEndPoint(IPAddress.Broadcast, 54321), timeout ?? TimeSpan.FromSeconds(5), cancellationToken);
+
+    internal static Task<IReadOnlyList<DiscoveredDevice>> DiscoverAsync(IPEndPoint destination, TimeSpan timeout) =>
+        DiscoverAsync(destination, timeout, CancellationToken.None);
+
+    internal static async Task<IReadOnlyList<DiscoveredDevice>> DiscoverAsync(
+        IPEndPoint destination, TimeSpan timeout, CancellationToken cancellationToken)
     {
-        var devices = await MiioTransport.SendDiscoverMessageAsync(destination, timeout).ConfigureAwait(false);
+        var devices = await MiioTransport.SendDiscoverMessageAsync(destination, timeout, cancellationToken).ConfigureAwait(false);
         return devices.Select(device => new DiscoveredDevice(device.ip, device.type, device.serial, device.token)).ToArray();
     }
 }

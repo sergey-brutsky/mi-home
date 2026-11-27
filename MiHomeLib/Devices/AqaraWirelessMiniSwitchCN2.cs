@@ -47,16 +47,16 @@ public sealed class AqaraWirelessMiniSwitchCN2 : ProtocolMappedDeviceBase
 
     private protected override void ConfigureProtocolMap(ProtocolDeviceMap map)
     {
-        map.LumiMqttMiSpecEvent(CLICK_SIID, 1, _ => RaiseEvent(OnClickAsync, ClickArg.SingleClick));
-        map.LumiMqttMiSpecEvent(CLICK_SIID, 2, _ => RaiseEvent(OnClickAsync, ClickArg.DoubleClick));
-        map.LumiMqttMiSpecEvent(CLICK_SIID, 3, _ => RaiseEvent(OnClickAsync, ClickArg.LongPressClick));
+        map.LumiMqttMiSpecEvent(CLICK_SIID, 1, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.SingleClick));
+        map.LumiMqttMiSpecEvent(CLICK_SIID, 2, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.DoubleClick));
+        map.LumiMqttMiSpecEvent(CLICK_SIID, 3, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync, ClickArg.LongPressClick));
         map.LumiMqttMiSpec(BATTERY_SIID, BATTERY_VOLTAGE_PIID,
-            value => SetAndRaise(Voltage, () => Voltage = value.ReadInt32() / 1000f, OnVoltageChangeAsync));
+            value => SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value.ReadInt32() / 1000f, OnVoltageChangeAsync));
         map.LumiMqttMiSpec(BATTERY_SIID, BATTERY_STATUS_PIID, value =>
         {
             var code = value.ReadInt32();
             BatteryStatus = Enum.IsDefined(typeof(BatteryStatusType), code) ? (BatteryStatusType)code : BatteryStatusType.Unknown;
-            RaiseEvent(OnBatteryStatusAsync, BatteryStatus);
+            RaiseEvent(nameof(OnBatteryStatusAsync), OnBatteryStatusAsync, BatteryStatus);
         });
     }
 

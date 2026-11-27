@@ -10,7 +10,7 @@ namespace MiHomeLib.Devices;
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL_86SW2)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL_86SW2_ES1)]
-public sealed class AqaraDualWallWirelessSwitch : ProtocolMappedDeviceBase
+public sealed class AqaraDualWallWirelessSwitch : ProtocolMappedDeviceBase, IBatteryPowered
 {
     public const string MARKET_MODEL = "WXKG02LM";
     public const string XIAOMI_GATEWAY2_MODEL = "remote.b286acn01";
@@ -96,11 +96,11 @@ public sealed class AqaraDualWallWirelessSwitch : ProtocolMappedDeviceBase
             value => UpdateVoltage(value.ReadInt32() / 1000f),
             value => Voltage = value.GetValue<int>() / 1000f);
         map.LumiMqtt("8.0.2001", "battery",
-            value => SetAndRaise(BatteryPercent, () => BatteryPercent = value.ReadByte(), OnBatteryPercentChangeAsync),
+            value => SetAndRaise(nameof(OnBatteryPercentChangeAsync), BatteryPercent, () => BatteryPercent = value.ReadByte(), OnBatteryPercentChangeAsync),
             value => BatteryPercent = checked((byte)value.GetValue<int>()));
         map.LumiMqtt("8.0.9001", value => BatteryLow = value.ReadInt32() == 1);
         map.LumiMqtt("8.0.2006",
-            value => SetAndRaise(ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync));
+            value => SetAndRaise(nameof(OnChipTemperatureChangeAsync), ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync));
     }
 
     private void RaiseLumiClick(Button button, int code)
@@ -111,10 +111,10 @@ public sealed class AqaraDualWallWirelessSwitch : ProtocolMappedDeviceBase
             return;
         }
 
-        RaiseEvent(OnButtonClickAsync, button, (ClickArg)code);
+        RaiseEvent(nameof(OnButtonClickAsync), OnButtonClickAsync, button, (ClickArg)code);
     }
 
-    private void UpdateVoltage(float value) => SetAndRaise(Voltage, () => Voltage = value, OnVoltageChangeAsync);
+    private void UpdateVoltage(float value) => SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value, OnVoltageChangeAsync);
 
 
 
@@ -134,7 +134,7 @@ public sealed class AqaraDualWallWirelessSwitch : ProtocolMappedDeviceBase
             return;
         }
 
-        RaiseEvent(OnButtonClickAsync, button, click.Value);
+        RaiseEvent(nameof(OnButtonClickAsync), OnButtonClickAsync, button, click.Value);
     }
 
     public override string ToString()

@@ -11,7 +11,7 @@ namespace MiHomeLib.Devices;
 /// <summary>JTYJ-GD-01LM/BW smoke detector shared by Xiaomi Gateway 2 and Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice
+public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IProtocolMappedManageableDevice, ILinkQualityReporter, ISmokeSensor
 {
     public const string MARKET_MODEL = "JTYJ-GD-01LM/BW";
     public const string XIAOMI_GATEWAY2_MODEL = "smoke";
@@ -45,6 +45,7 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
     /// True while the detector reports smoke
     /// </summary>
     public bool Alarm { get; private set; }
+    bool? ISmokeSensor.IsSmokeDetected => Alarm;
 
     /// <summary>
     /// Smoke density as the detector reports it, 0 until the first report
@@ -133,10 +134,10 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
         // Not read at discovery: the detector was never asked for it, it is taken when it comes with a report
         map.LumiMqtt("8.0.2008", value => UpdateVoltage(value.ReadInt32() / 1000f));
         map.LumiMqtt("8.0.2007", "lqi",
-            value => SetAndRaise(LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
+            value => SetAndRaise(nameof(OnLinkQualityChangeAsync), LinkQuality, () => LinkQuality = value.ReadByte(), OnLinkQualityChangeAsync),
             value => LinkQuality = checked((byte)value.GetValue<int>()));
         map.LumiMqtt("8.0.2006", "chip_temperature",
-            value => SetAndRaise(ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
+            value => SetAndRaise(nameof(OnChipTemperatureChangeAsync), ChipTemperature, () => ChipTemperature = value.ReadByte(), OnChipTemperatureChangeAsync),
             value => ChipTemperature = checked((byte)value.GetValue<int>()));
     }
 
@@ -185,9 +186,9 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
 
     private async Task ReportSensitivityAsync(int value)
     {
-        await RaiseEventAsync(OnSmokeSensitivityModeChangedAsync, (SensitivityMode)value).ConfigureAwait(false);
+        await RaiseEventAsync(nameof(OnSmokeSensitivityModeChangedAsync), OnSmokeSensitivityModeChangedAsync, (SensitivityMode)value).ConfigureAwait(false);
 #pragma warning disable CS0618
-        await RaiseEventAsync(OnSmokeSensivityModeChanged, (SensivityMode)value).ConfigureAwait(false);
+        await RaiseEventAsync(OnSmokeSensivityModeChanged, (SensivityMode)value).ConfigureAwait(false); // device-event: obsolete duplicate, not published
 #pragma warning restore CS0618
     }
 
@@ -203,12 +204,15 @@ public sealed class XiaomiHoneywellSmokeDetector : ProtocolMappedDeviceBase, IPr
     private void UpdateAlarm(bool alarm)
     {
         Alarm = alarm;
-        RaiseEvent(alarm ? OnAlarmAsync : OnAlarmStoppedAsync);
+        if (alarm)
+            RaiseEvent(nameof(OnAlarmAsync), OnAlarmAsync);
+        else
+            RaiseEvent(nameof(OnAlarmStoppedAsync), OnAlarmStoppedAsync);
     }
 
-    private void UpdateSmokeDensity(int value) => SetAndRaise(SmokeDensity, () => SmokeDensity = value, OnSmokeDensityChangeAsync);
+    private void UpdateSmokeDensity(int value) => SetAndRaise(nameof(OnSmokeDensityChangeAsync), SmokeDensity, () => SmokeDensity = value, OnSmokeDensityChangeAsync);
 
-    private void UpdateVoltage(float value) => SetAndRaise(Voltage, () => Voltage = value, OnVoltageChangeAsync);
+    private void UpdateVoltage(float value) => SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value, OnVoltageChangeAsync);
 
 
 

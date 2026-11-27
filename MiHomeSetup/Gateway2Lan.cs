@@ -38,7 +38,7 @@ internal static class Gateway2Lan
         var acknowledged = false;
         try
         {
-            var response = await transport.RequestAsync("set_lumi_dpf_aes_key", new[] { key }, MiioRetryPolicy.DoNotRepeat).WaitAsync(token);
+            var response = await transport.RequestAsync("set_lumi_dpf_aes_key", new[] { key }, MiioRetryPolicy.DoNotRepeat, token).WaitAsync(token);
             using var document = JsonDocument.Parse(response);
             if (document.RootElement.ValueKind != JsonValueKind.Object ||
                 !document.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array ||
@@ -72,7 +72,7 @@ internal static class Gateway2Lan
     private static async Task<string> ReadKeyAsync(IMiioRequests transport, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        var response = await transport.RequestAsync("get_lumi_dpf_aes_key", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat).WaitAsync(token);
+        var response = await transport.RequestAsync("get_lumi_dpf_aes_key", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat, token).WaitAsync(token);
         using var document = JsonDocument.Parse(response);
         if (document.RootElement.ValueKind != JsonValueKind.Object ||
             !document.RootElement.TryGetProperty("result", out var result) || result.ValueKind != JsonValueKind.Array ||

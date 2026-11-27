@@ -24,7 +24,7 @@ public class AqaraOppleTwoButtonsWirelesSwitch : AqaraOppleWirelesSwitch
 
     private protected override void ConfigureButtons(ProtocolDeviceMap map)
     {
-        map.LumiMqtt("13.1.85", value => RaiseClick(value.ReadInt32(), OnButton1ClickAsync));
-        map.LumiMqtt("13.2.85", value => RaiseClick(value.ReadInt32(), OnButton2ClickAsync));
+        map.LumiMqtt("13.1.85", value => RaiseClick(value.ReadInt32(), nameof(OnButton1ClickAsync), OnButton1ClickAsync));
+        map.LumiMqtt("13.2.85", value => RaiseClick(value.ReadInt32(), nameof(OnButton2ClickAsync), OnButton2ClickAsync));
     }
 }

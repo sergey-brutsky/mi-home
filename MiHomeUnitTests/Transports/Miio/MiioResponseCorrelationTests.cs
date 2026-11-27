@@ -101,6 +101,49 @@ public sealed class MiioResponseCorrelationTests : IAsyncLifetime
         Volatile.Read(ref _commands).Should().Be(1);
     }
 
+    [Fact]
+    public async Task Canceled_Request_Does_Not_Consume_A_Late_Response_For_The_Next_Request()
+    {
+        int? canceledRequestId = null;
+        var requestObserved = new TaskCompletionSource<int?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _responses = id =>
+        {
+            canceledRequestId = id;
+            requestObserved.TrySetResult(id);
+            return [];
+        };
+        using var cancellation = new CancellationTokenSource();
+
+        var canceledRequest = _transport.RequestAsync(
+            "cancelled_request", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat, cancellation.Token);
+        await requestObserved.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        cancellation.Cancel();
+        Func<Task> wait = async () => await canceledRequest;
+        await wait.Should().ThrowAsync<OperationCanceledException>();
+        canceledRequestId.Should().NotBeNull();
+
+        _responses = id =>
+        [
+            "{\"id\":" + canceledRequestId + ",\"result\":[\"late\"]}",
+            "{\"id\":" + id + ",\"result\":[\"current\"]}",
+        ];
+        var response = await _transport.RequestAsync("next_request", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat);
+
+        JsonNode.Parse(response)["result"][0].GetValue<string>().Should().Be("current");
+    }
+
+    [Fact]
+    public async Task Already_Canceled_Request_Is_Not_Sent()
+    {
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        Func<Task> request = async () => await _transport.RequestAsync(
+            "must_not_be_sent", Array.Empty<object>(), MiioRetryPolicy.SafeToRepeat, cancellation.Token);
+        await request.Should().ThrowAsync<OperationCanceledException>();
+        Volatile.Read(ref _commands).Should().Be(0);
+    }
+
     [Theory]
     [InlineData("{\"result\":[\"stale\"]}")]
     [InlineData("{\"id\":\"42\",\"result\":[\"stale\"]}")]

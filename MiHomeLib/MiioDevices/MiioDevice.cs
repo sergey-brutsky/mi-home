@@ -89,16 +89,31 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
     private protected Task<string> RequestArrayAsync(string method, params object[] parameters) =>
         RequestObjectAsync(method, parameters);
 
+    private protected Task<string> RequestArrayAsync(string method, CancellationToken cancellationToken, params object[] parameters) =>
+        RequestObjectAsync(method, parameters, MiioRetry.ForMethod(method), cancellationToken);
+
     /// <summary>
-    /// Same as <see cref="RequestArrayAsync"/> for requests whose "params" is an object
+    /// Same as <see cref="RequestArrayAsync(string, object[])"/> for requests whose "params" is an object
     /// </summary>
     private protected Task<string> RequestObjectAsync(string method, object parameters) =>
-        RequestObjectAsync(method, parameters, MiioRetry.ForMethod(method));
+        RequestObjectAsync(method, parameters, MiioRetry.ForMethod(method), CancellationToken.None);
 
     private protected Task<string> RequestObjectAsync(string method, object parameters, MiioRetryPolicy retryPolicy) =>
-        _miioTransport is IMiioRequests requests
-            ? requests.RequestAsync(method, parameters, retryPolicy)
-            : _miioTransport.SendMessageAsync(BuildRequest(method, parameters));
+        RequestObjectAsync(method, parameters, retryPolicy, CancellationToken.None);
+
+    private protected Task<string> RequestObjectAsync(string method, object parameters, CancellationToken cancellationToken) =>
+        RequestObjectAsync(method, parameters, MiioRetry.ForMethod(method), cancellationToken);
+
+    private protected Task<string> RequestObjectAsync(string method, object parameters, MiioRetryPolicy retryPolicy, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (_miioTransport is not IMiioRequests requests)
+            return _miioTransport.SendMessageAsync(BuildRequest(method, parameters));
+
+        return cancellationToken.CanBeCanceled
+            ? requests.RequestAsync(method, parameters, retryPolicy, cancellationToken)
+            : requests.RequestAsync(method, parameters, retryPolicy);
+    }
 
     private string BuildRequest(string method, object parameters) => new JsonObject
     {
@@ -154,9 +169,15 @@ public abstract class MiioDevice(IMiioTransport miioTransport, int initialIdExte
         => RunSync(() => GetDeviceIdByIpAsync(ip));
 
     /// <summary>Finds a device in the local network and returns its unsigned device identifier.</summary>
-    public static async Task<string> GetDeviceIdByIpAsync(string ip) =>
+    public static Task<string> GetDeviceIdByIpAsync(string ip) =>
+        GetDeviceIdByIpAsync(ip, CancellationToken.None);
+
+    /// <summary>Finds a device in the local network and returns its unsigned device identifier.</summary>
+    /// <param name="ip">The device IP address.</param>
+    /// <param name="cancellationToken">Token used to cancel local-network discovery.</param>
+    public static async Task<string> GetDeviceIdByIpAsync(string ip, CancellationToken cancellationToken) =>
         GetDeviceIdByIp(ip, await MiioTransport.SendDiscoverMessageAsync(
-            new System.Net.IPEndPoint(System.Net.IPAddress.Broadcast, 54321), TimeSpan.FromSeconds(5)).ConfigureAwait(false));
+            new System.Net.IPEndPoint(System.Net.IPAddress.Broadcast, 54321), TimeSpan.FromSeconds(5), cancellationToken).ConfigureAwait(false));
 
     internal static string GetDeviceIdByIp(string ip, IEnumerable<(string ip, string type, string serial, string token)> devices)
     {

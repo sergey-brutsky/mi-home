@@ -14,7 +14,7 @@ namespace MiHomeLib.Devices;
 /// Xiaomi Smart Wall Switch Single Open DHKG01CM, Bluetooth Mesh
 /// </summary>
 [ProtocolDeviceModel(DeviceProtocol.LumiMesh, MODEL, PDID)]
-public sealed class XiaomiMeshWallSwitchSingleOpen : ProtocolMappedDeviceBase, IProtocolMappedMeshDevice
+public sealed class XiaomiMeshWallSwitchSingleOpen : ProtocolMappedDeviceBase, IProtocolMappedMeshDevice, ISwitchable
 {
     public const string MARKET_MODEL = "DHKG01CM";
     public const string MODEL = "zimi.switch.dhkg01";
@@ -36,6 +36,11 @@ public sealed class XiaomiMeshWallSwitchSingleOpen : ProtocolMappedDeviceBase, I
     private IMqttTransport _mqttTransport;
     public override string DeviceId { get; }
     public string Mac { get; private set; }
+    bool? ISwitchable.IsOn => IsTurnedOn;
+
+    Task ISwitchable.TurnOnAsync() => TurnOnAsync();
+    Task ISwitchable.TurnOffAsync() => TurnOffAsync();
+    Task ISwitchable.ToggleAsync() => ToggleAsync();
 
     public XiaomiMeshWallSwitchSingleOpen(string deviceId, ILoggerFactory loggerFactory) : base(loggerFactory)
     {
@@ -47,10 +52,10 @@ public sealed class XiaomiMeshWallSwitchSingleOpen : ProtocolMappedDeviceBase, I
 
     private protected override void ConfigureProtocolMap(ProtocolDeviceMap map)
     {
-        map.LumiMeshMiSpec(SWITCH_SIID, ON_PIID, value => SetAndRaise(IsTurnedOn, () => IsTurnedOn = value.ReadBoolean(), OnStateChangeAsync));
+        map.LumiMeshMiSpec(SWITCH_SIID, ON_PIID, value => SetAndRaise(nameof(OnStateChangeAsync), IsTurnedOn, () => IsTurnedOn = value.ReadBoolean(), OnStateChangeAsync));
         map.LumiMeshMiSpec(INDICATOR_SIID, INDICATOR_PIID,
-            value => SetAndRaise(IsIndicatorLightEnabled, () => IsIndicatorLightEnabled = value.ReadBoolean(), OnIndicatorLightChangeAsync));
-        map.LumiMeshMiSpecEvent(CLICK_SIID, CLICK_EIID, _ => RaiseEvent(OnClickAsync));
+            value => SetAndRaise(nameof(OnIndicatorLightChangeAsync), IsIndicatorLightEnabled, () => IsIndicatorLightEnabled = value.ReadBoolean(), OnIndicatorLightChangeAsync));
+        map.LumiMeshMiSpecEvent(CLICK_SIID, CLICK_EIID, _ => RaiseEvent(nameof(OnClickAsync), OnClickAsync));
     }
 
     private void SetProperty(int siid, int piid, object value)

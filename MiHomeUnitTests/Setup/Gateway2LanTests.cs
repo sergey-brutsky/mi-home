@@ -45,7 +45,7 @@ public class Gateway2LanTests
     {
         var transport = CreateTransport("0123456789abcdef");
         await Gateway2Lan.EnsureEnabledAsync(transport.Object, Key, CancellationToken.None);
-        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.Is<string[]>(p => p.SequenceEqual(new[] { Key })), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.Is<string[]>(p => p.SequenceEqual(new[] { Key })), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class Gateway2LanTests
     {
         var transport = CreateTransport(Key);
         await Gateway2Lan.DisableAsync(transport.Object, CancellationToken.None);
-        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.Is<string[]>(p => p.Length == 1 && p[0] == ""), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.Is<string[]>(p => p.Length == 1 && p[0] == ""), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
         Assert.Equal(2, transport.Invocations.Count);
     }
 
@@ -65,7 +65,7 @@ public class Gateway2LanTests
     public async Task Unknown_Read_State_Prevents_A_Write(string response)
     {
         var transport = CreateTransport("");
-        transport.Setup(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat)).ReturnsAsync(response);
+        transport.Setup(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>())).ReturnsAsync(response);
         await Assert.ThrowsAsync<InvalidDataException>(() => Gateway2Lan.EnsureEnabledAsync(transport.Object, null, CancellationToken.None));
         Assert.Single(transport.Invocations);
     }
@@ -74,44 +74,44 @@ public class Gateway2LanTests
     public async Task Lost_Write_Acknowledgement_Is_Verified_Without_Repeating_The_Write()
     {
         var transport = CreateTransport("");
-        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat)).ThrowsAsync(new TimeoutException());
-        transport.SetupSequence(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>())).ThrowsAsync(new TimeoutException());
+        transport.SetupSequence(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync("{\"result\":[\"\"]}").ReturnsAsync(JsonSerializer.Serialize(new { result = new[] { Key } }));
         await Gateway2Lan.EnsureEnabledAsync(transport.Object, Key, CancellationToken.None);
-        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Readback_Mismatch_Is_A_Failure()
     {
         var transport = CreateTransport(Key);
-        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat)).ReturnsAsync("{\"result\":[\"ok\"]}");
+        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>())).ReturnsAsync("{\"result\":[\"ok\"]}");
         var error = await Assert.ThrowsAsync<InvalidOperationException>(() => Gateway2Lan.DisableAsync(transport.Object, CancellationToken.None,
             verificationDelay: TimeSpan.Zero));
         Assert.Contains("5 readback checks", error.Message);
         Assert.Contains("returned string length: 16", error.Message);
         Assert.Contains("disable could not be confirmed", error.Message);
         Assert.DoesNotContain(Key, error.Message);
-        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
+        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Delayed_Empty_Readback_Is_Verified_Without_Repeating_The_Write()
     {
         var transport = CreateTransport(Key);
-        transport.SetupSequence(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.SetupSequence(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync(JsonSerializer.Serialize(new { result = new[] { Key } }))
             .ReturnsAsync("{\"result\":[\"\"]}");
         await Gateway2Lan.DisableAsync(transport.Object, CancellationToken.None, verificationDelay: TimeSpan.Zero);
-        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat), Times.Once);
-        transport.Verify(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat), Times.Exactly(2));
+        transport.Verify(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()), Times.Once);
+        transport.Verify(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]
     public async Task Rejected_Write_Is_A_Failure()
     {
         var transport = CreateTransport(Key);
-        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat)).ReturnsAsync("{\"error\":{\"code\":-1}}");
+        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>())).ReturnsAsync("{\"error\":{\"code\":-1}}");
         await Assert.ThrowsAsync<InvalidOperationException>(() => Gateway2Lan.DisableAsync(transport.Object, CancellationToken.None));
         Assert.Single(transport.Invocations);
     }
@@ -128,10 +128,10 @@ public class Gateway2LanTests
     private static Mock<IMiioRequests> CreateTransport(string key)
     {
         var transport = new Mock<IMiioRequests>(MockBehavior.Strict);
-        transport.Setup(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat))
+        transport.Setup(x => x.RequestAsync("get_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.SafeToRepeat, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => JsonSerializer.Serialize(new { result = new[] { key } }));
-        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat))
-            .Callback<string, object, MiioRetryPolicy>((_, parameters, _) => key = ((string[])parameters)[0])
+        transport.Setup(x => x.RequestAsync("set_lumi_dpf_aes_key", It.IsAny<object>(), MiioRetryPolicy.DoNotRepeat, It.IsAny<CancellationToken>()))
+            .Callback<string, object, MiioRetryPolicy, CancellationToken>((_, parameters, _, _) => key = ((string[])parameters)[0])
             .ReturnsAsync("{\"result\":[\"ok\"]}");
         return transport;
     }

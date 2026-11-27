@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Text;
 using System.IO;
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using MiHomeLib.MiioDevices;
@@ -20,7 +21,7 @@ using MiHomeLib.MqttGateway.ActionProcessors;
 
 namespace MiHomeLib.MqttGateway;
 
-public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
+public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable, IAsyncDisposable, IEventTaskTracker
 {
 
     /// <summary>
@@ -36,9 +37,14 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     private readonly IMqttTransport _mqttTransport;
     private readonly Dictionary<string, IActionProcessor> _supportedActionProcessors;
     private readonly GatewayDevices _devices = new();
+    private readonly ConcurrentDictionary<Task, byte> _pendingEvents = new();
     private bool _subscribed;
     private readonly object _initializationLock = new();
     private readonly Dictionary<string, Queue<(IActionProcessor Processor, JsonElement Message, DateTime ReceivedAt, int Bytes)>> _initializingDevices = new();
+    internal int InitializingDeviceCount
+    {
+        get { lock (_initializationLock) return _initializingDevices.Count; }
+    }
     private TaskCompletionSource<Exception> _initializationFailure = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int _initializingMessages;
     private int _initializingBytes;
@@ -47,8 +53,17 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     private readonly SemaphoreSlim _discoveryLock = new(1, 1);
     private readonly CancellationTokenSource _lifetime = new();
     private readonly CancellationToken _lifetimeToken;
+    private CancellationTokenSource _discoveryCancellation;
     private int _disposed;
+    private Task _availabilityLoop = Task.CompletedTask;
+    internal Func<DateTime> UtcNow { get; set; } = () => DateTime.UtcNow;
+    internal TimeSpan AvailabilityCheckInterval { get; set; } = TimeSpan.FromMinutes(1);
     public event Func<GatewaySubDeviceBase, Task> OnDeviceDiscoveredAsync = (_) => Task.CompletedTask;
+    /// <summary>
+    /// Raised for every event of every sub-device after it has been discovered.
+    /// Handlers of the device itself and of this event run concurrently.
+    /// </summary>
+    public event Func<DeviceEvent, Task> OnDeviceEventAsync = _ => Task.CompletedTask;
     /// <summary>Raised when the MQTT connection to the gateway is lost; the library reconnects by itself</summary>
     public event Func<Task> OnConnectionLostAsync = () => Task.CompletedTask;
     /// <summary>Raised when the MQTT connection to the gateway is restored after a loss</summary>
@@ -90,12 +105,16 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     }
 
     private void OnMqttConnectionLost() =>
-        _ = AsyncEvents.InvokeAsync(OnConnectionLostAsync, handler => handler(),
-            exception => Logger.LogError(exception, "Connection event subscriber failed."));
+        TrackEvent(AsyncEvents.InvokeAsync(OnConnectionLostAsync, handler => handler(),
+            exception => Logger.LogError(exception, "Connection event subscriber failed."), this));
 
     private void OnMqttConnectionRestored() =>
-        _ = AsyncEvents.InvokeAsync(OnConnectionRestoredAsync, handler => handler(),
-            exception => Logger.LogError(exception, "Connection event subscriber failed."));
+        TrackEvent(AsyncEvents.InvokeAsync(OnConnectionRestoredAsync, handler => handler(),
+            exception => Logger.LogError(exception, "Connection event subscriber failed."), this));
+
+    private Task RaiseDeviceEventAsync(DeviceEvent deviceEvent) =>
+        TrackAndReturn(AsyncEvents.InvokeAsync(OnDeviceEventAsync, handler => handler(deviceEvent),
+            exception => Logger.LogError(exception, "Device event subscriber failed."), this));
 
     private void UnsubscribeConnectionEvents()
     {
@@ -106,17 +125,24 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         }
     }
     /// <summary>
-    /// Same as <see cref="DiscoverDevicesAsync"/>, blocks until the discovery has finished.
+    /// Same as <see cref="DiscoverDevicesAsync()"/>, blocks until the discovery has finished.
     /// Exceptions are thrown as they are, not wrapped into an AggregateException
     /// </summary>
     public void DiscoverDevices() => RunSync(DiscoverDevicesAsync);
 
-    public async Task DiscoverDevicesAsync()
+    public Task DiscoverDevicesAsync() => DiscoverDevicesAsync(CancellationToken.None);
+
+    /// <summary>Discovers sub-devices, or stops waiting when the supplied token is canceled.</summary>
+    public async Task DiscoverDevicesAsync(CancellationToken cancellationToken)
     {
-        await _discoveryLock.WaitAsync(_lifetimeToken).ConfigureAwait(false);
+        using var discoveryCancellation = CancellationTokenSource.CreateLinkedTokenSource(_lifetimeToken, cancellationToken);
+        var acquired = false;
         try
         {
-            _lifetimeToken.ThrowIfCancellationRequested();
+            await _discoveryLock.WaitAsync(discoveryCancellation.Token).ConfigureAwait(false);
+            acquired = true;
+            Volatile.Write(ref _discoveryCancellation, discoveryCancellation);
+            discoveryCancellation.Token.ThrowIfCancellationRequested();
             lock (_initializationLock)
                 _initializationFailure = new(TaskCreationOptions.RunContinuationsAsynchronously);
             // The subscription and the found devices are kept for the gateway lifetime, so a repeated
@@ -125,25 +151,36 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             {
                 _mqttTransport.OnMessageReceived += OnMqttMessageReceived;
                 _subscribed = true;
+                _availabilityLoop = Task.Run(() => RunAvailabilityLoopAsync(_lifetimeToken));
             }
 
             await DiscoverZigbeeDevices().ConfigureAwait(false);
             ThrowIfInitializationFailed();
-            _lifetimeToken.ThrowIfCancellationRequested();
+            discoveryCancellation.Token.ThrowIfCancellationRequested();
             await DiscoverBleDevices().ConfigureAwait(false);
-            _lifetimeToken.ThrowIfCancellationRequested();
+            discoveryCancellation.Token.ThrowIfCancellationRequested();
             await DiscoverMeshDevices().ConfigureAwait(false);
             ThrowIfInitializationFailed();
+            discoveryCancellation.Token.ThrowIfCancellationRequested();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException(cancellationToken);
         }
         finally
         {
-            lock (_initializationLock) ClearInitializationBuffers();
-            _discoveryLock.Release();
+            if (acquired)
+            {
+                lock (_initializationLock) ClearInitializationBuffers();
+                Volatile.Write(ref _discoveryCancellation, null);
+                _discoveryLock.Release();
+            }
         }
     }
 
     private void OnMqttMessageReceived(string topic, string msg)
     {
+        MiHomeMetrics.RecordMessageReceived("Mqtt");
         Logger.LogDebug("{Topic} --> {Message}", topic, msg);
 
         string actionField;
@@ -157,6 +194,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                 actionField = "method";
                 break;
             default:
+                MiHomeMetrics.RecordMessageDropped("Mqtt", "unsupported_topic");
                 Logger.LogWarning("Topic '{Topic}' is not supported. Please contribute to support.", topic);
                 return;
         }
@@ -169,6 +207,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             if (!_supportedActionProcessors.TryGetValue(action, out var processor))
             {
                 if (action is "write_ack" or "write_rsp") return;
+                MiHomeMetrics.RecordMessageDropped("Mqtt", "malformed");
                 Logger.LogWarning("Command/Method '{Action}' is unknown. Please contribute to support.", action);
                 return;
             }
@@ -192,6 +231,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                     var bytes = Encoding.UTF8.GetByteCount(msg);
                     if (_initializingMessages >= MaxInitializationMessages || bytes > MaxInitializationBytes - _initializingBytes)
                     {
+                        MiHomeMetrics.RecordMessageDropped("Mqtt", "buffer_full");
                         _initializationFailure.TrySetResult(new IOException("MQTT discovery buffer is full. Reports were lost; retry discovery."));
                         foreach (var queue in _initializingDevices.Values) queue.Clear();
                         _initializingMessages = 0;
@@ -210,9 +250,10 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
     protected virtual async Task DiscoverZigbeeDevices()
     {
+        var cancellationToken = GetDiscoveryToken();
         var zigbeeDeviceList = await (_devicesDiscoverer is IAsyncDevicesDiscoverer asyncDiscoverer
-            ? asyncDiscoverer.DiscoverZigBeeDevicesAsync(_lifetimeToken)
-            : RunBlockingAsync(_devicesDiscoverer.DiscoverZigBeeDevices)).ConfigureAwait(false);
+            ? asyncDiscoverer.DiscoverZigBeeDevicesAsync(cancellationToken)
+            : RunBlockingAsync(_devicesDiscoverer.DiscoverZigBeeDevices, cancellationToken)).ConfigureAwait(false);
 
         if (zigbeeDeviceList.Count == 0)
         {
@@ -235,6 +276,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             if (!ProtocolDeviceRegistry.TryCreate(
                 DeviceProtocol.LumiMqtt, model, did, 0, LoggerFactory, out var mihomeDevice))
             {
+                MiHomeMetrics.RecordMessageDropped("Mqtt", "unsupported_model");
                 Logger.LogWarning("Device '{Model}' is not supported yet. Please contribute to support", model);
                 continue;
             }
@@ -249,7 +291,7 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             try
             {
                 if (props.Length > 0)
-                    await ReadInitialDevicePropertiesAsync(did, props, mappedDevice.SetInitialProperty).ConfigureAwait(false);
+                    await ReadInitialDevicePropertiesAsync(did, props, mappedDevice.SetInitialProperty, cancellationToken).ConfigureAwait(false);
                 ThrowIfInitializationFailed();
             }
             catch (Exception failure)
@@ -258,9 +300,11 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                 throw;
             }
 
+            mihomeDevice.EventSink = RaiseDeviceEventAsync;
+            mihomeDevice.MarkAdded(MessageReception.UtcNow);
             AddDevice(did, mihomeDevice);
 
-            await NotifyDiscoveredAsync(mihomeDevice).ConfigureAwait(false);
+            await NotifyDiscoveredAsync(mihomeDevice, cancellationToken).ConfigureAwait(false);
             lock (_initializationLock)
             {
                 if (_initializingDevices.TryGetValue(did, out var pending))
@@ -278,13 +322,13 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
         }
     }
 
-    private async Task NotifyDiscoveredAsync(GatewaySubDeviceBase device)
+    private async Task NotifyDiscoveredAsync(GatewaySubDeviceBase device, CancellationToken cancellationToken)
     {
         var failure = _initializationFailure.Task;
         var handlers = OnDeviceDiscoveredAsync;
         // A subscriber can block before returning its Task. Keep the discovery failure wait independent.
         var notification = Task.Run(() => AsyncEvents.InvokeAsync(handlers, handler => handler(device),
-            exception => Logger.LogError(exception, "Device discovery subscriber failed."), _lifetimeToken), _lifetimeToken);
+            exception => Logger.LogError(exception, "Device discovery subscriber failed."), cancellationToken, this), cancellationToken);
         await Task.WhenAny(notification, failure).ConfigureAwait(false);
         ThrowIfInitializationFailed();
         await notification.ConfigureAwait(false);
@@ -304,12 +348,17 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     }
 
     // Custom synchronous discoverers run on the thread pool to keep the caller responsive.
-    private Task<T> RunBlockingAsync<T>(Func<T> read) => Task.Run(read, _lifetimeToken);
+    private CancellationToken GetDiscoveryToken() =>
+        Volatile.Read(ref _discoveryCancellation)?.Token ?? _lifetimeToken;
 
-    private async Task ReadInitialDevicePropertiesAsync(string did, string[] properties, Action<string, JsonNode> setProperty)
+    private Task<T> RunBlockingAsync<T>(Func<T> read, CancellationToken cancellationToken) => Task.Run(read, cancellationToken);
+
+    private async Task ReadInitialDevicePropertiesAsync(string did, string[] properties, Action<string, JsonNode> setProperty,
+        CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         object[] request = [did, .. properties];
-        var response = await SendPropertyRequestAsync(did, request).ConfigureAwait(false);
+        var response = await SendPropertyRequestAsync(did, request, cancellationToken).ConfigureAwait(false);
         if (response is null) return;
 
         if (!IsSuccessfulMiioResponse(response))
@@ -331,8 +380,9 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
         for (var i = 0; i < properties.Length; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             ThrowIfInitializationFailed();
-            response = await SendPropertyRequestAsync(did, [did, properties[i]]).ConfigureAwait(false);
+            response = await SendPropertyRequestAsync(did, [did, properties[i]], cancellationToken).ConfigureAwait(false);
             if (response is not null && TryGetMiioResultArray(response, out results) && results.Count > 0)
             {
                 setProperty(properties[i], results[0]);
@@ -348,11 +398,11 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     // The transport repeats lost requests itself, one call is enough. A device whose properties cannot be read
     // is still added: its values arrive with its next report, one silent device must not stop the discovery
     // null when the gateway did not answer
-    private async Task<JsonNode> SendPropertyRequestAsync(string did, object[] parameters)
+    private async Task<JsonNode> SendPropertyRequestAsync(string did, object[] parameters, CancellationToken cancellationToken)
     {
         try
         {
-            return JsonNode.Parse(await RequestArrayAsync("get_device_prop", parameters).ConfigureAwait(false));
+            return JsonNode.Parse(await RequestArrayAsync("get_device_prop", cancellationToken, parameters).ConfigureAwait(false));
         }
         catch (TimeoutException e)
         {
@@ -387,14 +437,17 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
 
     protected virtual async Task DiscoverBleDevices()
     {
+        var cancellationToken = GetDiscoveryToken();
         foreach (var device in await (_devicesDiscoverer is IAsyncDevicesDiscoverer asyncDiscoverer
-            ? asyncDiscoverer.DiscoverBleDevicesAsync(_lifetimeToken)
-            : RunBlockingAsync(_devicesDiscoverer.DiscoverBleDevices)).ConfigureAwait(false))
+            ? asyncDiscoverer.DiscoverBleDevicesAsync(cancellationToken)
+            : RunBlockingAsync(_devicesDiscoverer.DiscoverBleDevices, cancellationToken)).ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (IsKnownDevice(device.Did)) continue;
 
             if (!ProtocolDeviceRegistry.TryCreateBle(device.Pdid, device.Did, LoggerFactory, out var protocolDevice))
             {
+                MiHomeMetrics.RecordMessageDropped("Mqtt", "unsupported_model");
                 Logger.LogWarning("Device with pdid '{Pdid}' is not supported yet. Please contribute to support.", device.Pdid);
                 continue;
             }
@@ -403,21 +456,26 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
                 throw new InvalidOperationException($"BLE device with pdid '{device.Pdid}' has no MAC address mapping.");
 
             bleDevice.SetMacAddress(DecodeMacAddress(device.Mac));
+            protocolDevice.EventSink = RaiseDeviceEventAsync;
+            protocolDevice.MarkAdded(MessageReception.UtcNow);
             AddDevice(device.Did, protocolDevice);
             Logger.LogInformation("Device '{Model}' with did '{Did}' has been successfully discovered", protocolDevice.GetType().Name, device.Did);
-            await NotifyDiscoveredAsync(protocolDevice).ConfigureAwait(false);
+            await NotifyDiscoveredAsync(protocolDevice, cancellationToken).ConfigureAwait(false);
         }
     }
     protected virtual async Task DiscoverMeshDevices()
     {
+        var cancellationToken = GetDiscoveryToken();
         foreach (var device in await (_devicesDiscoverer is IAsyncDevicesDiscoverer asyncDiscoverer
-            ? asyncDiscoverer.DiscoverMeshDevicesAsync(_lifetimeToken)
-            : RunBlockingAsync(_devicesDiscoverer.DiscoverMeshDevices)).ConfigureAwait(false))
+            ? asyncDiscoverer.DiscoverMeshDevicesAsync(cancellationToken)
+            : RunBlockingAsync(_devicesDiscoverer.DiscoverMeshDevices, cancellationToken)).ConfigureAwait(false))
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (IsKnownDevice(device.Did)) continue;
 
             if (!ProtocolDeviceRegistry.TryCreateMesh(device.Pdid, device.Did, LoggerFactory, out var protocolDevice))
             {
+                MiHomeMetrics.RecordMessageDropped("Mqtt", "unsupported_model");
                 Logger.LogWarning("Mesh device with pdid '{Pdid}' is not supported yet. Please contribute to support.", device.Pdid);
                 continue;
             }
@@ -428,9 +486,11 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             // mesh_device_v3 stores MAC already as aa:bb:cc:dd:ee:ff, unlike gateway_authed_table
             meshDevice.SetMacAddress(device.Mac);
             meshDevice.SetMqttTransport(_mqttTransport);
+            protocolDevice.EventSink = RaiseDeviceEventAsync;
+            protocolDevice.MarkAdded(MessageReception.UtcNow);
             AddDevice(device.Did, protocolDevice);
             Logger.LogInformation("Mesh device '{Model}' with did '{Did}' has been successfully discovered", protocolDevice.GetType().Name, device.Did);
-            await NotifyDiscoveredAsync(protocolDevice).ConfigureAwait(false);
+            await NotifyDiscoveredAsync(protocolDevice, cancellationToken).ConfigureAwait(false);
         }
     }
     public string DecodeMacAddress(string mac)
@@ -470,7 +530,38 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
     }
     private protected static ILoggerFactory ResolveLoggerFactory(ILoggerFactory loggerFactory) => MiHomeLogging.Resolve(loggerFactory);
     private bool IsKnownDevice(string did) => _devices.Contains(did);
-    private void AddDevice(string did, GatewaySubDeviceBase device) => _devices.Add(did, device, _lifetimeToken);
+    private void AddDevice(string did, GatewaySubDeviceBase device)
+    {
+        device.EventOwner = this;
+        _devices.Add(did, device, _lifetimeToken);
+    }
+
+    internal void CheckAvailability()
+    {
+        if (_lifetimeToken.IsCancellationRequested) return;
+        foreach (var device in _devices.ToList())
+        {
+            try { device.CheckAvailability(UtcNow()); }
+            catch (Exception exception)
+            {
+                Logger.LogError(exception, "Failed to check availability for device '{DeviceId}'.", device.DeviceId);
+            }
+        }
+    }
+
+    private async Task RunAvailabilityLoopAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (true)
+            {
+                await Task.Delay(AvailabilityCheckInterval, cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                CheckAvailability();
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
+    }
 
     /// <summary>
     /// Sub-devices found so far
@@ -498,5 +589,48 @@ public abstract class MqttGatewayBase : MiotGenericDevice, IDisposable
             _lifetime.Dispose,
             _mqttTransport.Dispose,
             () => base.Dispose());
+    }
+
+    /// <summary>
+    /// Disposes the gateway and completes when its background work has stopped and running event handlers have returned;
+    /// no event handler is invoked after this method completes. Called from inside an event handler of this gateway or
+    /// one of its devices, it does not wait for handlers.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+        var devices = _devices.ToList();
+        Dispose();
+
+        var backgroundTasks = new List<Task> { _availabilityLoop };
+        if (_mqttTransport is MqttTransport mqttTransport)
+            backgroundTasks.Add(mqttTransport.Completion);
+        await WaitForTasksAsync(backgroundTasks).ConfigureAwait(false);
+
+        if (AsyncEvents.IsInsideEventHandlerFor(this)) return;
+        await WaitForTasksAsync(_pendingEvents.Keys.ToArray().Concat(devices.Select(device => device.WhenEventsCompleted())))
+            .ConfigureAwait(false);
+    }
+
+    void IEventTaskTracker.TrackEvent(Task task) => TrackEvent(task);
+
+    private void TrackEvent(Task task)
+    {
+        if (task.IsCompleted) return;
+        _pendingEvents.TryAdd(task, 0);
+        _ = task.ContinueWith(completed => _pendingEvents.TryRemove(completed, out _),
+            CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+    }
+
+    private Task TrackAndReturn(Task task)
+    {
+        TrackEvent(task);
+        return task;
+    }
+
+    private async Task WaitForTasksAsync(IEnumerable<Task> tasks)
+    {
+        try { await Task.WhenAll(tasks).ConfigureAwait(false); }
+        catch (OperationCanceledException) { }
+        catch (Exception exception) { Logger.LogDebug(exception, "A gateway background task failed during disposal."); }
     }
 }

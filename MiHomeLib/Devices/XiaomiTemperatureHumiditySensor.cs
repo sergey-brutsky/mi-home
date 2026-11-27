@@ -8,7 +8,7 @@ namespace MiHomeLib.Devices;
 /// <summary>WSDCGQ01LM temperature and humidity sensor, shared by Xiaomi Gateway 2 and Lumi MQTT gateways.</summary>
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
-public sealed class XiaomiTemperatureHumiditySensor : LumiBatteryDeviceBase
+public sealed class XiaomiTemperatureHumiditySensor : LumiBatteryDeviceBase, ITemperatureSensor, IHumiditySensor
 {
     public const string MARKET_MODEL = "WSDCGQ01LM";
     public const string XIAOMI_GATEWAY2_MODEL = "sensor_ht";
@@ -52,12 +52,12 @@ public sealed class XiaomiTemperatureHumiditySensor : LumiBatteryDeviceBase
 
     internal void UpdateTemperature(float value)
     {
-        SetAndRaise(Temperature, () => Temperature = value, OnTemperatureChangeAsync);
+        SetAndRaise(nameof(OnTemperatureChangeAsync), Temperature, () => Temperature = value, OnTemperatureChangeAsync);
     }
 
     internal void UpdateHumidity(float value)
     {
-        SetAndRaise(Humidity, () => Humidity = value, OnHumidityChangeAsync);
+        SetAndRaise(nameof(OnHumidityChangeAsync), Humidity, () => Humidity = value, OnHumidityChangeAsync);
     }
 
 

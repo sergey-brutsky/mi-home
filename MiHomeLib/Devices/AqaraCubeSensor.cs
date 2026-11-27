@@ -11,7 +11,7 @@ namespace MiHomeLib.Devices;
 [ProtocolDeviceModel(DeviceProtocol.XiaomiGateway2, XIAOMI_GATEWAY2_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL)]
 [ProtocolDeviceModel(DeviceProtocol.LumiMqtt, LUMI_MQTT_MODEL_LEGACY)]
-public sealed class AqaraCubeSensor : ProtocolMappedDeviceBase
+public sealed class AqaraCubeSensor : ProtocolMappedDeviceBase, IBatteryPowered
 {
     public const string MARKET_MODEL = "MFKZQ01LM";
     public const string XIAOMI_GATEWAY2_MODEL = "sensor_cube.aqgl01";
@@ -137,7 +137,7 @@ public sealed class AqaraCubeSensor : ProtocolMappedDeviceBase
             value => UpdateVoltage(value.ReadInt32() / 1000f),
             value => Voltage = value.GetValue<int>() / 1000f);
         map.LumiMqtt("8.0.2001", "battery",
-            value => SetAndRaise(BatteryPercent, () => BatteryPercent = value.ReadByte(), OnBatteryPercentChangeAsync),
+            value => SetAndRaise(nameof(OnBatteryPercentChangeAsync), BatteryPercent, () => BatteryPercent = value.ReadByte(), OnBatteryPercentChangeAsync),
             value => BatteryPercent = checked((byte)value.GetValue<int>()));
     }
 
@@ -159,7 +159,7 @@ public sealed class AqaraCubeSensor : ProtocolMappedDeviceBase
         UpdateStatus(action.Value);
     }
 
-    private void UpdateVoltage(float value) => SetAndRaise(Voltage, () => Voltage = value, OnVoltageChangeAsync);
+    private void UpdateVoltage(float value) => SetAndRaise(nameof(OnVoltageChangeAsync), Voltage, () => Voltage = value, OnVoltageChangeAsync);
 
 
     // "shift,value", e.g. "90,500"
@@ -181,7 +181,7 @@ public sealed class AqaraCubeSensor : ProtocolMappedDeviceBase
     private void UpdateStatus(CubeStatus status)
     {
         Status = status;
-        RaiseEvent(OnStatusChangedAsync, status);
+        RaiseEvent(nameof(OnStatusChangedAsync), OnStatusChangedAsync, status);
     }
 
     public override string ToString()

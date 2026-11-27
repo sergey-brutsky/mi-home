@@ -152,6 +152,7 @@ internal sealed class MqttTransport : IMqttTransport, IMqttConnectionEvents, IMq
         }
         _logger.LogWarning(exception, "MQTT connection to the gateway is lost, reconnecting");
         _commands.Disconnect();
+        MiHomeMetrics.RecordMqttConnectionLost();
         RaiseConnectionEvent(ConnectionLost);
         lock (_writeLock)
         {
@@ -188,6 +189,7 @@ internal sealed class MqttTransport : IMqttTransport, IMqttConnectionEvents, IMq
                     _connection = connection;
                 }
                 _logger.LogInformation("MQTT connection to the gateway is restored");
+                MiHomeMetrics.RecordMqttConnectionRestored();
                 RaiseConnectionEvent(ConnectionRestored);
                 lock (_writeLock)
                 {
