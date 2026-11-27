@@ -119,6 +119,10 @@ internal sealed class ProtocolDeviceMap
         return false;
     }
 
+    /// <summary>Keys mapped for the protocol, used by tests to feed every value a device handles</summary>
+    public string[] GetMappedKeys(DeviceProtocol protocol) =>
+        _mappings.TryGetValue(protocol, out var protocolMappings) ? protocolMappings.Keys.ToArray() : [];
+
     public string[] GetInitialPropertyNames() => _initialProperties.Select(x => x.PropertyName).ToArray();
 
     public void SetInitialProperties(JsonNode[] values)

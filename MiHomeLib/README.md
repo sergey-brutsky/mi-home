@@ -1,13 +1,10 @@
-## 3.3.0
+## 3.3.1
 
-- Added miIO request duration/retry, MQTT connection, and gateway message metrics, plus `MiHomeDiagnostics.MeterName`.
-- Added a unified `DeviceEvent` stream on both gateway families and device/gateway availability tracking; Zigbee timeout defaults to 3 hours, and Gateway 2 availability is unknown until its first message.
-- Added capability interfaces for temperature, humidity, pressure, battery, link quality, power metering, contact, smoke, and switching; dual-channel controls and motion behavior remain device-specific.
-- Added cancellation overloads for gateway discovery, miIO device-id lookup, and miIO network discovery; other device operations are unchanged.
-- Added independent loopback emulators, recorded-scenario playback, real-socket integration tests, and seeded parser/network fuzz tests (2,000 iterations by default; `MIHOME_FUZZ_ITERATIONS` overrides this).
-- MQTT checks declared packet size before allocating the body; malformed or oversized packets trigger reconnect, after which valid messages are received.
-- Added a Worker Service sample for gateway registration, device events, and graceful shutdown.
-- Known limitations: invalid miIO response length/checksum can fail the active request; malformed SQLite databases still throw `InvalidDataException`.
+- Fixed: a miIO request no longer fails when a corrupted or non-miIO datagram arrives before the device answer; such datagrams are skipped. When only answers with an invalid checksum arrive (usually a wrong token), the request still fails with the checksum error, now after the response timeout instead of immediately.
+- Extended robustness tests: invalid values for every mapped value of every supported device, seeded random MQTT packets, and long or corrupted miIO datagrams.
+- The 3.3.0 public API is recorded as shipped, and package validation now compares against 3.3.0. No public API changes.
+- The `MiotProperty` generator is documented as a tool for new MIoT devices; existing devices keep their hand-written methods.
+- Known limitation: malformed SQLite databases still throw `InvalidDataException`.
 
 Supported targets: .NET Standard 2.0, .NET Framework 4.6.1 and 4.6.2, and .NET 10.
 

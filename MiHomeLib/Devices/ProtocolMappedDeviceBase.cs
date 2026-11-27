@@ -36,6 +36,10 @@ public abstract class ProtocolMappedDeviceBase : GatewaySubDeviceBase
 
     internal string[] GetInitialPropertyNames() => _map.GetInitialPropertyNames();
 
+    internal string[] GetMappedKeys() => _map?.GetMappedKeys(_protocol) ?? [];
+
+    internal bool UsesMiSpecBle => _map?.UsesMiSpecBle ?? false;
+
     internal void SetInitialProperties(JsonNode[] values) => _map.SetInitialProperties(values);
 
     internal void SetInitialProperty(string name, JsonNode value) => _map.SetInitialProperty(name, value);

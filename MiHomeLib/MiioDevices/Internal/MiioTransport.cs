@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -247,6 +248,9 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
             if (!repeat) attemptLimit = 1;
             var sentIds = new HashSet<int>();
             var attempts = 0;
+            // A response that fails the checksum usually means a wrong token. It is kept to be reported
+            // if no valid response arrives, so a single corrupted datagram does not fail the request.
+            Exception invalidResponse = null;
 
             while (GetUtcNow() < deadline && (!attemptLimit.HasValue || attempts < attemptLimit.Value))
             {
@@ -277,8 +281,17 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
                 {
                     if (received.Length <= HELLO_LENGTH) continue; // a late answer to the hello
 
-                    var packet = new MiioPacket(received);
-                    var response = packet.GetResponseData(_cipher);
+                    MiioPacket packet;
+                    try { packet = new MiioPacket(received); }
+                    catch (InvalidDataException) { continue; } // not a miio packet: wrong magic or length
+
+                    string response;
+                    try { response = packet.GetResponseData(_cipher); }
+                    catch (Exception exception) when (exception is InvalidDataException or CryptographicException)
+                    {
+                        invalidResponse = exception;
+                        continue;
+                    }
                     if (!TryReadResponseId(response, out var responseId)) continue;
                     // A numbered request requires an actual matching id, including ids of its earlier attempts.
                     // Raw requests deliberately sent without an id retain compatibility with unnumbered object responses.
@@ -289,6 +302,8 @@ internal partial class MiioTransport : IMiioTransport, IMiioRequests
                 }
             }
 
+            if (invalidResponse is not null)
+                ExceptionDispatchInfo.Capture(invalidResponse).Throw();
             if (!repeat && attempts > 0)
                 throw new TimeoutException(CreateTimeoutException(attempts).Message +
                     " The command was sent once; its outcome is unknown. Check device state before sending it again.");

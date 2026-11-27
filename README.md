@@ -358,3 +358,6 @@ To add a MIoT device, download its instance JSON from `https://miot-spec.org/mio
 then run `dotnet run --project tools/MiotSpecImporter -- <path-to-instance.json>`. The importer works offline and prints
 `MiotProperty` attributes. Add them to a new `partial` class derived from `MiotGenericDevice`; implement enum properties
 and MIoT actions manually, then add tests for the device.
+
+The `MiotProperty` generator is meant for new devices only. Existing MIoT devices keep their hand-written
+`Get`/`Set` methods and are not converted to it.

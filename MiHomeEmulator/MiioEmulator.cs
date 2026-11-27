@@ -61,6 +61,9 @@ public sealed class MiioEmulator : IAsyncDisposable
         }
     }
 
+    /// <summary>Sends responses with a broken checksum, as a client configured with a wrong token would see them.</summary>
+    public bool CorruptResponseChecksums { get; set; }
+
     public IReadOnlyList<JsonObject> ReceivedRequests
     {
         get
@@ -255,6 +258,7 @@ public sealed class MiioEmulator : IAsyncDisposable
         _token.CopyTo(packet, 16);
         encrypted.CopyTo(packet, HeaderLength);
         MD5.HashData(packet).CopyTo(packet, 16);
+        if (CorruptResponseChecksums) packet[16] ^= 0xFF;
         return packet;
     }
 

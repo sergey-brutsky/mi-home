@@ -91,6 +91,97 @@ public sealed class ParserFuzzTests
         device.Humidity.Should().Be(41.2f);
     }
 
+    private static readonly string[] ValueReplacements =
+    [
+        "null", "\"\"", "\"abc\"", "1e309", "-1", "2147483648", "[]", "{}", "true", "1.5",
+        "0", "1", "\"1\"", "\"ff\"", "\"0102030405060708\"", "[{\"piid\":1,\"value\":1}]",
+    ];
+
+    public static IEnumerable<object[]> MappedDevices()
+    {
+        foreach (var entry in ProtocolDeviceCatalog.Entries)
+        foreach (ProtocolDeviceModelAttribute metadata in entry.DeviceType.GetCustomAttributes(typeof(ProtocolDeviceModelAttribute), false))
+            yield return [metadata.Protocol.ToString(), metadata.Model, metadata.Pdid];
+    }
+
+    [Theory]
+    [MemberData(nameof(MappedDevices))]
+    public void Every_mapped_device_value_survives_invalid_values(string protocolName, string model, int pdid)
+    {
+        var protocol = Enum.Parse<DeviceProtocol>(protocolName);
+        using var device = CreateDevice(protocol, model, pdid);
+        var keys = device.GetMappedKeys();
+        keys.Should().NotBeEmpty();
+        var random = new Random(SeededMutator.Seed);
+
+        foreach (var key in keys)
+        {
+            foreach (var value in ValueReplacements)
+                ParseWithoutException(device, protocol, key, value, $"{model}: '{key}' = {value}");
+
+            // Seeded random numbers and hex-like strings on top of the fixed cases
+            for (var iteration = 0; iteration < Math.Max(1, SeededMutator.Iterations / 100); iteration++)
+            {
+                var value = random.Next(3) switch
+                {
+                    0 => random.Next(int.MinValue, int.MaxValue).ToString(System.Globalization.CultureInfo.InvariantCulture),
+                    1 => JsonSerializer.Serialize(RandomHex(random)),
+                    _ => JsonSerializer.Serialize(SeededMutator.RandomText(random, 20)),
+                };
+                ParseWithoutException(device, protocol, key, value,
+                    $"seed {SeededMutator.Seed}, iteration {iteration}, {model}: '{key}' = {value}");
+            }
+        }
+    }
+
+    private static ProtocolMappedDeviceBase CreateDevice(DeviceProtocol protocol, string model, int pdid)
+    {
+        var created = protocol switch
+        {
+            DeviceProtocol.LumiBle => ProtocolDeviceRegistry.TryCreateBle(pdid, "device", NullLoggerFactory.Instance, out var device) ? device : null,
+            DeviceProtocol.LumiMesh => ProtocolDeviceRegistry.TryCreateMesh(pdid, "device", NullLoggerFactory.Instance, out var device) ? device : null,
+            _ => ProtocolDeviceRegistry.TryCreate(protocol, model, "device", 1, NullLoggerFactory.Instance, out var device) ? device : null,
+        };
+        created.Should().NotBeNull($"{protocol} model '{model}' is registered");
+        return (ProtocolMappedDeviceBase)created;
+    }
+
+    private static void ParseWithoutException(ProtocolMappedDeviceBase device, DeviceProtocol protocol, string key, string value, string context)
+    {
+        try { device.ParseData(BuildPayload(device, protocol, key, value)); }
+        catch (Exception exception)
+        {
+            Assert.Fail($"{context}: {exception}");
+        }
+    }
+
+    // The payload a gateway passes to the device for one value, in the wire format of the protocol
+    private static string BuildPayload(ProtocolMappedDeviceBase device, DeviceProtocol protocol, string key, string value)
+    {
+        if (protocol == DeviceProtocol.XiaomiGateway2)
+            return $"{{{JsonSerializer.Serialize(key)}:{value}}}";
+
+        var parts = key.Split(':');
+        if (parts.Length == 3 && parts[0] == "mi")
+            return $"[{{\"siid\":{parts[1]},\"piid\":{parts[2]},\"value\":{value}}}]";
+        if (parts.Length == 3 && parts[0] == "event")
+        {
+            var eiid = parts[2] == "*" ? "1" : parts[2];
+            return $"[{{\"siid\":{parts[1]},\"eiid\":{eiid},\"arguments\":{value}}}]";
+        }
+        if (protocol == DeviceProtocol.LumiBle && !device.UsesMiSpecBle)
+            return $"{{\"evt\":[{{\"eid\":{key},\"edata\":{value}}}]}}";
+
+        return $"[{{\"res_name\":{JsonSerializer.Serialize(key)},\"value\":{value}}}]";
+    }
+
+    private static string RandomHex(Random random)
+    {
+        var bytes = new byte[random.Next(1, 9)];
+        random.NextBytes(bytes);
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
     [Fact]
     public void Sqlite_reader_rejects_mutated_databases_quickly_with_documented_format_errors()
     {
